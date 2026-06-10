@@ -68,11 +68,13 @@
     box-shadow:0 7px 0 var(--gold-d), 0 14px 22px -8px rgba(0,0,0,.5), inset 0 2px 3px rgba(255,255,255,.7);
     transition:transform .09s ease, box-shadow .09s ease}
   .play .ico{display:flex;margin-left:3px}
+  .play .ico-pause{display:none}
+  .play.playing .ico{display:none}.play.playing .ico-pause{display:flex}
   .play:active{transform:translateY(6px);box-shadow:0 1px 0 var(--gold-d),0 6px 12px -8px rgba(0,0,0,.5),inset 0 2px 3px rgba(255,255,255,.7)}
   .play.playing{animation:glow 1s ease-in-out infinite}
   @keyframes glow{50%{box-shadow:0 7px 0 var(--gold-d),0 0 26px 2px rgba(255,210,63,.7),inset 0 2px 3px rgba(255,255,255,.7)}}
   .play .spinner{display:none;width:28px;height:28px;border:3px solid rgba(74,53,0,.25);border-top-color:var(--goldink);border-radius:50%;animation:spin .8s linear infinite}
-  .play.loading .spinner{display:block}.play.loading .ico{display:none}
+  .play.loading .spinner{display:block}.play.loading .ico,.play.loading .ico-pause{display:none}
   @keyframes spin{to{transform:rotate(360deg)}}
   .pcol{flex:1;min-width:0}
 
@@ -85,6 +87,8 @@
   .track .goalL,.track .goalR{position:absolute;top:9px;bottom:9px;width:6px;background:#fff;border-radius:3px;box-shadow:0 0 6px rgba(255,255,255,.6)}
   .track .goalL{left:5px}.track .goalR{right:5px}
   .ballpos{position:absolute;top:50%;left:0;transform:translate(-50%,-50%);transition:left .05s linear}
+  .playhead{position:absolute;top:5px;bottom:5px;width:3px;border-radius:2px;background:#fff;box-shadow:0 0 9px rgba(255,210,63,.95);transform:translateX(-50%);display:none;z-index:2}
+  .playhead.show{display:block}
   .ball{width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 36% 30%,#fff,#eee 55%,#cfd6cf);
     box-shadow:0 3px 6px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;font-size:15px}
   .ball.kick{animation:roll .9s linear}
@@ -212,6 +216,7 @@
     <div class="player">
       <button class="play" id="playBtn" aria-label="Play anthem clip">
         <span class="ico"><svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+        <span class="ico-pause"><svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></span>
         <span class="spinner" aria-hidden="true"></span>
       </button>
       <div class="pcol">
@@ -219,6 +224,7 @@
           <div class="stripes"></div>
           <div class="fill" id="fill"></div>
           <div class="goalL"></div><div class="goalR"></div>
+          <div class="playhead" id="playhead"></div>
           <div class="ballpos" id="ballpos"><div class="ball" id="ball">⚽</div></div>
         </div>
         <div class="labelrow"><span id="clipLabel">1 second unlocked</span><span id="srcBadge"></span></div>
@@ -324,40 +330,97 @@ const STAGES=[1,2,4,7,11,16];
 const AUDIO_BASE="https://archive.org/download/us-navy-band-national-anthems-public-domain/";
 const RM=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const audioEl=new Audio();audioEl.preload="auto";
-let stopTimer=null;
 const SVG_SPK='<svg class="si" viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9z"/><path d="M16 8c1.6 1.4 1.6 6.6 0 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 const SVG_NOTE='<svg class="si" viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M9 17.5a2.5 2.5 0 11-1.7-2.36V7l9-1.8v8.3A2.5 2.5 0 1115 13V8.2L9 9.4z"/></svg>';
 function setSource(kind){const el=document.getElementById("srcBadge");if(!el)return;
   el.innerHTML=kind==="synth"?(SVG_NOTE+"Synth"):(SVG_SPK+"Live recording");}
 function setPlaying(on){document.getElementById("playBtn").classList.toggle("playing",on);}
 function setLoading(on){document.getElementById("playBtn").classList.toggle("loading",on);}
-audioEl.addEventListener("error",()=>{if(current){current._audioOk=false;setSource("synth");setLoading(false);}});
-audioEl.addEventListener("ended",()=>setPlaying(false));
-audioEl.addEventListener("pause",()=>setPlaying(false));
+let wantPlay=false;
+audioEl.addEventListener("error",()=>{if(current){current._audioOk=false;setSource("synth");setLoading(false);
+  if(wantPlay&&pb.src==="real")startSynth(0);}});
+audioEl.addEventListener("ended",()=>stopPlayback());
 audioEl.addEventListener("waiting",()=>{if(wantPlay)setLoading(true);});
 audioEl.addEventListener("playing",()=>setLoading(false));
 audioEl.addEventListener("canplay",()=>setLoading(false));
-let wantPlay=false;
-function playClip(){
-  const stage=Math.min(state.attempt,5);const unlocked=STAGES[stage];
-  setPlaying(true);animateBall(stage);
-  if(current.audio&&current._audioOk!==false)playReal(unlocked);else playSynth(unlocked);
+
+/* --- unified playback controller: play / pause / resume, real-time progress,
+       clip-limited during the game, full anthem once finished --- */
+const pb={src:null,playing:false,paused:false,offset:0,limit:0,full:false,t0:0,raf:0};
+function fmtT(s){if(!isFinite(s)||isNaN(s))return"…";s=Math.max(0,s);
+  if(s<60)return Math.round(s)+"s";return Math.floor(s/60)+":"+String(Math.floor(s%60)).padStart(2,"0");}
+function clipIdleLabel(){const secs=STAGES[Math.min(state.attempt,5)];
+  return state.finished?(state.won?"Solved! 🎉":"Out of guesses"):(secs+(secs===1?" second":" seconds")+" unlocked");}
+function pbElapsed(){
+  if(pb.src==="real")return audioEl.currentTime||0;
+  return Math.max(0,pb.offset+(pb.playing&&actx?actx.currentTime-pb.t0:0));
 }
-function playReal(unlocked){
-  clearTimeout(stopTimer);wantPlay=true;setLoading(true);
-  try{audioEl.pause();audioEl.currentTime=0;}catch(e){}
-  const onPlaying=()=>{setLoading(false);clearTimeout(stopTimer);stopTimer=setTimeout(()=>{try{audioEl.pause();}catch(e){}setPlaying(false);wantPlay=false;},unlocked*1000+40);audioEl.removeEventListener("playing",onPlaying);};
-  audioEl.addEventListener("playing",onPlaying);
-  setSource("real");
+function pbLimit(){return pb.full?(pb.src==="real"?(audioEl.duration||Infinity):current.sched.total):pb.limit;}
+function pbTick(){
+  if(!pb.playing&&!pb.paused)return;
+  const el=pbElapsed(),lim=pbLimit();
+  const ph=document.getElementById("playhead");
+  const x0=geomX(0),xEnd=geomX(pb.full?1:fracFor(Math.min(state.attempt,5)));
+  const frac=isFinite(lim)&&lim>0?Math.min(1,Math.max(0,el/lim)):0;
+  ph.style.left=(x0+(xEnd-x0)*frac)+"px";
+  document.getElementById("clipLabel").textContent=(pb.playing?"▶ ":"⏸ ")+fmtT(el)+" / "+fmtT(lim);
+  if(pb.playing&&el>=lim-0.03){stopPlayback();return;}
+  pb.raf=requestAnimationFrame(pbTick);
+}
+function startPlayback(){
+  stopPlayback();
+  pb.full=state.finished; // game over → reveal the whole anthem
+  pb.limit=pb.full?Infinity:STAGES[Math.min(state.attempt,5)];
+  document.getElementById("playhead").classList.add("show");
+  if(current.audio&&current._audioOk!==false)startReal();else startSynth(0);
+}
+function startReal(){
+  pb.src="real";wantPlay=true;setLoading(true);setSource("real");
+  try{audioEl.currentTime=0;}catch(e){}
+  pb.playing=true;pb.paused=false;setPlaying(true);
   const pr=audioEl.play();
-  if(pr&&pr.catch)pr.catch(()=>{audioEl.removeEventListener("playing",onPlaying);setLoading(false);switchToSynth(unlocked);});
+  if(pr&&pr.catch)pr.catch(()=>{if(!wantPlay)return;setLoading(false);current._audioOk=false;setSource("synth");startSynth(0);});
+  cancelAnimationFrame(pb.raf);pb.raf=requestAnimationFrame(pbTick);
 }
-function switchToSynth(unlocked){current._audioOk=false;setSource("synth");playSynth(unlocked);}
-function playSynth(unlocked){
-  ensureCtx();stopAll();setLoading(false);
-  const begin=actx.currentTime+0.08;
-  current.sched.notes.forEach(n=>{if(n.start<unlocked)richNote(n.f,begin+n.start,Math.min(n.dur,unlocked-n.start));});
-  setTimeout(()=>setPlaying(false),unlocked*1000+120);
+function startSynth(offset){
+  pb.src="synth";ensureCtx();stopAll();setLoading(false);setSource("synth");
+  const begin=actx.currentTime+0.06;
+  current.sched.notes.forEach(n=>{
+    const end=n.start+n.dur;
+    if(end<=offset)return;
+    if(!pb.full&&n.start>=pb.limit)return;
+    const st=Math.max(n.start,offset);
+    const capped=pb.full?end:Math.min(end,pb.limit);
+    if(capped>st)richNote(n.f,begin+(st-offset),capped-st);
+  });
+  pb.t0=begin;pb.offset=offset;pb.playing=true;pb.paused=false;setPlaying(true);
+  cancelAnimationFrame(pb.raf);pb.raf=requestAnimationFrame(pbTick);
+}
+function pausePlayback(){
+  if(!pb.playing)return;
+  if(pb.src==="real"){try{audioEl.pause();}catch(e){}}
+  else{pb.offset=pbElapsed();stopAll();}
+  pb.playing=false;pb.paused=true;setPlaying(false);
+}
+function resumePlayback(){
+  if(!pb.paused)return;
+  if(pb.src==="real"){pb.playing=true;pb.paused=false;setPlaying(true);
+    const pr=audioEl.play();if(pr&&pr.catch)pr.catch(()=>{});}
+  else startSynth(pb.offset);
+}
+function stopPlayback(){
+  cancelAnimationFrame(pb.raf);
+  if(pb.src==="real"){try{audioEl.pause();}catch(e){}}
+  if(pb.src==="synth")stopAll();
+  pb.src=null;pb.playing=false;pb.paused=false;pb.offset=0;
+  wantPlay=false;setPlaying(false);setLoading(false);
+  const ph=document.getElementById("playhead");if(ph)ph.classList.remove("show");
+  const cl=document.getElementById("clipLabel");if(cl&&current)cl.textContent=clipIdleLabel();
+}
+function playClip(){
+  if(pb.playing){pausePlayback();return;} // the running tick loop flips the label to ⏸
+  if(pb.paused){resumePlayback();return;}
+  startPlayback();
 }
 /* progress = your 6 guesses marching toward the goal */
 function geomX(frac){const t=document.getElementById("track");const pad=14;const w=Math.max(40,t.clientWidth-pad*2);return pad+frac*w;}
@@ -594,7 +657,7 @@ function loadPuzzle(idx){
   puzzleIndex=((idx%PUZZLES.length)+PUZZLES.length)%PUZZLES.length;
   current=PUZZLES[puzzleIndex];current.sched=scheduleMelody(current.melody||[]);
   state={attempt:0,finished:false,won:false,results:[]};
-  clearTimeout(stopTimer);clearInterval(cdTimer);try{audioEl.pause();}catch(e){}wantPlay=false;setLoading(false);
+  stopPlayback();clearInterval(cdTimer);
   if(current.audio){current._audioOk=true;audioEl.src=AUDIO_BASE+encodeURI(current.audio);try{audioEl.load();}catch(e){}setSource("real");}
   else {current._audioOk=false;setSource("synth");}
   document.getElementById("guessInput").value="";syncClear();
@@ -605,8 +668,7 @@ function render(){
   document.getElementById("matchLabel").innerHTML=MODE==="daily"?("MATCH&nbsp;#"+matchNumber()):"🎯 PRACTICE";
   const stage=Math.min(state.attempt,5), secs=STAGES[stage];
   if(!state.finished)placeMarks(stage);
-  document.getElementById("clipLabel").textContent=
-    state.finished?(state.won?"Solved! 🎉":"Out of guesses"):(secs+(secs===1?" second":" seconds")+" unlocked");
+  if(!pb.playing&&!pb.paused)document.getElementById("clipLabel").textContent=clipIdleLabel();
   document.getElementById("attempts").textContent=state.finished?"":("Guess "+(state.attempt+1)+" / 6");
   const hbox=document.getElementById("hints");hbox.innerHTML="";
   for(let i=0;i<state.attempt&&i<current.hints.length;i++){const d=document.createElement("div");d.className="hint";d.innerHTML='<span class="rc"></span>'+current.hints[i];hbox.appendChild(d);}
@@ -634,13 +696,16 @@ function submitGuess(){
   if(!isKnownNation(val)){toast("Pick a country from the list");missFeedback();return;}
   inp.value="";syncClear();
   if(isCorrect(val)){state.results[state.attempt]={type:"correct",label:current.name};state.won=true;state.finished=true;state.attempt++;endGame();}
-  else{state.results[state.attempt]={type:"wrong",label:val};state.attempt++;missFeedback();if(state.attempt>=6){state.finished=true;endGame();}else playClip();}
+  else{state.results[state.attempt]={type:"wrong",label:val};state.attempt++;missFeedback();
+    if(state.attempt>=6){state.finished=true;endGame();}
+    else{stopPlayback();animateBall(Math.min(state.attempt,5));playClip();}}
   saveDaily();render();
 }
 function skip(){
   if(state.finished)return;
   state.results[state.attempt]={type:"skip",label:"Skipped"};state.attempt++;
-  if(state.attempt>=6){state.finished=true;endGame();}else playClip();
+  if(state.attempt>=6){state.finished=true;endGame();}
+  else{stopPlayback();animateBall(Math.min(state.attempt,5));playClip();}
   saveDaily();render();
 }
 function gridString(){return state.results.map(r=>r.type==="correct"?"🟩":r.type==="wrong"?"🟥":"⬛").join("");}
@@ -653,6 +718,10 @@ function endGame(){
     }catch(e){state.streak=state.won?1:0;}
   }
   if(state.won&&!RM)launchConfetti();
+  /* reveal: play the whole anthem (win or lose). Only here — i.e. in the same user-gesture
+     chain as the final guess — so autoplay is allowed; a restored finished game won't autoplay. */
+  stopPlayback();
+  setTimeout(()=>{if(state.finished&&!pb.playing&&!pb.paused)playClip();},900);
 }
 /* countdown to the next daily anthem (next UTC midnight) */
 let cdTimer=null;
@@ -695,11 +764,19 @@ function shareText(){const tries=state.won?state.attempt:"X";
 const cc=document.getElementById("confetti"),ctx2=cc.getContext("2d");let parts=[],confRAF=null;
 function sizeCanvas(){cc.width=innerWidth;cc.height=innerHeight;}sizeCanvas();
 addEventListener("resize",()=>{sizeCanvas();if(current&&!state.finished)setStatic(Math.min(state.attempt,5));});
+function confettiBurst(x,y,n,vx0,spread){
+  const colors=["#ffd23f","#ffffff","#1fd17a","#ff6b3d","#33c6ff"];
+  for(let i=0;i<n;i++){parts.push({x:x+(Math.random()-0.5)*60,y,
+    vx:vx0+(Math.random()-0.5)*spread,vy:-5-Math.random()*11,g:0.3,s:6+Math.random()*8,
+    c:colors[(Math.random()*colors.length)|0],r:Math.random()*6,vr:(Math.random()-0.5)*0.55,life:150+Math.random()*50});}
+}
 function launchConfetti(){
-  const colors=["#ffd23f","#ffffff","#1fd17a","#ff6b3d","#33c6ff"];parts=[];
-  for(let i=0;i<140;i++){parts.push({x:innerWidth/2+(Math.random()-0.5)*150,y:innerHeight*0.32,
-    vx:(Math.random()-0.5)*9,vy:Math.random()*-12-4,g:0.32,s:6+Math.random()*7,c:colors[i%colors.length],r:Math.random()*6,vr:(Math.random()-0.5)*0.5,life:140});}
+  parts=[];
+  confettiBurst(innerWidth/2,innerHeight*0.30,130,0,10);  // centre fountain
+  confettiBurst(12,innerHeight*0.72,60,7.5,5);            // left cannon
+  confettiBurst(innerWidth-12,innerHeight*0.72,60,-7.5,5);// right cannon
   cancelAnimationFrame(confRAF);runConfetti();
+  setTimeout(()=>{if(!RM)confettiBurst(innerWidth/2,innerHeight*0.35,80,0,11);},650); // second wave
 }
 function runConfetti(){
   ctx2.clearRect(0,0,cc.width,cc.height);let alive=false;
