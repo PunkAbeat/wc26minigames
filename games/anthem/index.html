@@ -96,8 +96,11 @@
 
   .guessrow{display:flex;gap:10px;margin-top:18px}
   .picker{flex:1;min-width:0;position:relative}
-  #guessInput{width:100%;padding:15px 16px;border-radius:var(--r);border:3px solid #fff;background:#063019;color:#fff;
+  #guessInput{width:100%;padding:15px 42px 15px 16px;border-radius:var(--r);border:3px solid #fff;background:#063019;color:#fff;
     font-family:'Nunito';font-size:15px;font-weight:700;outline:none;box-shadow:inset 0 2px 6px rgba(0,0,0,.35);transition:border-color .15s, box-shadow .15s}
+  .clearbtn{position:absolute;right:11px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;border:none;cursor:pointer;
+    background:rgba(255,255,255,.16);color:#fff;font-size:13px;font-weight:800;line-height:1;display:none;align-items:center;justify-content:center;z-index:2}
+  .clearbtn.show{display:flex}
   .sugg{position:absolute;left:0;right:0;top:calc(100% + 8px);z-index:30;display:none;max-height:246px;overflow-y:auto;overscroll-behavior:contain;
     background:#063019;border:3px solid #fff;border-radius:var(--r);box-shadow:0 18px 36px -10px rgba(0,0,0,.75)}
   .sugg.open{display:block}
@@ -224,6 +227,7 @@
       <div class="picker" id="picker">
         <input type="text" id="guessInput" placeholder="Type a country…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
                role="combobox" aria-expanded="false" aria-controls="suggList" aria-autocomplete="list" />
+        <button class="clearbtn" id="clearBtn" aria-label="Clear" tabindex="-1">✕</button>
         <div class="sugg" id="suggList" role="listbox"></div>
       </div>
       <button class="shoot" id="guessBtn">SHOOT</button>
@@ -590,7 +594,7 @@ function loadPuzzle(idx){
   clearTimeout(stopTimer);clearInterval(cdTimer);try{audioEl.pause();}catch(e){}wantPlay=false;setLoading(false);
   if(current.audio){current._audioOk=true;audioEl.src=AUDIO_BASE+encodeURI(current.audio);try{audioEl.load();}catch(e){}setSource("real");}
   else {current._audioOk=false;setSource("synth");}
-  document.getElementById("guessInput").value="";
+  document.getElementById("guessInput").value="";syncClear();
   document.getElementById("end").style.background="";
   render();setStatic(0);
 }
@@ -625,7 +629,7 @@ function submitGuess(){
   const inp=document.getElementById("guessInput");const val=inp.value;
   if(!val.trim()){toast("Type a country first");return;}
   if(!isKnownNation(val)){toast("Pick a country from the list");missFeedback();return;}
-  inp.value="";
+  inp.value="";syncClear();
   if(isCorrect(val)){state.results[state.attempt]={type:"correct",label:current.name};state.won=true;state.finished=true;state.attempt++;endGame();}
   else{state.results[state.attempt]={type:"wrong",label:val};state.attempt++;missFeedback();if(state.attempt>=6){state.finished=true;endGame();}else playClip();}
   saveDaily();render();
@@ -713,6 +717,7 @@ function fold(s){return normalize(s).normalize("NFD").replace(/[\u0300-\u036f]/g
 const gInput=document.getElementById("guessInput"),suggBox=document.getElementById("suggList"),pickerEl=document.getElementById("picker");
 let hiIdx=-1,view=[];
 function guessedSet(){return new Set(state.results.filter(r=>r&&r.type==="wrong").map(r=>fold(r.label)));}
+function isSelectedName(q){const f=fold(q);return NATIONS.some(n=>fold(n.name)===f);}
 function rankMatches(q){
   const f=fold(q);
   if(!f)return NATIONS.map(n=>({n,rank:0}));
@@ -729,10 +734,15 @@ function rankMatches(q){
 }
 function renderSugg(){
   const used=guessedSet();
-  view=rankMatches(gInput.value).map(({n})=>({n,used:used.has(fold(n.name))}));
+  /* a completed selection must not filter: show the full list again so the user
+     can browse/re-pick without deleting the previous country first.
+     Only display names count — an alias like "holland" is still a search, not a selection. */
+  const exact=isSelectedName(gInput.value);
+  view=rankMatches(exact?"":gInput.value).map(({n})=>({n,used:used.has(fold(n.name))}));
   suggBox.innerHTML="";
   if(!view.length){const d=document.createElement("div");d.className="snone";d.textContent="No qualified nation matches";suggBox.appendChild(d);hiIdx=-1;return;}
-  hiIdx=view.findIndex(v=>!v.used); // pre-highlight the best selectable match
+  hiIdx=exact?view.findIndex(v=>fold(v.n.name)===fold(gInput.value)&&!v.used):-1; // highlight the current selection…
+  if(hiIdx<0)hiIdx=view.findIndex(v=>!v.used); // …else the best selectable match
   view.forEach((v,i)=>{
     const row=document.createElement("div");
     row.className="srow"+(v.used?" used":"")+(i===hiIdx?" hi":"");
@@ -762,11 +772,19 @@ function moveHi(dir){
     if(!view[i].used){setHi(i);return;}
   }
 }
-function openSugg(){renderSugg();suggBox.classList.add("open");gInput.setAttribute("aria-expanded","true");}
+function openSugg(){renderSugg();suggBox.classList.add("open");gInput.setAttribute("aria-expanded","true");
+  if(hiIdx>=0&&suggBox.children[hiIdx])suggBox.children[hiIdx].scrollIntoView({block:"nearest"});}
 function closeSugg(){suggBox.classList.remove("open");gInput.setAttribute("aria-expanded","false");hiIdx=-1;}
-function pickNation(n){gInput.value=n.name;gInput.focus();closeSugg();} // focus before close: the focus event reopens the list, so close must come last
-gInput.addEventListener("input",openSugg);
-gInput.addEventListener("focus",openSugg);
+function pickNation(n){gInput.value=n.name;syncClear();gInput.focus();closeSugg();} // focus before close: the focus event reopens the list, so close must come last
+const clearBtn=document.getElementById("clearBtn");
+function syncClear(){clearBtn.classList.toggle("show",!!gInput.value&&!state.finished);}
+clearBtn.addEventListener("pointerdown",e=>e.preventDefault()); // keep input focus
+clearBtn.addEventListener("click",()=>{gInput.value="";syncClear();gInput.focus();openSugg();});
+gInput.addEventListener("input",()=>{syncClear();openSugg();});
+gInput.addEventListener("focus",()=>{
+  if(isSelectedName(gInput.value))gInput.select(); // typing replaces the previous selection
+  openSugg();
+});
 gInput.addEventListener("keydown",e=>{
   const open=suggBox.classList.contains("open");
   if(e.key==="ArrowDown"||e.key==="ArrowUp"){e.preventDefault();if(!open)openSugg();else moveHi(e.key==="ArrowDown"?1:-1);}
