@@ -51,10 +51,11 @@
   .back{position:absolute;top:0;left:0;height:34px;display:inline-flex;align-items:center;gap:6px;padding:0 13px;border-radius:var(--pill);
     border:2px solid rgba(255,255,255,.25);background:rgba(0,0,0,.2);color:#fff;font-family:'Baloo 2';font-weight:700;font-size:12.5px;text-decoration:none}
 
-  .card{position:relative;width:100%;max-width:460px;margin-top:18px;border-radius:var(--r-lg);overflow:hidden;
+  .card{position:relative;width:100%;max-width:460px;margin-top:18px;border-radius:var(--r-lg);
     background:linear-gradient(168deg,var(--pitch1),var(--pitch2));border:1px solid rgba(255,255,255,.18);
     box-shadow:0 24px 50px -20px rgba(0,0,0,.7), inset 0 2px 0 rgba(255,255,255,.25);}
-  .card::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;background:repeating-linear-gradient(115deg, rgba(255,255,255,.05) 0 40px, transparent 40px 80px)}
+  /* no overflow:hidden — the country-picker dropdown must escape the card; round the stripe overlay instead */
+  .card::before{content:"";position:absolute;inset:0;border-radius:var(--r-lg);pointer-events:none;opacity:.5;background:repeating-linear-gradient(115deg, rgba(255,255,255,.05) 0 40px, transparent 40px 80px)}
   .markings{position:absolute;inset:12px;border:2.5px solid rgba(255,255,255,.28);border-radius:14px;pointer-events:none}
   .cc{position:absolute;top:0;left:50%;width:118px;height:118px;margin-left:-59px;margin-top:-59px;border:2.5px solid rgba(255,255,255,.22);border-radius:50%;pointer-events:none}
   .cl{position:absolute;left:50%;top:12px;height:54px;width:2.5px;background:rgba(255,255,255,.22);margin-left:-1px;pointer-events:none}
@@ -94,8 +95,21 @@
   #srcBadge .si{display:inline-flex}
 
   .guessrow{display:flex;gap:10px;margin-top:18px}
-  #guessInput{flex:1;min-width:0;padding:15px 16px;border-radius:var(--r);border:3px solid #fff;background:#063019;color:#fff;
+  .picker{flex:1;min-width:0;position:relative}
+  #guessInput{width:100%;padding:15px 16px;border-radius:var(--r);border:3px solid #fff;background:#063019;color:#fff;
     font-family:'Nunito';font-size:15px;font-weight:700;outline:none;box-shadow:inset 0 2px 6px rgba(0,0,0,.35);transition:border-color .15s, box-shadow .15s}
+  .sugg{position:absolute;left:0;right:0;top:calc(100% + 8px);z-index:30;display:none;max-height:246px;overflow-y:auto;overscroll-behavior:contain;
+    background:#063019;border:3px solid #fff;border-radius:var(--r);box-shadow:0 18px 36px -10px rgba(0,0,0,.75)}
+  .sugg.open{display:block}
+  .srow{display:flex;align-items:center;gap:10px;padding:10px 13px;cursor:pointer;font-weight:700;font-size:14px;color:#fff}
+  .srow+.srow{border-top:1px solid rgba(255,255,255,.07)}
+  .srow.hi{background:rgba(255,210,63,.2)}
+  .srow img{width:25px;height:19px;border-radius:3px;object-fit:cover;flex:none;box-shadow:0 1px 3px rgba(0,0,0,.45)}
+  .srow .se{font-size:16px;flex:none;display:none}
+  .srow .sname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .srow.used{opacity:.38;cursor:not-allowed}
+  .srow .stag{margin-left:auto;flex:none;font-family:'Baloo 2';font-size:10px;font-weight:700;letter-spacing:.08em;color:#ffd8cc;text-transform:uppercase}
+  .snone{padding:13px;color:#7fb597;font-size:13px;font-weight:700}
   #guessInput::placeholder{color:#7fb597}
   #guessInput:focus{border-color:var(--gold);box-shadow:inset 0 2px 6px rgba(0,0,0,.35),0 0 0 4px rgba(255,210,63,.25)}
   .guessrow.shake{animation:shake .4s}
@@ -207,14 +221,17 @@
     </div>
 
     <div class="guessrow" id="guessrow">
-      <input type="text" id="guessInput" list="nations" placeholder="Type a country…" autocomplete="off" />
+      <div class="picker" id="picker">
+        <input type="text" id="guessInput" placeholder="Type a country…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+               role="combobox" aria-expanded="false" aria-controls="suggList" aria-autocomplete="list" />
+        <div class="sugg" id="suggList" role="listbox"></div>
+      </div>
       <button class="shoot" id="guessBtn">SHOOT</button>
     </div>
     <div class="subrow" id="subrow">
       <button class="skip" id="skipBtn"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M4 5v14l8-7zM13 5v14l8-7z"/></svg>Skip</button>
       <span class="attempts" id="attempts">Guess 1 / 6</span>
     </div>
-    <datalist id="nations"></datalist>
 
     <div class="hints" id="hints"></div>
     <div class="rows" id="rows"></div>
@@ -604,6 +621,7 @@ function missFeedback(){const gr=document.getElementById("guessrow");gr.classLis
     g.gain.setValueAtTime(0.18,actx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,actx.currentTime+0.22);o.connect(g);g.connect(actx.destination);o.start();o.stop(actx.currentTime+0.24);}catch(e){}}}
 function submitGuess(){
   if(state.finished)return;
+  closeSugg();
   const inp=document.getElementById("guessInput");const val=inp.value;
   if(!val.trim()){toast("Type a country first");return;}
   if(!isKnownNation(val)){toast("Pick a country from the list");missFeedback();return;}
@@ -689,7 +707,74 @@ function toast(m){const t=document.getElementById("toast");t.textContent=m;t.cla
 document.getElementById("playBtn").addEventListener("click",playClip);
 document.getElementById("guessBtn").addEventListener("click",submitGuess);
 document.getElementById("skipBtn").addEventListener("click",skip);
-document.getElementById("guessInput").addEventListener("keydown",e=>{if(e.key==="Enter")submitGuess();});
+/* ---- autocomplete country picker ---- */
+const NATIONS=PUZZLES.map(p=>({name:p.name,cc:p.cc,flag:p.flag,aliases:p.aliases})).sort((a,b)=>a.name.localeCompare(b.name));
+function fold(s){return normalize(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"");} // accent-insensitive
+const gInput=document.getElementById("guessInput"),suggBox=document.getElementById("suggList"),pickerEl=document.getElementById("picker");
+let hiIdx=-1,view=[];
+function guessedSet(){return new Set(state.results.filter(r=>r&&r.type==="wrong").map(r=>fold(r.label)));}
+function rankMatches(q){
+  const f=fold(q);
+  if(!f)return NATIONS.map(n=>({n,rank:0}));
+  const out=[];
+  for(const n of NATIONS){
+    const name=fold(n.name);
+    let rank=-1;
+    if(name.startsWith(f))rank=0;
+    else if(n.aliases.some(a=>fold(a).startsWith(f)))rank=1;
+    else if(name.includes(f)||n.aliases.some(a=>fold(a).includes(f)))rank=2;
+    if(rank>=0)out.push({n,rank});
+  }
+  return out.sort((a,b)=>a.rank-b.rank||a.n.name.localeCompare(b.n.name));
+}
+function renderSugg(){
+  const used=guessedSet();
+  view=rankMatches(gInput.value).map(({n})=>({n,used:used.has(fold(n.name))}));
+  suggBox.innerHTML="";
+  if(!view.length){const d=document.createElement("div");d.className="snone";d.textContent="No qualified nation matches";suggBox.appendChild(d);hiIdx=-1;return;}
+  hiIdx=view.findIndex(v=>!v.used); // pre-highlight the best selectable match
+  view.forEach((v,i)=>{
+    const row=document.createElement("div");
+    row.className="srow"+(v.used?" used":"")+(i===hiIdx?" hi":"");
+    row.setAttribute("role","option");
+    row.innerHTML='<img src="https://flagcdn.com/w40/'+v.n.cc+'.png" alt="" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'inline\'">'+
+      '<span class="se">'+v.n.flag+'</span><span class="sname">'+v.n.name+'</span>'+(v.used?'<span class="stag">tried</span>':'');
+    if(!v.used){
+      row.addEventListener("pointerdown",e=>{e.preventDefault();pickNation(v.n);});
+      row.addEventListener("mouseenter",()=>setHi(i));
+    }
+    suggBox.appendChild(row);
+  });
+}
+function setHi(i){
+  if(hiIdx>=0&&suggBox.children[hiIdx])suggBox.children[hiIdx].classList.remove("hi");
+  hiIdx=i;
+  if(i>=0&&suggBox.children[i]){suggBox.children[i].classList.add("hi");suggBox.children[i].scrollIntoView({block:"nearest"});}
+}
+function moveHi(dir){
+  if(!view.length)return;
+  let i=hiIdx;
+  for(let step=0;step<view.length;step++){
+    i=(i+dir+view.length)%view.length;
+    if(!view[i].used){setHi(i);return;}
+  }
+}
+function openSugg(){renderSugg();suggBox.classList.add("open");gInput.setAttribute("aria-expanded","true");}
+function closeSugg(){suggBox.classList.remove("open");gInput.setAttribute("aria-expanded","false");hiIdx=-1;}
+function pickNation(n){gInput.value=n.name;closeSugg();gInput.focus();}
+gInput.addEventListener("input",openSugg);
+gInput.addEventListener("focus",openSugg);
+gInput.addEventListener("keydown",e=>{
+  const open=suggBox.classList.contains("open");
+  if(e.key==="ArrowDown"||e.key==="ArrowUp"){e.preventDefault();if(!open)openSugg();else moveHi(e.key==="ArrowDown"?1:-1);}
+  else if(e.key==="Enter"){
+    e.preventDefault();
+    if(open&&hiIdx>=0&&view[hiIdx]&&!isKnownNation(gInput.value))pickNation(view[hiIdx].n); // fill first…
+    else{closeSugg();submitGuess();}                                                       // …then SHOOT
+  }
+  else if(e.key==="Escape")closeSugg();
+});
+document.addEventListener("pointerdown",e=>{if(!pickerEl.contains(e.target))closeSugg();});
 /* daily <-> practice */
 const practiceBtn=document.getElementById("practiceBtn");
 function randomPracticeIndex(){
@@ -724,7 +809,6 @@ try{if(!localStorage.getItem("anthem_seen"))showHowto();}catch(e){showHowto();}
 // bunting + datalist
 const bcol=["#ffd23f","#ffffff","#ff6b3d","#1fd17a"];const bun=document.getElementById("bunting");
 for(let i=0;i<15;i++){const t=document.createElement("i");t.style.borderTopColor=bcol[i%bcol.length];bun.appendChild(t);}
-const dl=document.getElementById("nations");ALL_NATIONS.forEach(n=>{const o=document.createElement("option");o.value=n;dl.appendChild(o);});
 startDaily();
 </script>
 </body>

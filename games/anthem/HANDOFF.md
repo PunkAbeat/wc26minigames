@@ -29,7 +29,8 @@ Single file: `games/anthem/index.html`. Vanilla JS, Web Audio, Canvas. Features:
 - **Real audio:** streams U.S. Navy Band PD recordings from `https://archive.org/download/us-navy-band-national-anthems-public-domain/Current/<Country>.mp3`. Auto-fallback to a synth engine (detuned brass + bass + pad + convolver reverb) if a track errors.
 - **UI:** juicy mobile-game football theme — bunting, pitch card, candy buttons (press depth), ball-rolls-to-goal progress (six markers = six guesses), referee-style yellow hint cards, scoreboard guess rows, GOAL + confetti, flag-coloured end screen.
 - **Polish:** SVG icons; flagcdn flag images w/ emoji fallback; buffering spinner; input shake + miss "thunk" + invalid-guess guard; first-run "How to play" modal (reopen via "?"); `prefers-reduced-motion` support; native share sheet w/ clipboard fallback.
-- Streak + daily index in `localStorage`. "Try another" preview button cycles anthems.
+- Streak (`anthem_streak`) + today's game (`anthem_daily`) in `localStorage`.
+- **Custom autocomplete country picker**: filter-as-you-type over all 48 nations with alias + accent folding ("holland" → Netherlands, "curacao" → Curaçao), flag image per row (emoji fallback), keyboard nav (arrows/Enter/Escape), already-guessed nations greyed out with a "tried" tag, top match pre-highlighted. Enter fills the input; a second Enter (or SHOOT) submits.
 
 ## 4. Key decisions & rationale
 
@@ -52,7 +53,7 @@ Single file: `games/anthem/index.html`. Vanilla JS, Web Audio, Canvas. Features:
 
 ## 6. Prioritized roadmap (where to carry on)
 
-1. **Autocomplete country picker** (highest UX impact): custom dropdown, filter-as-you-type, flag per row, keyboard nav, disable already-guessed nations, prevent invalid entries. Replaces the clunky `<datalist>`.
+1. ~~Autocomplete country picker~~ ✅ done: custom dropdown (filter-as-you-type with alias + accent folding, flag per row, keyboard nav, already-guessed nations disabled, top match pre-highlighted; Enter fills, second Enter shoots). Note: `.card` no longer has `overflow:hidden` — the dropdown must escape it; the stripe overlay carries its own border-radius instead.
 2. **Share image + stats** (drives virality/retention): canvas-rendered share card (grid + streak, spoiler-free); stats panel (played / win% / streak / guess distribution). ~~Countdown timer~~ ✅ done.
 3. **Backend for global stats/leaderboard**: a tiny serverless store (e.g., Supabase / Cloudflare Workers + KV) for aggregate "X% got it in 3" / global solve %. (Daily sync itself is now solved client-side.)
 4. ~~Expand anthems to all 48 qualified nations~~ ✅ done (45 with audio). Remaining: per-anthem **start offsets** to skip silent intros, difficulty tags, audio for Scotland/Curaçao/DR Congo, QA-listen to every clip.
