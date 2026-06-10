@@ -2,6 +2,8 @@
 
 This document is the "carry-on" brief. It explains what the project is, how we got here, what's built, what's deliberately not, and exactly where to pick up. The last section is a ready-to-paste prompt for resuming in a fresh session.
 
+> **Note (June 2026):** ANTHEM is now one game in a series of World Cup mini games. It lives at `games/anthem/index.html`, reached from the hub landing page at the repo root (`index.html`, working title "MATCHDAY"). The hub's `GAMES` array is the manifest of games; the root `README.md` documents the structure and the add-a-game checklist. Everything below still applies to the game itself.
+
 ---
 
 ## 1. One-paragraph summary
@@ -19,7 +21,7 @@ The brief started as "a site about the upcoming World Cup that could go viral." 
 
 ## 3. Current state (what's built)
 
-Single file: `index.html`. Vanilla JS, Web Audio, Canvas. Features:
+Single file: `games/anthem/index.html`. Vanilla JS, Web Audio, Canvas. Features:
 
 - 6 anthems: England, USA, France, Germany, Italy, Japan (each: name, aliases, flag/cc, flag colours, 5 hints, verdict line, fallback melody, archive.org audio path).
 - Clip reveal 1/2/4/7/11/16s over 6 guesses; hint card unlocks per miss.
@@ -56,7 +58,7 @@ Single file: `index.html`. Vanilla JS, Web Audio, Canvas. Features:
 
 ## 7. Technical notes for whoever continues
 
-- Everything lives in `index.html`. Sections are commented: AUDIO ENGINE, PLAYBACK, PUZZLES, GAME, CONFETTI, WIRE UP.
+- Everything lives in `games/anthem/index.html`. Sections are commented: AUDIO ENGINE, PLAYBACK, PUZZLES, GAME, CONFETTI, WIRE UP.
 - Add an anthem: push an object to `PUZZLES` with `{name, flag, cc, colors, aliases, audio:"Current/<File>.mp3", verdict, hints[5], melody[]}` and add the name to `ALL_NATIONS`. Verify the archive.org filename exists (some have `(Complete)`/`(Short)`/`(Long)` variants).
 - Progress geometry: `geomX()/fracFor()/placeMarks()/setStatic()/animateBall()`. Progress is guess-based (`(stage+1)/6`). Don't reintroduce a `render()` call that re-sets the ball position during play — that previously cancelled the roll animation.
 - Confetti only fires on a **win** (`endGame()` → `launchConfetti()` when `state.won && !RM`).

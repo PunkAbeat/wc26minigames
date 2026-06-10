@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ANTHEM ⚽ Guess the World Cup nation</title>
+<title>MATCHDAY ⚽ World Cup 2026 daily mini games</title>
+<meta name="description" content="A series of daily, shareable mini games for the 2026 World Cup. One stadium, many games — new kickoff every day." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
@@ -29,137 +30,65 @@
   }
   .disp{font-family:'Baloo 2',cursive}
 
-  .bunting{width:100%;max-width:520px;display:flex;justify-content:center;margin-top:4px;filter:drop-shadow(0 4px 3px rgba(0,0,0,.25))}
+  .bunting{width:100%;max-width:560px;display:flex;justify-content:center;margin-top:4px;filter:drop-shadow(0 4px 3px rgba(0,0,0,.25))}
   .bunting i{width:30px;height:0;border-left:15px solid transparent;border-right:15px solid transparent;border-top:24px solid;
     transform-origin:top center;animation:sway 3.2s ease-in-out infinite}
   .bunting i:nth-child(even){animation-delay:.4s}
   @keyframes sway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
 
-  header{width:100%;max-width:460px;text-align:center;margin-top:14px;position:relative}
+  header{width:100%;max-width:560px;text-align:center;margin-top:16px}
   .kicker{font-size:11px;font-weight:800;letter-spacing:.3em;color:var(--gold);text-transform:uppercase}
-  .wordmark{font-size:46px;font-weight:800;line-height:1;margin:6px 0 0;display:inline-flex;align-items:center;gap:12px;color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.18)}
-  .wordmark .ball{width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 36% 30%,#fff,#ffe9a6 42%,var(--gold) 74%,var(--gold-d));
+  .wordmark{font-size:52px;font-weight:800;line-height:1;margin:8px 0 0;display:inline-flex;align-items:center;gap:14px;color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.18)}
+  .wordmark .ball{width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 36% 30%,#fff,#ffe9a6 42%,var(--gold) 74%,var(--gold-d));
     box-shadow:0 5px 14px -4px var(--gold-d), inset 0 -3px 6px rgba(0,0,0,.18);animation:bob 2.6s ease-in-out infinite}
   @keyframes bob{50%{transform:translateY(-4px) rotate(12deg)}}
-  .sub{color:var(--mut);font-size:14px;font-weight:700;margin-top:8px}
-  .scoreboard{display:inline-flex;align-items:center;gap:9px;margin-top:13px;background:var(--ink);border:2px solid rgba(255,255,255,.14);
-    border-radius:var(--pill);padding:7px 16px;font-family:'Baloo 2';font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--gold);box-shadow:0 6px 16px -8px rgba(0,0,0,.6)}
+  .sub{color:var(--mut);font-size:15px;font-weight:700;margin-top:10px;line-height:1.5}
+  .scoreboard{display:inline-flex;align-items:center;gap:9px;margin-top:14px;background:var(--ink);border:2px solid rgba(255,255,255,.14);
+    border-radius:var(--pill);padding:8px 18px;font-family:'Baloo 2';font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--gold);box-shadow:0 6px 16px -8px rgba(0,0,0,.6)}
   .scoreboard .live{width:8px;height:8px;border-radius:50%;background:var(--coral);box-shadow:0 0 8px var(--coral);animation:blink 1.4s infinite}
   @keyframes blink{50%{opacity:.35}}
-  .help{position:absolute;top:0;right:0;width:34px;height:34px;border-radius:50%;border:2px solid rgba(255,255,255,.25);
-    background:rgba(0,0,0,.2);color:#fff;font-family:'Baloo 2';font-weight:700;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 
-  .card{position:relative;width:100%;max-width:460px;margin-top:18px;border-radius:var(--r-lg);overflow:hidden;
+  /* fixtures = game cards */
+  .fixtures{width:100%;max-width:560px;display:flex;flex-direction:column;gap:16px;margin-top:24px}
+  @media (min-width:760px){
+    .fixtures{max-width:760px;display:grid;grid-template-columns:1fr 1fr;align-items:stretch}
+    .gamecard.live{grid-column:1 / -1}
+  }
+
+  .gamecard{position:relative;display:block;text-decoration:none;color:var(--txt);border-radius:var(--r-lg);overflow:hidden;
     background:linear-gradient(168deg,var(--pitch1),var(--pitch2));border:1px solid rgba(255,255,255,.18);
-    box-shadow:0 24px 50px -20px rgba(0,0,0,.7), inset 0 2px 0 rgba(255,255,255,.25);}
-  .card::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;background:repeating-linear-gradient(115deg, rgba(255,255,255,.05) 0 40px, transparent 40px 80px)}
-  .markings{position:absolute;inset:12px;border:2.5px solid rgba(255,255,255,.28);border-radius:14px;pointer-events:none}
-  .cc{position:absolute;top:0;left:50%;width:118px;height:118px;margin-left:-59px;margin-top:-59px;border:2.5px solid rgba(255,255,255,.22);border-radius:50%;pointer-events:none}
-  .cl{position:absolute;left:50%;top:12px;height:54px;width:2.5px;background:rgba(255,255,255,.22);margin-left:-1px;pointer-events:none}
-  .pad{position:relative;z-index:2;padding:22px 18px}
+    box-shadow:0 24px 50px -20px rgba(0,0,0,.7), inset 0 2px 0 rgba(255,255,255,.25);
+    animation:rise .55s cubic-bezier(.34,1.56,.64,1) both;
+    transition:transform .15s ease, box-shadow .15s ease}
+  .gamecard::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;background:repeating-linear-gradient(115deg, rgba(255,255,255,.05) 0 40px, transparent 40px 80px)}
+  .gamecard .markings{position:absolute;inset:10px;border:2.5px solid rgba(255,255,255,.22);border-radius:14px;pointer-events:none}
+  @keyframes rise{from{opacity:0;transform:translateY(22px) scale(.97)}to{opacity:1;transform:none}}
+  .gamecard.live:hover{transform:translateY(-3px);box-shadow:0 30px 56px -20px rgba(0,0,0,.8), inset 0 2px 0 rgba(255,255,255,.25)}
+  .gamecard.live:active{transform:translateY(1px)}
 
-  .player{display:flex;align-items:center;gap:15px}
-  .play{flex:none;width:74px;height:74px;border-radius:50%;border:none;cursor:pointer;color:var(--goldink);
-    display:flex;align-items:center;justify-content:center;
-    background:radial-gradient(circle at 38% 30%,#fff5cf,var(--gold) 58%,var(--gold-d));
-    box-shadow:0 7px 0 var(--gold-d), 0 14px 22px -8px rgba(0,0,0,.5), inset 0 2px 3px rgba(255,255,255,.7);
-    transition:transform .09s ease, box-shadow .09s ease}
-  .play .ico{display:flex;margin-left:3px}
-  .play:active{transform:translateY(6px);box-shadow:0 1px 0 var(--gold-d),0 6px 12px -8px rgba(0,0,0,.5),inset 0 2px 3px rgba(255,255,255,.7)}
-  .play.playing{animation:glow 1s ease-in-out infinite}
-  @keyframes glow{50%{box-shadow:0 7px 0 var(--gold-d),0 0 26px 2px rgba(255,210,63,.7),inset 0 2px 3px rgba(255,255,255,.7)}}
-  .play .spinner{display:none;width:28px;height:28px;border:3px solid rgba(74,53,0,.25);border-top-color:var(--goldink);border-radius:50%;animation:spin .8s linear infinite}
-  .play.loading .spinner{display:block}.play.loading .ico{display:none}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .pcol{flex:1;min-width:0}
+  .gc-pad{position:relative;z-index:2;padding:20px 20px 22px;display:flex;align-items:center;gap:16px;height:100%}
+  .gc-icon{flex:none;width:64px;height:64px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:34px;
+    background:rgba(0,0,0,.22);border:2px solid rgba(255,255,255,.25);box-shadow:inset 0 2px 6px rgba(0,0,0,.3)}
+  .gc-body{flex:1;min-width:0}
+  .gc-name{font-family:'Baloo 2';font-weight:800;font-size:24px;line-height:1.05;text-shadow:0 2px 0 rgba(0,0,0,.15)}
+  .gc-tag{color:var(--soft);font-size:13px;font-weight:700;margin-top:4px;line-height:1.45}
+  .gc-badge{display:inline-flex;align-items:center;gap:6px;margin-top:9px;font-family:'Baloo 2';font-weight:700;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+    background:var(--ink);border:2px solid rgba(255,255,255,.14);color:var(--gold);border-radius:var(--pill);padding:4px 11px}
+  .gc-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--coral);box-shadow:0 0 7px var(--coral);animation:blink 1.4s infinite}
+  .gc-cta{flex:none;border-radius:var(--r);padding:13px 20px;font-family:'Baloo 2';font-weight:800;font-size:15px;letter-spacing:.04em;color:var(--goldink);
+    background:linear-gradient(180deg,#ffe06b,var(--gold));box-shadow:0 6px 0 var(--gold-d),0 12px 18px -8px rgba(0,0,0,.45),inset 0 2px 2px rgba(255,255,255,.6);
+    transition:transform .09s, box-shadow .09s}
+  .gamecard.live:active .gc-cta{transform:translateY(5px);box-shadow:0 1px 0 var(--gold-d),0 5px 10px -8px rgba(0,0,0,.45),inset 0 2px 2px rgba(255,255,255,.6)}
 
-  .track{position:relative;height:42px;border-radius:13px;overflow:hidden;background:linear-gradient(180deg,#258f47,#1c7d3d);
-    box-shadow:inset 0 3px 8px rgba(0,0,0,.35), inset 0 0 0 2px rgba(255,255,255,.5)}
-  .track .stripes{position:absolute;inset:0;opacity:.5;background:repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 20px,transparent 20px 40px)}
-  .track .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,rgba(255,210,63,.18),rgba(255,210,63,.34));transition:width .05s linear}
-  .smark{position:absolute;top:7px;bottom:7px;width:2px;background:rgba(255,255,255,.35);border-radius:2px;transform:translateX(-50%);transition:background .25s, box-shadow .25s}
-  .smark.on{background:var(--gold);box-shadow:0 0 7px var(--gold)}
-  .track .goalL,.track .goalR{position:absolute;top:9px;bottom:9px;width:6px;background:#fff;border-radius:3px;box-shadow:0 0 6px rgba(255,255,255,.6)}
-  .track .goalL{left:5px}.track .goalR{right:5px}
-  .ballpos{position:absolute;top:50%;left:0;transform:translate(-50%,-50%);transition:left .05s linear}
-  .ball{width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 36% 30%,#fff,#eee 55%,#cfd6cf);
-    box-shadow:0 3px 6px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;font-size:15px}
-  .ball.kick{animation:roll .9s linear}
-  @keyframes roll{to{transform:rotate(720deg)}}
-  .labelrow{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
-  #clipLabel{font-size:12.5px;font-weight:800;color:#fff}
-  #srcBadge{font-size:11px;font-weight:700;color:var(--soft);opacity:.9;display:inline-flex;align-items:center;gap:5px}
-  #srcBadge .si{display:inline-flex}
+  .gamecard.soon{cursor:default;background:linear-gradient(168deg,#1d6e3e,#155330)}
+  .gamecard.soon .gc-icon{filter:grayscale(.4);opacity:.85}
+  .gamecard.soon .gc-name{opacity:.92}
+  .gamecard.soon .gc-badge{color:var(--mut)}
+  .gamecard.soon .gc-badge .dot{background:#8fb89e;box-shadow:none;animation:none}
+  .gc-lock{flex:none;font-size:22px;opacity:.7}
 
-  .guessrow{display:flex;gap:10px;margin-top:18px}
-  #guessInput{flex:1;min-width:0;padding:15px 16px;border-radius:var(--r);border:3px solid #fff;background:#063019;color:#fff;
-    font-family:'Nunito';font-size:15px;font-weight:700;outline:none;box-shadow:inset 0 2px 6px rgba(0,0,0,.35);transition:border-color .15s, box-shadow .15s}
-  #guessInput::placeholder{color:#7fb597}
-  #guessInput:focus{border-color:var(--gold);box-shadow:inset 0 2px 6px rgba(0,0,0,.35),0 0 0 4px rgba(255,210,63,.25)}
-  .guessrow.shake{animation:shake .4s}
-  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
-  .shoot{flex:none;border:none;border-radius:var(--r);padding:0 22px;font-family:'Baloo 2';font-weight:800;font-size:16px;letter-spacing:.04em;cursor:pointer;color:#fff;
-    background:linear-gradient(180deg,#ff7d52,var(--coral));box-shadow:0 6px 0 var(--coral-d),0 12px 18px -8px rgba(0,0,0,.45),inset 0 2px 2px rgba(255,255,255,.4);transition:transform .09s, box-shadow .09s}
-  .shoot:active{transform:translateY(5px);box-shadow:0 1px 0 var(--coral-d),0 5px 10px -8px rgba(0,0,0,.45),inset 0 2px 2px rgba(255,255,255,.4)}
-  .subrow{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:0 2px}
-  .skip{display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,.18);border:2px solid rgba(255,255,255,.25);color:#fff;
-    font-family:'Baloo 2';font-weight:600;font-size:12.5px;border-radius:var(--pill);padding:7px 14px;cursor:pointer;transition:transform .08s}
-  .skip:active{transform:scale(.95)}
-  .attempts{font-family:'Baloo 2';font-weight:700;font-size:12.5px;color:var(--soft)}
-
-  .hints{display:flex;flex-direction:column;gap:9px;margin-top:16px}
-  .hint{display:flex;align-items:center;gap:11px;font-size:13.5px;font-weight:800;color:#5a4300;background:linear-gradient(180deg,#ffe066,#ffcf2e);
-    border-radius:12px;padding:11px 13px;box-shadow:0 5px 0 #d9a900,0 10px 16px -8px rgba(0,0,0,.4);animation:pop .4s cubic-bezier(.34,1.56,.64,1) both}
-  .hint .rc{width:17px;height:24px;border-radius:4px;background:#e0aa00;flex:none;box-shadow:inset 0 0 0 2px #ffe066, 0 2px 3px rgba(0,0,0,.25);transform:rotate(-7deg)}
-  @keyframes pop{from{opacity:0;transform:scale(.85) translateY(8px)}to{opacity:1;transform:none}}
-  .hintlock{font-size:12.5px;font-weight:700;color:var(--soft);opacity:.75;text-align:center;margin-top:12px;font-family:'Baloo 2'}
-
-  .rows{display:flex;flex-direction:column;gap:8px;margin-top:16px}
-  .grow{display:flex;align-items:center;gap:12px;font-family:'Baloo 2';font-weight:600;font-size:14.5px;background:linear-gradient(180deg,#0a4527,#073a20);
-    border:2px solid rgba(255,255,255,.12);border-radius:12px;padding:11px 14px;color:#fff;box-shadow:0 4px 10px -6px rgba(0,0,0,.5);animation:pop .3s cubic-bezier(.34,1.56,.64,1) both}
-  .grow .dot{width:11px;height:11px;border-radius:50%;flex:none;box-shadow:0 0 0 3px rgba(255,255,255,.08)}
-  .grow.wrong .dot{background:var(--coral)} .grow.wrong{color:#ffd8cc}
-  .grow.skip .dot{background:#8fb89e}
-  .grow.correct{background:linear-gradient(180deg,#1bb85c,#149048);border-color:rgba(255,255,255,.4)}
-  .grow.correct .dot{background:#fff}
-  .grow .gtext{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .grow .tag{font-size:11px;font-weight:700;opacity:.85}
-
-  .end{display:none;text-align:center;margin-top:6px;padding:18px 14px;border-radius:18px}
-  .bigresult{font-family:'Baloo 2';font-size:46px;font-weight:800;line-height:1;margin-bottom:6px;color:var(--gold);text-shadow:0 4px 0 rgba(0,0,0,.18);animation:goalPop .5s cubic-bezier(.34,1.7,.5,1) both}
-  .bigresult.lose{color:#fff;opacity:.85;font-size:36px}
-  @keyframes goalPop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
-  .flagwrap{margin:6px 0;animation:pop .5s cubic-bezier(.34,1.56,.64,1) both}
-  #endFlagImg{width:96px;height:auto;border-radius:8px;border:2px solid rgba(255,255,255,.7);box-shadow:0 8px 18px -6px rgba(0,0,0,.5)}
-  #endFlagEmoji{font-size:62px}
-  .end .ans{font-family:'Baloo 2';font-size:25px;font-weight:800;margin-top:6px}
-  .end .verdict{color:var(--soft);font-size:14px;font-weight:700;margin:8px auto 14px;max-width:300px;line-height:1.5}
-  .grid-share{font-size:26px;letter-spacing:6px;margin:6px 0}
-  .streak{display:inline-flex;gap:16px;align-items:center;background:var(--ink);border:2px solid rgba(255,255,255,.14);font-family:'Baloo 2';font-weight:700;font-size:14px;padding:9px 18px;border-radius:var(--pill);margin:6px 0 16px;color:#fff}
-  .streak .g{color:var(--gold)}
-  .share-btn{border:none;border-radius:var(--r);padding:15px 28px;font-family:'Baloo 2';font-weight:800;font-size:16px;cursor:pointer;color:var(--goldink);
-    background:linear-gradient(180deg,#ffe06b,var(--gold));box-shadow:0 6px 0 var(--gold-d),0 12px 18px -8px rgba(0,0,0,.45),inset 0 2px 2px rgba(255,255,255,.6);transition:transform .09s,box-shadow .09s}
-  .share-btn:active{transform:translateY(5px);box-shadow:0 1px 0 var(--gold-d),0 5px 10px -8px rgba(0,0,0,.45),inset 0 2px 2px rgba(255,255,255,.6)}
-  .copied{color:#fff;font-weight:800;font-size:13px;min-height:18px;margin-top:10px}
-
-  .preview{margin-top:18px}
-  .preview button{background:rgba(0,0,0,.22);border:2px solid rgba(255,255,255,.18);color:var(--soft);font-family:'Baloo 2';font-weight:600;border-radius:var(--pill);padding:9px 16px;font-size:12.5px;cursor:pointer}
-  .foot{max-width:460px;color:var(--mut);font-size:11px;font-weight:700;text-align:center;margin-top:18px;line-height:1.6;opacity:.85}
-
-  .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:var(--ink);border:2px solid rgba(255,255,255,.18);color:#fff;font-family:'Baloo 2';font-weight:600;padding:11px 18px;border-radius:14px;font-size:13px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:50}
-  .toast.show{opacity:1}
-  #confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
-
-  /* modal */
-  .modal{position:fixed;inset:0;background:rgba(3,25,15,.72);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:60;padding:20px}
-  .modal.show{display:flex}
-  .modal-card{width:100%;max-width:380px;background:linear-gradient(168deg,var(--pitch1),var(--pitch2));border:1px solid rgba(255,255,255,.2);
-    border-radius:var(--r-lg);padding:24px;box-shadow:0 30px 60px -20px rgba(0,0,0,.8);animation:pop .4s cubic-bezier(.34,1.56,.64,1) both}
-  .modal-card h3{font-family:'Baloo 2';font-weight:800;font-size:24px;margin:0 0 14px;text-align:center}
-  .step{display:flex;gap:12px;align-items:flex-start;margin-bottom:13px;font-weight:700;font-size:14px;color:var(--soft);line-height:1.45}
-  .step .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--gold);color:var(--goldink);font-family:'Baloo 2';font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px}
-  .modal-card .go{width:100%;margin-top:8px;border:none;border-radius:var(--r);padding:14px;font-family:'Baloo 2';font-weight:800;font-size:16px;cursor:pointer;color:#fff;
-    background:linear-gradient(180deg,#ff7d52,var(--coral));box-shadow:0 5px 0 var(--coral-d)}
+  .foot{max-width:560px;color:var(--mut);font-size:11px;font-weight:700;text-align:center;margin-top:26px;line-height:1.7;opacity:.85}
+  .foot a{color:var(--soft)}
 
   @media (prefers-reduced-motion: reduce){
     *{animation:none!important;transition:none!important}
@@ -167,355 +96,84 @@
 </style>
 </head>
 <body>
-<canvas id="confetti"></canvas>
 <div class="bunting" id="bunting"></div>
 
 <header>
-  <button class="help" id="helpBtn" aria-label="How to play">?</button>
-  <div class="kicker">World Cup 2026 · Daily</div>
-  <div class="wordmark disp"><span class="ball"></span>ANTHEM</div>
-  <div class="sub">Guess the nation from its anthem</div>
-  <div class="scoreboard"><span class="live"></span><span>MATCH&nbsp;<span id="puzzleNo">#1</span></span></div>
+  <div class="kicker">World Cup 2026 · USA · Canada · Mexico</div>
+  <div class="wordmark disp"><span class="ball"></span>MATCHDAY</div>
+  <div class="sub">Daily mini games for the World Cup.<br>One stadium, many games — new kickoff every day.</div>
+  <div class="scoreboard"><span class="live"></span><span id="countdown">KICKOFF SOON</span></div>
 </header>
 
-<div class="card">
-  <div class="markings"></div><div class="cl"></div><div class="cc"></div>
-  <div class="pad">
-
-    <div class="player">
-      <button class="play" id="playBtn" aria-label="Play anthem clip">
-        <span class="ico"><svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
-        <span class="spinner" aria-hidden="true"></span>
-      </button>
-      <div class="pcol">
-        <div class="track" id="track">
-          <div class="stripes"></div>
-          <div class="fill" id="fill"></div>
-          <div class="goalL"></div><div class="goalR"></div>
-          <div class="ballpos" id="ballpos"><div class="ball" id="ball">⚽</div></div>
-        </div>
-        <div class="labelrow"><span id="clipLabel">1 second unlocked</span><span id="srcBadge"></span></div>
-      </div>
-    </div>
-
-    <div class="guessrow" id="guessrow">
-      <input type="text" id="guessInput" list="nations" placeholder="Type a country…" autocomplete="off" />
-      <button class="shoot" id="guessBtn">SHOOT</button>
-    </div>
-    <div class="subrow" id="subrow">
-      <button class="skip" id="skipBtn"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M4 5v14l8-7zM13 5v14l8-7z"/></svg>Skip</button>
-      <span class="attempts" id="attempts">Guess 1 / 6</span>
-    </div>
-    <datalist id="nations"></datalist>
-
-    <div class="hints" id="hints"></div>
-    <div class="rows" id="rows"></div>
-
-    <div class="end" id="end">
-      <div class="bigresult disp" id="bigResult">GOAL!</div>
-      <div class="flagwrap"><img id="endFlagImg" alt="" /><span id="endFlagEmoji"></span></div>
-      <div class="ans disp" id="endAns"></div>
-      <div class="verdict" id="endVerdict"></div>
-      <div class="grid-share" id="gridShare"></div>
-      <div class="streak" id="streakLine"></div>
-      <div><button class="share-btn" id="shareBtn">📋 Share result</button></div>
-      <div class="copied" id="copied"></div>
-    </div>
-
-  </div>
-</div>
-
-<div class="preview"><button id="nextBtn">🔀 Try another anthem · preview</button></div>
+<main class="fixtures" id="fixtures"></main>
 
 <div class="foot">
-  Prototype · plays real public-domain recordings by the U.S. Navy Band, streamed from archive.org (needs internet).
-  Falls back to a synthesized version if a track can't load.
-</div>
-
-<div class="toast" id="toast"></div>
-
-<!-- how to play -->
-<div class="modal" id="howto">
-  <div class="modal-card">
-    <h3 class="disp">How to play ⚽</h3>
-    <div class="step"><span class="n">1</span><span>Tap play to hear the anthem — it starts at just <b>1 second</b>.</span></div>
-    <div class="step"><span class="n">2</span><span>Guess the nation. Each <b>miss or skip</b> reveals more of the clip and unlocks a hint card.</span></div>
-    <div class="step"><span class="n">3</span><span>You get <b>6 tries</b>. Solve it, keep your streak, and share your spoiler-free score.</span></div>
-    <button class="go disp" id="howtoClose">Let's play</button>
-  </div>
+  Unofficial fan project · not affiliated with FIFA.<br>
+  Anthem audio: public-domain recordings by the U.S. Navy Band via archive.org.
 </div>
 
 <script>
-/* ===================== AUDIO ENGINE ===================== */
-const SPB=0.5;
-const NOTE_OFFSET={C:0,"C#":1,D:2,"D#":3,E:4,F:5,"F#":6,G:7,"G#":8,A:9,"A#":10,B:11};
-function noteFreq(n){const m=n.match(/^([A-G]#?)(\d)$/);const s=(parseInt(m[2],10)-4)*12+(NOTE_OFFSET[m[1]]-9);return 440*Math.pow(2,s/12);}
-function scheduleMelody(mel){let t=0;const notes=[];for(const[name,beats]of mel){const dur=beats*SPB;if(name!=="rest")notes.push({f:noteFreq(name),start:t,dur});t+=dur;}return{notes,total:t};}
-let actx=null,master=null,busDry=null,busWet=null,reverb=null,comp=null,live=[];
-function makeIR(seconds,decay){const rate=actx.sampleRate,len=rate*seconds,buf=actx.createBuffer(2,len,rate);
-  for(let ch=0;ch<2;ch++){const d=buf.getChannelData(ch);for(let i=0;i<len;i++){d[i]=(Math.random()*2-1)*Math.pow(1-i/len,decay);}}return buf;}
-function ensureCtx(){
-  if(!actx){actx=new (window.AudioContext||window.webkitAudioContext)();
-    comp=actx.createDynamicsCompressor();comp.threshold.value=-18;comp.ratio.value=3;comp.attack.value=0.005;comp.release.value=0.18;
-    master=actx.createGain();master.gain.value=0.95;
-    reverb=actx.createConvolver();reverb.buffer=makeIR(2.2,2.6);
-    const wet=actx.createGain();wet.gain.value=0.32;
-    busDry=actx.createGain();busWet=actx.createGain();
-    busDry.connect(comp);busWet.connect(reverb);reverb.connect(wet);wet.connect(comp);comp.connect(master);master.connect(actx.destination);}
-  if(actx.state==="suspended")actx.resume();
-}
-function richNote(freq,at,dur){
-  const leadMix=actx.createGain();const det=[-7,0,7];
-  const vib=actx.createOscillator();vib.frequency.value=5.2;const vibAmt=actx.createGain();vibAmt.gain.value=dur>0.6?6:0;
-  vib.connect(vibAmt);vib.start(at);vib.stop(at+dur+0.05);live.push(vib);
-  det.forEach(c=>{const o=actx.createOscillator();o.type="sawtooth";o.frequency.value=freq;o.detune.value=c;vibAmt.connect(o.detune);o.connect(leadMix);o.start(at);o.stop(at+dur+0.06);live.push(o);});
-  const lp=actx.createBiquadFilter();lp.type="lowpass";lp.Q.value=0.8;
-  lp.frequency.setValueAtTime(700,at);lp.frequency.linearRampToValueAtTime(2700,at+0.09);lp.frequency.linearRampToValueAtTime(1500,at+dur);
-  const env=actx.createGain();const a=0.045,r=0.14,pk=0.13;
-  env.gain.setValueAtTime(0,at);env.gain.linearRampToValueAtTime(pk,at+a);env.gain.setValueAtTime(pk,at+Math.max(a,dur-r));env.gain.linearRampToValueAtTime(0.0001,at+dur);
-  leadMix.connect(lp);lp.connect(env);env.connect(busDry);env.connect(busWet);
-  const b=actx.createOscillator();b.type="triangle";b.frequency.value=freq/2;const bEnv=actx.createGain();
-  bEnv.gain.setValueAtTime(0,at);bEnv.gain.linearRampToValueAtTime(0.09,at+0.04);bEnv.gain.setValueAtTime(0.09,at+Math.max(0.05,dur-0.1));bEnv.gain.linearRampToValueAtTime(0.0001,at+dur);
-  b.connect(bEnv);bEnv.connect(busDry);b.start(at);b.stop(at+dur+0.05);live.push(b);
-  const p=actx.createOscillator();p.type="sine";p.frequency.value=freq;const pEnv=actx.createGain();
-  pEnv.gain.setValueAtTime(0,at);pEnv.gain.linearRampToValueAtTime(0.05,at+0.08);pEnv.gain.linearRampToValueAtTime(0.0001,at+dur);
-  p.connect(pEnv);pEnv.connect(busWet);p.start(at);p.stop(at+dur+0.05);live.push(p);
-}
-function stopAll(){live.forEach(o=>{try{o.stop()}catch(e){}});live=[];}
-
-/* ===================== PLAYBACK ===================== */
-const STAGES=[1,2,4,7,11,16];
-const AUDIO_BASE="https://archive.org/download/us-navy-band-national-anthems-public-domain/";
-const RM=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const audioEl=new Audio();audioEl.preload="auto";
-let stopTimer=null;
-const SVG_SPK='<svg class="si" viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9z"/><path d="M16 8c1.6 1.4 1.6 6.6 0 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
-const SVG_NOTE='<svg class="si" viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M9 17.5a2.5 2.5 0 11-1.7-2.36V7l9-1.8v8.3A2.5 2.5 0 1115 13V8.2L9 9.4z"/></svg>';
-function setSource(kind){const el=document.getElementById("srcBadge");if(!el)return;
-  el.innerHTML=kind==="synth"?(SVG_NOTE+"Synth"):(SVG_SPK+"Live recording");}
-function setPlaying(on){document.getElementById("playBtn").classList.toggle("playing",on);}
-function setLoading(on){document.getElementById("playBtn").classList.toggle("loading",on);}
-audioEl.addEventListener("error",()=>{if(current){current._audioOk=false;setSource("synth");setLoading(false);}});
-audioEl.addEventListener("ended",()=>setPlaying(false));
-audioEl.addEventListener("pause",()=>setPlaying(false));
-audioEl.addEventListener("waiting",()=>{if(wantPlay)setLoading(true);});
-audioEl.addEventListener("playing",()=>setLoading(false));
-audioEl.addEventListener("canplay",()=>setLoading(false));
-let wantPlay=false;
-function playClip(){
-  const stage=Math.min(state.attempt,5);const unlocked=STAGES[stage];
-  setPlaying(true);animateBall(stage);
-  if(current.audio&&current._audioOk!==false)playReal(unlocked);else playSynth(unlocked);
-}
-function playReal(unlocked){
-  clearTimeout(stopTimer);wantPlay=true;setLoading(true);
-  try{audioEl.pause();audioEl.currentTime=0;}catch(e){}
-  const onPlaying=()=>{setLoading(false);clearTimeout(stopTimer);stopTimer=setTimeout(()=>{try{audioEl.pause();}catch(e){}setPlaying(false);wantPlay=false;},unlocked*1000+40);audioEl.removeEventListener("playing",onPlaying);};
-  audioEl.addEventListener("playing",onPlaying);
-  setSource("real");
-  const pr=audioEl.play();
-  if(pr&&pr.catch)pr.catch(()=>{audioEl.removeEventListener("playing",onPlaying);setLoading(false);switchToSynth(unlocked);});
-}
-function switchToSynth(unlocked){current._audioOk=false;setSource("synth");playSynth(unlocked);}
-function playSynth(unlocked){
-  ensureCtx();stopAll();setLoading(false);
-  const begin=actx.currentTime+0.08;
-  current.sched.notes.forEach(n=>{if(n.start<unlocked)richNote(n.f,begin+n.start,Math.min(n.dur,unlocked-n.start));});
-  setTimeout(()=>setPlaying(false),unlocked*1000+120);
-}
-/* progress = your 6 guesses marching toward the goal */
-function geomX(frac){const t=document.getElementById("track");const pad=14;const w=Math.max(40,t.clientWidth-pad*2);return pad+frac*w;}
-function fracFor(stage){return (stage+1)/6;}
-function placeMarks(stage){
-  const track=document.getElementById("track");
-  track.querySelectorAll(".smark").forEach(n=>n.remove());
-  for(let i=0;i<6;i++){const m=document.createElement("div");m.className="smark"+(i<=stage?" on":"");m.style.left=geomX((i+1)/6)+"px";track.appendChild(m);}
-}
-function setStatic(stage){
-  const x=geomX(fracFor(stage));
-  const pos=document.getElementById("ballpos"),fill=document.getElementById("fill");
-  pos.style.transition="none";fill.style.transition="none";
-  pos.style.left=x+"px";fill.style.width=x+"px";
-  placeMarks(stage);
-}
-function animateBall(stage){
-  const ball=document.getElementById("ball"),pos=document.getElementById("ballpos"),fill=document.getElementById("fill");
-  if(RM){setStatic(stage);return;}
-  const x0=geomX(0),x=geomX(fracFor(stage));
-  pos.style.transition="none";fill.style.transition="none";
-  pos.style.left=x0+"px";fill.style.width=x0+"px";
-  ball.classList.remove("kick");void ball.offsetWidth;
-  placeMarks(stage);
-  requestAnimationFrame(()=>{
-    pos.style.transition="left .9s cubic-bezier(.25,.9,.3,1)";
-    fill.style.transition="width .9s cubic-bezier(.25,.9,.3,1)";
-    ball.classList.add("kick");
-    pos.style.left=x+"px";fill.style.width=x+"px";
-  });
-}
-
-/* ===================== PUZZLES ===================== */
-const PUZZLES=[
-  { name:"England", flag:"🏴", cc:"gb-eng", colors:["#CF142B","#ffffff"], aliases:["england","uk","great britain","britain"], audio:"Current/United Kingdom.mp3",
-    verdict:"“God Save the King.” One you definitely knew.",
-    hints:["UEFA (Europe)","Red cross on white (St George)","Group B","Anthem shared with several realms","Starts with E"],
-    melody:[["G4",1],["G4",1],["A4",1],["F#4",1.5],["G4",0.5],["A4",1],["B4",1],["B4",1],["C5",1],["B4",1.5],["A4",0.5],["G4",1],["A4",1],["G4",1],["F#4",1],["G4",2]] },
-  { name:"United States", flag:"🇺🇸", cc:"us", colors:["#B22234","#3C3B6E"], aliases:["usa","united states","united states of america","america","us"], audio:"Current/United States.mp3",
-    verdict:"“The Star-Spangled Banner.” Host nation.",
-    hints:["CONCACAF (N. America)","Red, white & blue","Co-hosting the tournament","Famous for the impossible high note","Starts with U"],
-    melody:[["G4",1.5],["E4",0.5],["C4",1],["E4",1],["G4",1],["C5",2],["E5",1.5],["D5",0.5],["C5",1],["B4",1],["A4",1],["B4",1],["C5",2]] },
-  { name:"France", flag:"🇫🇷", cc:"fr", colors:["#0055A4","#EF4135"], aliases:["france","les bleus"], audio:"Current/France.mp3",
-    verdict:"“La Marseillaise.” The march everyone half-knows.",
-    hints:["UEFA (Europe)","Blue, white & red","World champions in 2018","Anthem written in 1792","Starts with F"],
-    melody:[["C4",0.5],["C4",1],["C4",0.5],["F4",1],["F4",1],["G4",1],["G4",1],["C5",1.5],["A4",0.5],["F4",1],["A4",1],["F4",1],["D4",2]] },
-  { name:"Germany", flag:"🇩🇪", cc:"de", colors:["#DD0000","#FFCE00"], aliases:["germany","deutschland"], audio:"Current/Germany.mp3",
-    verdict:"“Deutschlandlied,” melody by Haydn.",
-    hints:["UEFA (Europe)","Black, red & gold","Four-time world champions","Melody composed by Joseph Haydn","Starts with G"],
-    melody:[["G4",1],["A4",1],["G4",1],["F4",1],["E4",1],["F4",1],["G4",2],["D4",1],["E4",1],["F4",1],["G4",1],["A4",1],["G4",1],["F4",1],["G4",2]] },
-  { name:"Italy", flag:"🇮🇹", cc:"it", colors:["#009246","#CE2B37"], aliases:["italy","italia"], audio:"Current/Italy (Complete).mp3",
-    verdict:"“Il Canto degli Italiani.” The bouncy one.",
-    hints:["UEFA (Europe)","Green, white & red","Four-time world champions","Also called the Mameli Hymn","Starts with I"],
-    melody:[["D4",0.5],["D4",0.5],["G4",1],["G4",0.5],["G4",0.5],["B4",1],["A4",0.5],["G4",0.5],["F#4",1],["G4",1],["A4",1],["D5",1.5]] },
-  { name:"Japan", flag:"🇯🇵", cc:"jp", colors:["#BC002D","#ffffff"], aliases:["japan","nippon"], audio:"Current/Japan.mp3",
-    verdict:"“Kimigayo.” The short, solemn one.",
-    hints:["AFC (Asia)","Red disc on white","One of the world's shortest anthems","Fans famously clean the stadium","Starts with J"],
-    melody:[["D4",2],["E4",1],["F#4",1],["E4",1],["D4",1],["B3",2],["D4",1],["E4",1],["F#4",1],["E4",1],["D4",2]] }
+/* ===================== GAMES MANIFEST =====================
+   Add a game: drop its folder in games/<id>/ with its own index.html,
+   then add an entry here. status: "live" | "soon".              */
+const GAMES=[
+  {
+    id:"anthem",
+    name:"ANTHEM",
+    icon:"🎺",
+    tagline:"Hear a snippet of a national anthem, guess the nation in six tries.",
+    status:"live",
+    badge:"Daily · Play now",
+    href:"games/anthem/index.html"
+  },
+  { id:"tba-1", name:"???", icon:"🥅", tagline:"Next fixture being scheduled…", status:"soon", badge:"Coming soon" },
+  { id:"tba-2", name:"???", icon:"🏆", tagline:"Next fixture being scheduled…", status:"soon", badge:"Coming soon" }
 ];
-const ALL_NATIONS=["Argentina","Australia","Austria","Belgium","Brazil","Cameroon","Canada","Chile","Colombia","Costa Rica","Croatia","Denmark","Ecuador","Egypt","England","France","Germany","Ghana","Greece","Iran","Italy","Ivory Coast","Japan","Mexico","Morocco","Netherlands","Nigeria","Norway","Paraguay","Peru","Poland","Portugal","Qatar","Saudi Arabia","Scotland","Senegal","Serbia","South Korea","Spain","Sweden","Switzerland","Tunisia","Turkey","United States","Uruguay","Wales"];
 
-/* ===================== GAME ===================== */
-let state={attempt:0,finished:false,won:false,results:[]};
-let current=null,puzzleIndex=0;
-function hexA(h,a){const n=h.replace("#","");const r=parseInt(n.substr(0,2),16),g=parseInt(n.substr(2,2),16),b=parseInt(n.substr(4,2),16);return "rgba("+r+","+g+","+b+","+a+")";}
-function pickDailyIndex(){return Math.floor(Date.now()/86400000)%PUZZLES.length;}
-function loadPuzzle(idx){
-  puzzleIndex=((idx%PUZZLES.length)+PUZZLES.length)%PUZZLES.length;
-  current=PUZZLES[puzzleIndex];current.sched=scheduleMelody(current.melody);
-  state={attempt:0,finished:false,won:false,results:[]};
-  clearTimeout(stopTimer);try{audioEl.pause();}catch(e){}wantPlay=false;setLoading(false);
-  if(current.audio){current._audioOk=true;audioEl.src=AUDIO_BASE+encodeURI(current.audio);try{audioEl.load();}catch(e){}setSource("real");}
-  else {current._audioOk=false;setSource("synth");}
-  document.getElementById("guessInput").value="";
-  document.getElementById("end").style.background="";
-  render();setStatic(0);
-}
-function render(){
-  document.getElementById("puzzleNo").textContent="#"+(puzzleIndex+1);
-  const stage=Math.min(state.attempt,5), secs=STAGES[stage];
-  if(!state.finished)placeMarks(stage);
-  document.getElementById("clipLabel").textContent=
-    state.finished?(state.won?"Solved! 🎉":"Out of guesses"):(secs+(secs===1?" second":" seconds")+" unlocked");
-  document.getElementById("attempts").textContent=state.finished?"":("Guess "+(state.attempt+1)+" / 6");
-  const hbox=document.getElementById("hints");hbox.innerHTML="";
-  for(let i=0;i<state.attempt&&i<current.hints.length;i++){const d=document.createElement("div");d.className="hint";d.innerHTML='<span class="rc"></span>'+current.hints[i];hbox.appendChild(d);}
-  if(state.attempt===0&&!state.finished){const l=document.createElement("div");l.className="hintlock";l.textContent="🟨 A hint card unlocks with each miss";hbox.appendChild(l);}
-  const rows=document.getElementById("rows");rows.innerHTML="";
-  state.results.forEach(res=>{const r=document.createElement("div");r.className="grow "+res.type;
-    const tag=res.type==="correct"?'<span class="tag">✓ GOAL</span>':res.type==="wrong"?'<span class="tag">✗ MISS</span>':'<span class="tag">SKIP</span>';
-    r.innerHTML='<span class="dot"></span><span class="gtext">'+res.label+'</span>'+tag;rows.appendChild(r);});
-  document.getElementById("guessrow").style.display=state.finished?"none":"flex";
-  document.getElementById("subrow").style.display=state.finished?"none":"flex";
-  document.getElementById("end").style.display=state.finished?"block":"none";
-  if(state.finished)renderEnd();
-}
-function normalize(s){return s.toLowerCase().trim().replace(/\./g,"").replace(/\s+/g," ");}
-function isCorrect(g){const n=normalize(g);return n===normalize(current.name)||current.aliases.includes(n);}
-function isKnownNation(g){const n=normalize(g);return ALL_NATIONS.some(x=>normalize(x)===n)||PUZZLES.some(p=>p.aliases.includes(n));}
-function missFeedback(){const gr=document.getElementById("guessrow");gr.classList.remove("shake");void gr.offsetWidth;gr.classList.add("shake");
-  if(!RM){try{ensureCtx();const o=actx.createOscillator(),g=actx.createGain();o.type="sine";o.frequency.setValueAtTime(220,actx.currentTime);o.frequency.exponentialRampToValueAtTime(90,actx.currentTime+0.18);
-    g.gain.setValueAtTime(0.18,actx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,actx.currentTime+0.22);o.connect(g);g.connect(actx.destination);o.start();o.stop(actx.currentTime+0.24);}catch(e){}}}
-function submitGuess(){
-  if(state.finished)return;
-  const inp=document.getElementById("guessInput");const val=inp.value;
-  if(!val.trim()){toast("Type a country first");return;}
-  if(!isKnownNation(val)){toast("Pick a country from the list");missFeedback();return;}
-  inp.value="";
-  if(isCorrect(val)){state.results[state.attempt]={type:"correct",label:current.name};state.won=true;state.finished=true;state.attempt++;endGame();}
-  else{state.results[state.attempt]={type:"wrong",label:val};state.attempt++;missFeedback();if(state.attempt>=6){state.finished=true;endGame();}else playClip();}
-  render();
-}
-function skip(){
-  if(state.finished)return;
-  state.results[state.attempt]={type:"skip",label:"Skipped"};state.attempt++;
-  if(state.attempt>=6){state.finished=true;endGame();}else playClip();
-  render();
-}
-function gridString(){return state.results.map(r=>r.type==="correct"?"🟩":r.type==="wrong"?"🟥":"⬛").join("");}
-function endGame(){
-  try{const today=Math.floor(Date.now()/86400000);let s=JSON.parse(localStorage.getItem("anthem_streak")||"{}");
-    if(state.won){if(s.lastDay===today){}else if(s.lastDay===today-1)s.count=(s.count||0)+1;else s.count=1;s.lastDay=today;}
-    else{s.count=0;s.lastDay=today;}
-    localStorage.setItem("anthem_streak",JSON.stringify(s));state.streak=s.count;
-  }catch(e){state.streak=state.won?1:0;}
-  if(state.won&&!RM)launchConfetti();
-}
-function renderEnd(){
-  const br=document.getElementById("bigResult");br.textContent=state.won?"GOAL! ⚽":"FULL TIME";br.classList.toggle("lose",!state.won);
-  const img=document.getElementById("endFlagImg"),emo=document.getElementById("endFlagEmoji");
-  emo.textContent=current.flag;
-  if(current.cc){img.style.display="block";emo.style.display="none";
-    img.onerror=()=>{img.style.display="none";emo.style.display="block";};
-    img.style.filter="drop-shadow(0 0 22px "+hexA(current.colors[0],0.6)+")";
-    img.src="https://flagcdn.com/w320/"+current.cc+".png";}
-  else {img.style.display="none";emo.style.display="block";}
-  // tint end panel to flag colours
-  const c=current.colors;
-  document.getElementById("end").style.background=
-    "radial-gradient(130% 90% at 50% 0%, "+hexA(c[0],0.34)+", "+hexA(c[1]||c[0],0.14)+" 46%, transparent 72%)";
-  document.getElementById("endAns").textContent=current.name;
-  document.getElementById("endVerdict").textContent=current.verdict;
-  document.getElementById("gridShare").textContent=gridString();
-  const tries=state.won?state.attempt:"X";
-  document.getElementById("streakLine").innerHTML='<span>'+(state.won?"🎺 "+tries+"/6":"😵 X/6")+'</span><span class="g">🔥 Streak '+(state.streak||0)+'</span>';
-  document.getElementById("copied").textContent="";
-}
-function shareText(){const tries=state.won?state.attempt:"X";return "ANTHEM ⚽ Match #"+(puzzleIndex+1)+"  "+tries+"/6\n"+gridString()+"\nName the World Cup nation from its anthem";}
-
-/* ===================== CONFETTI ===================== */
-const cc=document.getElementById("confetti"),ctx2=cc.getContext("2d");let parts=[],confRAF=null;
-function sizeCanvas(){cc.width=innerWidth;cc.height=innerHeight;}sizeCanvas();
-addEventListener("resize",()=>{sizeCanvas();if(current&&!state.finished)setStatic(Math.min(state.attempt,5));});
-function launchConfetti(){
-  const colors=["#ffd23f","#ffffff","#1fd17a","#ff6b3d","#33c6ff"];parts=[];
-  for(let i=0;i<140;i++){parts.push({x:innerWidth/2+(Math.random()-0.5)*150,y:innerHeight*0.32,
-    vx:(Math.random()-0.5)*9,vy:Math.random()*-12-4,g:0.32,s:6+Math.random()*7,c:colors[i%colors.length],r:Math.random()*6,vr:(Math.random()-0.5)*0.5,life:140});}
-  cancelAnimationFrame(confRAF);runConfetti();
-}
-function runConfetti(){
-  ctx2.clearRect(0,0,cc.width,cc.height);let alive=false;
-  parts.forEach(p=>{if(p.life<=0)return;alive=true;p.vy+=p.g;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;p.life--;
-    ctx2.save();ctx2.translate(p.x,p.y);ctx2.rotate(p.r);ctx2.globalAlpha=Math.min(1,p.life/30);
-    ctx2.fillStyle=p.c;ctx2.fillRect(-p.s/2,-p.s/2,p.s,p.s*0.62);ctx2.restore();});
-  if(alive)confRAF=requestAnimationFrame(runConfetti);else ctx2.clearRect(0,0,cc.width,cc.height);
-}
-
-/* ===================== WIRE UP ===================== */
-function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1400);}
-document.getElementById("playBtn").addEventListener("click",playClip);
-document.getElementById("guessBtn").addEventListener("click",submitGuess);
-document.getElementById("skipBtn").addEventListener("click",skip);
-document.getElementById("guessInput").addEventListener("keydown",e=>{if(e.key==="Enter")submitGuess();});
-document.getElementById("nextBtn").addEventListener("click",()=>loadPuzzle(puzzleIndex+1));
-document.getElementById("shareBtn").addEventListener("click",()=>{
-  const txt=shareText(),done=()=>document.getElementById("copied").textContent="Copied — paste it anywhere ✓";
-  if(navigator.share){navigator.share({text:txt}).catch(()=>{});return;}
-  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(done).catch(()=>{fallbackCopy(txt);done();});
-  else{fallbackCopy(txt);done();}
+/* ===================== RENDER ===================== */
+const fx=document.getElementById("fixtures");
+GAMES.forEach((g,i)=>{
+  const live=g.status==="live";
+  const el=document.createElement(live?"a":"div");
+  el.className="gamecard "+g.status;
+  el.style.animationDelay=(0.08*i)+"s";
+  if(live){el.href=g.href;el.setAttribute("aria-label","Play "+g.name);}
+  el.innerHTML=
+    '<div class="markings"></div>'+
+    '<div class="gc-pad">'+
+      '<div class="gc-icon">'+g.icon+'</div>'+
+      '<div class="gc-body">'+
+        '<div class="gc-name disp">'+g.name+'</div>'+
+        '<div class="gc-tag">'+g.tagline+'</div>'+
+        '<div class="gc-badge">'+(live?'<span class="dot"></span>':'<span class="dot"></span>')+g.badge+'</div>'+
+      '</div>'+
+      (live?'<div class="gc-cta disp">PLAY</div>':'<div class="gc-lock">🔒</div>')+
+    '</div>';
+  fx.appendChild(el);
 });
-function fallbackCopy(t){const ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand("copy")}catch(e){}document.body.removeChild(ta);}
-// how to play
-const howto=document.getElementById("howto");
-function showHowto(){howto.classList.add("show");}
-function hideHowto(){howto.classList.remove("show");try{localStorage.setItem("anthem_seen","1");}catch(e){}}
-document.getElementById("helpBtn").addEventListener("click",showHowto);
-document.getElementById("howtoClose").addEventListener("click",hideHowto);
-howto.addEventListener("click",e=>{if(e.target===howto)hideHowto();});
-try{if(!localStorage.getItem("anthem_seen"))showHowto();}catch(e){showHowto();}
-// bunting + datalist
-const bcol=["#ffd23f","#ffffff","#ff6b3d","#1fd17a"];const bun=document.getElementById("bunting");
-for(let i=0;i<15;i++){const t=document.createElement("i");t.style.borderTopColor=bcol[i%bcol.length];bun.appendChild(t);}
-const dl=document.getElementById("nations");ALL_NATIONS.forEach(n=>{const o=document.createElement("option");o.value=n;dl.appendChild(o);});
-loadPuzzle(pickDailyIndex());
+
+/* ===================== BUNTING ===================== */
+const COLS=["#ffd23f","#ff6b3d","#ffffff","#2fb955"];
+const bun=document.getElementById("bunting");
+for(let i=0;i<12;i++){const f=document.createElement("i");f.style.borderTopColor=COLS[i%COLS.length];bun.appendChild(f);}
+
+/* ===================== KICKOFF COUNTDOWN =====================
+   WC26: 11 Jun – 19 Jul 2026. Before: countdown. During: live. After: full time. */
+const KICKOFF=new Date("2026-06-11T00:00:00");
+const FULLTIME=new Date("2026-07-20T00:00:00");
+const cdEl=document.getElementById("countdown");
+function tickCountdown(){
+  const now=new Date();
+  if(now>=FULLTIME){cdEl.textContent="FULL TIME · SEE YOU IN 2030";return;}
+  if(now>=KICKOFF){
+    const day=Math.floor((now-KICKOFF)/86400000)+1;
+    cdEl.textContent="TOURNAMENT LIVE · DAY "+day;return;
+  }
+  const ms=KICKOFF-now;
+  const d=Math.floor(ms/86400000), h=Math.floor(ms/3600000)%24, m=Math.floor(ms/60000)%60;
+  cdEl.textContent="KICKOFF IN "+(d>0?d+"D ":"")+h+"H "+m+"M";
+}
+tickCountdown();setInterval(tickCountdown,30000);
 </script>
 </body>
 </html>
