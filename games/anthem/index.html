@@ -717,7 +717,7 @@ function endGame(){
       localStorage.setItem("anthem_streak",JSON.stringify(s));state.streak=s.count;
     }catch(e){state.streak=state.won?1:0;}
   }
-  if(state.won&&!RM)launchConfetti();
+  if(state.won)launchConfetti();
   /* reveal: play the whole anthem (win or lose). Only here — i.e. in the same user-gesture
      chain as the final guess — so autoplay is allowed; a restored finished game won't autoplay. */
   stopPlayback();
@@ -766,17 +766,23 @@ function sizeCanvas(){cc.width=innerWidth;cc.height=innerHeight;}sizeCanvas();
 addEventListener("resize",()=>{sizeCanvas();if(current&&!state.finished)setStatic(Math.min(state.attempt,5));});
 function confettiBurst(x,y,n,vx0,spread){
   const colors=["#ffd23f","#ffffff","#1fd17a","#ff6b3d","#33c6ff"];
+  const K=RM?0.55:1; // reduced motion: slower, softer drift
   for(let i=0;i<n;i++){parts.push({x:x+(Math.random()-0.5)*60,y,
-    vx:vx0+(Math.random()-0.5)*spread,vy:-5-Math.random()*11,g:0.3,s:6+Math.random()*8,
-    c:colors[(Math.random()*colors.length)|0],r:Math.random()*6,vr:(Math.random()-0.5)*0.55,life:150+Math.random()*50});}
+    vx:(vx0+(Math.random()-0.5)*spread)*K,vy:(-5-Math.random()*11)*K,g:RM?0.16:0.3,s:6+Math.random()*8,
+    c:colors[(Math.random()*colors.length)|0],r:Math.random()*6,vr:(Math.random()-0.5)*(RM?0.25:0.55),life:150+Math.random()*50});}
 }
 function launchConfetti(){
+  /* everyone gets a celebration: full blast normally, a gentler shower under
+     prefers-reduced-motion (fewer/slower pieces, no cannons, no second wave) */
   parts=[];
-  confettiBurst(innerWidth/2,innerHeight*0.30,130,0,10);  // centre fountain
-  confettiBurst(12,innerHeight*0.72,60,7.5,5);            // left cannon
-  confettiBurst(innerWidth-12,innerHeight*0.72,60,-7.5,5);// right cannon
+  const C=RM?0.4:1;
+  confettiBurst(innerWidth/2,innerHeight*0.30,Math.round(130*C),0,10); // centre fountain
+  if(!RM){
+    confettiBurst(12,innerHeight*0.72,60,7.5,5);             // left cannon
+    confettiBurst(innerWidth-12,innerHeight*0.72,60,-7.5,5); // right cannon
+    setTimeout(()=>confettiBurst(innerWidth/2,innerHeight*0.35,80,0,11),650); // second wave
+  }
   cancelAnimationFrame(confRAF);runConfetti();
-  setTimeout(()=>{if(!RM)confettiBurst(innerWidth/2,innerHeight*0.35,80,0,11);},650); // second wave
 }
 function runConfetti(){
   ctx2.clearRect(0,0,cc.width,cc.height);let alive=false;
