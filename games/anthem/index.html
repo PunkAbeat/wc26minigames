@@ -740,7 +740,10 @@ function renderSugg(){
     row.innerHTML='<img src="https://flagcdn.com/w40/'+v.n.cc+'.png" alt="" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'inline\'">'+
       '<span class="se">'+v.n.flag+'</span><span class="sname">'+v.n.name+'</span>'+(v.used?'<span class="stag">tried</span>':'');
     if(!v.used){
-      row.addEventListener("pointerdown",e=>{e.preventDefault();pickNation(v.n);});
+      /* select on click, not pointerdown: a touch that becomes a scroll never fires click,
+         so the list stays scrollable on mobile. pointerdown only keeps the input focused. */
+      row.addEventListener("pointerdown",e=>e.preventDefault());
+      row.addEventListener("click",()=>pickNation(v.n));
       row.addEventListener("mouseenter",()=>setHi(i));
     }
     suggBox.appendChild(row);
@@ -761,7 +764,7 @@ function moveHi(dir){
 }
 function openSugg(){renderSugg();suggBox.classList.add("open");gInput.setAttribute("aria-expanded","true");}
 function closeSugg(){suggBox.classList.remove("open");gInput.setAttribute("aria-expanded","false");hiIdx=-1;}
-function pickNation(n){gInput.value=n.name;closeSugg();gInput.focus();}
+function pickNation(n){gInput.value=n.name;gInput.focus();closeSugg();} // focus before close: the focus event reopens the list, so close must come last
 gInput.addEventListener("input",openSugg);
 gInput.addEventListener("focus",openSugg);
 gInput.addEventListener("keydown",e=>{
