@@ -31,7 +31,7 @@ Internet connection recommended: games stream audio (archive.org), web fonts (Go
 
 | Game | Status | What it is |
 |---|---|---|
-| **ANTHEM** 🎺 | Playable prototype | Hear a growing snippet of a national anthem, guess the nation in six tries — a "Heardle" for World Cup anthems. See [games/anthem/HANDOFF.md](games/anthem/HANDOFF.md) for the full story and roadmap. |
+| **ANTHEM** 🎺 | Live (daily + practice) | Hear a growing snippet of a national anthem, guess the nation in six tries — a "Heardle" for World Cup anthems. One official anthem per UTC day (same for everyone, streaks + share grid) across all 48 qualified nations, plus an unlimited practice mode. See [games/anthem/HANDOFF.md](games/anthem/HANDOFF.md) for the full story and roadmap. |
 | ??? | Planned | More daily fixtures to come. |
 
 ## Adding a game

@@ -23,7 +23,8 @@ The brief started as "a site about the upcoming World Cup that could go viral." 
 
 Single file: `games/anthem/index.html`. Vanilla JS, Web Audio, Canvas. Features:
 
-- 6 anthems: England, USA, France, Germany, Italy, Japan (each: name, aliases, flag/cc, flag colours, 5 hints, verdict line, fallback melody, archive.org audio path).
+- **All 48 qualified WC2026 nations** (each: name, aliases, flag/cc, flag colours, 5 hints incl. real group A–L, verdict line, archive.org audio path; 5 nations also keep a hand-transcribed synth-fallback melody). 45 have verified audio and are in the rotation; Scotland, Curaçao and DR Congo are guessable but excluded from the rotation until audio is sourced (see §5). Italy did not qualify and was removed.
+- **Daily + practice play model** (production, since 10 Jun 2026): one official anthem per UTC day — `LAUNCH_DAY` (10 Jun 2026) + a fixed seeded shuffle (`mulberry32(0x26061126)`, Mexico pinned to Match #1) gives every client the same Match #N without a backend. Today's game persists in `localStorage` (`anthem_daily`): reload restores mid-game or finished state, so no replays; end screen shows a live countdown to the next UTC midnight. Practice mode (replaces the old "preview" button) serves random anthems — never today's — with no streak/Match # impact and a "play another" loop.
 - Clip reveal 1/2/4/7/11/16s over 6 guesses; hint card unlocks per miss.
 - **Real audio:** streams U.S. Navy Band PD recordings from `https://archive.org/download/us-navy-band-national-anthems-public-domain/Current/<Country>.mp3`. Auto-fallback to a synth engine (detuned brass + bass + pad + convolver reverb) if a track errors.
 - **UI:** juicy mobile-game football theme — bunting, pitch card, candy buttons (press depth), ball-rolls-to-goal progress (six markers = six guesses), referee-style yellow hint cards, scoreboard guess rows, GOAL + confetti, flag-coloured end screen.
@@ -40,8 +41,10 @@ Single file: `games/anthem/index.html`. Vanilla JS, Web Audio, Canvas. Features:
 
 ## 5. Known limitations / honest caveats
 
-- **No backend.** "Daily" puzzle is chosen client-side by date, so it's not truly synchronized across players, and there are no global stats/leaderboards. This is the main thing blocking the real daily-ritual + virality loop.
-- **Melody fallbacks are approximate** — only England & USA hand-transcribed melodies are reliably accurate; others are best-effort. (Real audio is the primary path, so this only matters offline.)
+- **No backend.** The daily puzzle is now deterministic and UTC-synced across clients (seeded shuffle), which fixes the shared-puzzle problem — but there are still no global stats/leaderboards/"X% solved in 3", and the schedule is trivially data-mineable from source.
+- **3 nations lack audio** and are excluded from the rotation: Scotland (no PD recording; "Flower of Scotland" is © 1967 so no synth melody either), Curaçao (no Navy Band recording), DR Congo (`Current/Congo.mp3` exists but can't be confirmed as "Debout Congolais" vs Republic of the Congo's anthem without listening — verify by ear, then set its `audio` field).
+- **2 recordings come from the archive's `Removed/` folder** (Iran 2000, Paraguay 2000 — both anthems unchanged since recording, both verified streaming). QA-listen to confirm quality/correctness.
+- **Melody fallbacks are approximate** — only 5 nations (England, USA, France, Germany, Japan) have hand-transcribed melodies. (Real audio is the primary path, so this only matters offline.)
 - **Anthem recognizability is hard** — most people know few anthems; the progressive hints mitigate this but difficulty tuning needs real playtesting.
 - **Recordings are older/ceremonial** (~128kbps); fine for clips, not audiophile. Some anthems have intros before the recognizable melody, so a 1s clip can be near-silent for certain countries (needs per-anthem start offsets).
 - **Distribution is unsolved** — the hardest real-world problem; the product can't manufacture its own first audience.
@@ -50,9 +53,9 @@ Single file: `games/anthem/index.html`. Vanilla JS, Web Audio, Canvas. Features:
 ## 6. Prioritized roadmap (where to carry on)
 
 1. **Autocomplete country picker** (highest UX impact): custom dropdown, filter-as-you-type, flag per row, keyboard nav, disable already-guessed nations, prevent invalid entries. Replaces the clunky `<datalist>`.
-2. **Share image + stats + countdown** (drives virality/retention): canvas-rendered share card (grid + streak, spoiler-free); stats panel (played / win% / streak / guess distribution); "next anthem in HH:MM" timer.
-3. **Backend for true daily sync + global stats/leaderboard** (unlocks the real loop): a tiny serverless store (e.g., Supabase / Cloudflare Workers + KV). Same anthem worldwide per day; aggregate "X% got it in 3"; optional global solve %.
-4. **Expand anthems to all 48 qualified nations** — clean archive.org naming makes this quick; add per-anthem **start offsets** to skip silent intros, plus difficulty tags.
+2. **Share image + stats** (drives virality/retention): canvas-rendered share card (grid + streak, spoiler-free); stats panel (played / win% / streak / guess distribution). ~~Countdown timer~~ ✅ done.
+3. **Backend for global stats/leaderboard**: a tiny serverless store (e.g., Supabase / Cloudflare Workers + KV) for aggregate "X% got it in 3" / global solve %. (Daily sync itself is now solved client-side.)
+4. ~~Expand anthems to all 48 qualified nations~~ ✅ done (45 with audio). Remaining: per-anthem **start offsets** to skip silent intros, difficulty tags, audio for Scotland/Curaçao/DR Congo, QA-listen to every clip.
 5. **Audio polish** — host trimmed/normalized copies of the PD files; optional per-anthem tempo/character.
 6. **Feel/extras** — tap/goal SFX, flag reveal animation; "premium" theme variant if a more grown-up look is ever wanted (current look is intentionally playful/juicy).
 
