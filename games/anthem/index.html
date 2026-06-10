@@ -64,7 +64,10 @@
   .markings{position:absolute;inset:12px;border:2.5px solid rgba(255,255,255,.28);border-radius:14px}
   .cc{position:absolute;top:0;left:50%;width:118px;height:118px;margin-left:-59px;margin-top:-59px;border:2.5px solid rgba(255,255,255,.22);border-radius:50%}
   .cl{position:absolute;left:50%;top:12px;height:54px;width:2.5px;background:rgba(255,255,255,.22);margin-left:-1px}
-  .pad{position:relative;z-index:2;padding:22px 18px}
+  /* flex order lets the result panel jump to the top of the card on finish
+     (DOM order keeps hints/rows first; visual order is what matters) */
+  .pad{position:relative;z-index:2;padding:22px 18px;display:flex;flex-direction:column}
+  .player{order:0}.guessrow{order:1}.subrow{order:2}.end{order:3}.hints{order:4}.rows{order:5}
 
   .player{display:flex;align-items:center;gap:15px}
   .play{flex:none;width:74px;height:74px;border-radius:50%;border:none;cursor:pointer;color:var(--goldink);
@@ -676,11 +679,15 @@ function render(){
   if(!state.finished)placeMarks(stage);
   if(!pb.playing&&!pb.paused)document.getElementById("clipLabel").textContent=clipIdleLabel();
   document.getElementById("attempts").textContent=state.finished?"":("Guess "+(state.attempt+1)+" / 6");
+  /* newest first: fresh hints/guesses appear right under the input, never below the fold.
+     Hints vanish once the game is over — the result panel takes the stage. */
   const hbox=document.getElementById("hints");hbox.innerHTML="";
-  for(let i=0;i<state.attempt&&i<current.hints.length;i++){const d=document.createElement("div");d.className="hint";d.innerHTML='<span class="rc"></span>'+current.hints[i];hbox.appendChild(d);}
-  if(state.attempt===0&&!state.finished){const l=document.createElement("div");l.className="hintlock";l.textContent="🟨 A hint card unlocks with each miss";hbox.appendChild(l);}
+  if(!state.finished){
+    for(let i=Math.min(state.attempt,current.hints.length)-1;i>=0;i--){const d=document.createElement("div");d.className="hint";d.innerHTML='<span class="rc"></span>'+current.hints[i];hbox.appendChild(d);}
+    if(state.attempt===0){const l=document.createElement("div");l.className="hintlock";l.textContent="🟨 A hint card unlocks with each miss";hbox.appendChild(l);}
+  }
   const rows=document.getElementById("rows");rows.innerHTML="";
-  state.results.forEach(res=>{const r=document.createElement("div");r.className="grow "+res.type;
+  state.results.slice().reverse().forEach(res=>{const r=document.createElement("div");r.className="grow "+res.type;
     const tag=res.type==="correct"?'<span class="tag">✓ GOAL</span>':res.type==="wrong"?'<span class="tag">✗ MISS</span>':'<span class="tag">SKIP</span>';
     r.innerHTML='<span class="dot"></span><span class="gtext">'+res.label+'</span>'+tag;rows.appendChild(r);});
   document.getElementById("guessrow").style.display=state.finished?"none":"flex";
@@ -761,6 +768,9 @@ function renderEnd(){
   document.getElementById("againBtn").style.display=MODE==="practice"?"inline-block":"none";
   if(MODE==="daily")startCountdown();else{clearInterval(cdTimer);document.getElementById("nextIn").textContent="";}
   document.getElementById("copied").textContent="";
+  /* make sure the result is actually on screen (player may be scrolled deep into hints/rows) */
+  const eb=document.getElementById("end").getBoundingClientRect();
+  if(eb.top<0||eb.top>innerHeight*0.5)document.querySelector(".card").scrollIntoView({behavior:RM?"auto":"smooth",block:"start"});
 }
 function shareText(){const tries=state.won?state.attempt:"X";
   const head=MODE==="daily"?("ANTHEM ⚽ Match #"+matchNumber()):"ANTHEM ⚽ Practice";
