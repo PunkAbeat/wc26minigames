@@ -17,7 +17,8 @@
     --r:16px; --r-lg:24px; --r-sm:12px; --pill:999px;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{margin:0;padding:0}
+  html{background:var(--bg2)} /* over-scroll shows pitch green, never white */
+  html,body{margin:0;padding:0;overflow-x:hidden}
   body{
     font-family:'Nunito',system-ui,sans-serif; color:var(--txt);
     min-height:100vh; padding:0 16px 60px; display:flex; flex-direction:column; align-items:center;
@@ -56,9 +57,11 @@
     box-shadow:0 24px 50px -20px rgba(0,0,0,.7), inset 0 2px 0 rgba(255,255,255,.25);}
   /* no overflow:hidden — the country-picker dropdown must escape the card; round the stripe overlay instead */
   .card::before{content:"";position:absolute;inset:0;border-radius:var(--r-lg);pointer-events:none;opacity:.5;background:repeating-linear-gradient(115deg, rgba(255,255,255,.05) 0 40px, transparent 40px 80px)}
-  .markings{position:absolute;inset:12px;border:2.5px solid rgba(255,255,255,.28);border-radius:14px;pointer-events:none}
-  .cc{position:absolute;top:0;left:50%;width:118px;height:118px;margin-left:-59px;margin-top:-59px;border:2.5px solid rgba(255,255,255,.22);border-radius:50%;pointer-events:none}
-  .cl{position:absolute;left:50%;top:12px;height:54px;width:2.5px;background:rgba(255,255,255,.22);margin-left:-1px;pointer-events:none}
+  /* pitch decorations live in their own clipped layer (the card itself must not clip — the picker dropdown escapes it) */
+  .deco{position:absolute;inset:0;border-radius:var(--r-lg);overflow:hidden;pointer-events:none}
+  .markings{position:absolute;inset:12px;border:2.5px solid rgba(255,255,255,.28);border-radius:14px}
+  .cc{position:absolute;top:0;left:50%;width:118px;height:118px;margin-left:-59px;margin-top:-59px;border:2.5px solid rgba(255,255,255,.22);border-radius:50%}
+  .cl{position:absolute;left:50%;top:12px;height:54px;width:2.5px;background:rgba(255,255,255,.22);margin-left:-1px}
   .pad{position:relative;z-index:2;padding:22px 18px}
 
   .player{display:flex;align-items:center;gap:15px}
@@ -86,11 +89,11 @@
   .smark.on{background:var(--gold);box-shadow:0 0 7px var(--gold)}
   .track .goalL,.track .goalR{position:absolute;top:9px;bottom:9px;width:6px;background:#fff;border-radius:3px;box-shadow:0 0 6px rgba(255,255,255,.6)}
   .track .goalL{left:5px}.track .goalR{right:5px}
-  .ballpos{position:absolute;top:50%;left:0;transform:translate(-50%,-50%);transition:left .05s linear}
+  .ballpos{position:absolute;top:50%;left:0;transform:translate(-50%,-50%);transition:left .05s linear;z-index:3}
   .playhead{position:absolute;top:5px;bottom:5px;width:3px;border-radius:2px;background:#fff;box-shadow:0 0 9px rgba(255,210,63,.95);transform:translateX(-50%);display:none;z-index:2}
   .playhead.show{display:block}
-  .ball{width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 36% 30%,#fff,#eee 55%,#cfd6cf);
-    box-shadow:0 3px 6px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;font-size:15px}
+  .ball{width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:22px;
+    filter:drop-shadow(0 3px 4px rgba(0,0,0,.45))}
   .ball.kick{animation:roll .9s linear}
   @keyframes roll{to{transform:rotate(720deg)}}
   .labelrow{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
@@ -100,8 +103,9 @@
 
   .guessrow{display:flex;gap:10px;margin-top:18px}
   .picker{flex:1;min-width:0;position:relative}
-  #guessInput{width:100%;padding:15px 42px 15px 16px;border-radius:var(--r);border:3px solid #fff;background:#063019;color:#fff;
-    font-family:'Nunito';font-size:15px;font-weight:700;outline:none;box-shadow:inset 0 2px 6px rgba(0,0,0,.35);transition:border-color .15s, box-shadow .15s}
+  /* 16px minimum: anything smaller makes iOS zoom the page when the input is focused */
+  #guessInput{width:100%;padding:14px 42px 14px 16px;border-radius:var(--r);border:3px solid #fff;background:#063019;color:#fff;
+    font-family:'Nunito';font-size:16px;font-weight:700;outline:none;box-shadow:inset 0 2px 6px rgba(0,0,0,.35);transition:border-color .15s, box-shadow .15s}
   .clearbtn{position:absolute;right:11px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;border:none;cursor:pointer;
     background:rgba(255,255,255,.16);color:#fff;font-size:13px;font-weight:800;line-height:1;display:none;align-items:center;justify-content:center;z-index:2}
   .clearbtn.show{display:flex}
@@ -210,7 +214,7 @@
 </header>
 
 <div class="card">
-  <div class="markings"></div><div class="cl"></div><div class="cc"></div>
+  <div class="deco"><div class="markings"></div><div class="cl"></div><div class="cc"></div></div>
   <div class="pad">
 
     <div class="player">
@@ -333,7 +337,7 @@ const audioEl=new Audio();audioEl.preload="auto";
 const SVG_SPK='<svg class="si" viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9z"/><path d="M16 8c1.6 1.4 1.6 6.6 0 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 const SVG_NOTE='<svg class="si" viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M9 17.5a2.5 2.5 0 11-1.7-2.36V7l9-1.8v8.3A2.5 2.5 0 1115 13V8.2L9 9.4z"/></svg>';
 function setSource(kind){const el=document.getElementById("srcBadge");if(!el)return;
-  el.innerHTML=kind==="synth"?(SVG_NOTE+"Synth"):(SVG_SPK+"Live recording");}
+  el.innerHTML=kind==="synth"?(SVG_NOTE+"Synth fallback"):"";} // players don't need a badge for the normal case
 function setPlaying(on){document.getElementById("playBtn").classList.toggle("playing",on);}
 function setLoading(on){document.getElementById("playBtn").classList.toggle("loading",on);}
 let wantPlay=false;
