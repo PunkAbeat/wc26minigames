@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <title>MATCHDAY ⚽ World Cup 2026 daily mini games</title>
 <meta name="description" content="A series of daily, shareable mini games for the 2026 World Cup. One stadium, many games — new kickoff every day." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,7 +19,8 @@
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html{background:var(--bg2)} /* over-scroll shows pitch green, never white */
-  html,body{margin:0;padding:0;overflow-x:hidden}
+  /* pan-y: vertical scroll only — suppresses double-tap zoom, stray horizontal pan and (where honored) pinch zoom; overscroll-behavior kills the rubber-band bounce */
+  html,body{margin:0;padding:0;overflow-x:hidden;touch-action:pan-y;overscroll-behavior:none}
   body{
     font-family:'Nunito',system-ui,sans-serif; color:var(--txt);
     min-height:100vh; padding:0 16px 60px; display:flex; flex-direction:column; align-items:center;

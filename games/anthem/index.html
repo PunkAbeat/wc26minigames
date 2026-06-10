@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <title>ANTHEM ⚽ Guess the World Cup nation</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +18,8 @@
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html{background:var(--bg2)} /* over-scroll shows pitch green, never white */
-  html,body{margin:0;padding:0;overflow-x:hidden}
+  /* pan-y: vertical scroll only — suppresses double-tap zoom, stray horizontal pan and (where honored) pinch zoom; overscroll-behavior kills the rubber-band bounce */
+  html,body{margin:0;padding:0;overflow-x:hidden;touch-action:pan-y;overscroll-behavior:none}
   body{
     font-family:'Nunito',system-ui,sans-serif; color:var(--txt);
     min-height:100vh; padding:0 16px 60px; display:flex; flex-direction:column; align-items:center;
@@ -36,7 +37,8 @@
   .bunting i:nth-child(even){animation-delay:.4s}
   @keyframes sway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
 
-  header{width:100%;max-width:460px;text-align:center;margin-top:14px;position:relative}
+  /* padding-top reserves the corner-button row — the kicker text must not run under ⚽ Games / ? */
+  header{width:100%;max-width:460px;text-align:center;margin-top:14px;position:relative;padding-top:44px}
   .kicker{font-size:11px;font-weight:800;letter-spacing:.3em;color:var(--gold);text-transform:uppercase}
   .wordmark{font-size:46px;font-weight:800;line-height:1;margin:6px 0 0;display:inline-flex;align-items:center;gap:12px;color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.18)}
   .wordmark .ball{width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 36% 30%,#fff,#ffe9a6 42%,var(--gold) 74%,var(--gold-d));
