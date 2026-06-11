@@ -48,15 +48,43 @@ import {
   saveDaily,
   saveStreak,
 } from '../lib/anthem/storage'
+import { gameToCardOpts, renderShareCard } from '../lib/anthem/sharecard'
 import { scheduleMelody, missThunk } from '../lib/anthem/engine/synth'
 import { PlaybackController } from '../lib/anthem/engine/playback'
 import { TrackView } from '../lib/anthem/engine/track'
 import { Confetti } from '../lib/anthem/engine/confetti'
 import '../styles/anthem.css'
 
+/* absolute origin for og:image (crawlers reject relative URLs) — set
+   VITE_SITE_ORIGIN at build time once the production domain exists */
+const ORIGIN = (import.meta.env.VITE_SITE_ORIGIN as string | undefined) || ''
+
 export const Route = createFileRoute('/anthem')({
   head: () => ({
-    meta: [{ title: 'ANTHEM ⚽ Guess the World Cup nation' }],
+    meta: [
+      { title: 'ANTHEM ⚽ Guess the World Cup nation' },
+      {
+        name: 'description',
+        content:
+          'Hear a snippet of a national anthem and guess the World Cup nation in six tries. A new anthem every day at midnight UTC.',
+      },
+      { property: 'og:title', content: 'ANTHEM ⚽ Guess the World Cup nation' },
+      {
+        property: 'og:description',
+        content: 'One anthem a day, six guesses. Can you keep your streak?',
+      },
+      { property: 'og:type', content: 'website' },
+      ...(ORIGIN
+        ? [
+            { property: 'og:url', content: ORIGIN + '/anthem' },
+            { property: 'og:image', content: ORIGIN + '/og/anthem.png' },
+            { property: 'og:image:width', content: '1200' },
+            { property: 'og:image:height', content: '630' },
+            { name: 'twitter:card', content: 'summary_large_image' },
+            { name: 'twitter:image', content: ORIGIN + '/og/anthem.png' },
+          ]
+        : []),
+    ],
   }),
   component: AnthemPage,
 })
@@ -286,12 +314,34 @@ function AnthemPage() {
     markHowtoSeen()
   }, [])
 
-  const share = useCallback(() => {
+  const makeShareCard = useCallback(async (): Promise<Blob | null> => {
+    const s = stateRef.current
+    return renderShareCard(
+      gameToCardOpts(s, modeRef.current, matchNumber(), location.host),
+    )
+  }, [])
+
+  const share = useCallback(async () => {
     const s = stateRef.current
     const txt = shareText(s, modeRef.current, matchNumber())
     const done = () => setCopied('Copied — paste it anywhere ✓')
+    /* best path: share sheet with the rendered card attached (iOS 15+, Android) */
     if (navigator.share) {
-      navigator.share({ text: txt }).catch(() => {})
+      let files: File[] | undefined
+      try {
+        const blob = await makeShareCard()
+        if (blob) {
+          const f = new File(
+            [blob],
+            'anthem-' + (modeRef.current === 'daily' ? 'match-' + matchNumber() : 'practice') + '.png',
+            { type: 'image/png' },
+          )
+          if (navigator.canShare && navigator.canShare({ files: [f] })) files = [f]
+        }
+      } catch {
+        /* card render failed — share text only */
+      }
+      navigator.share(files ? { files, text: txt } : { text: txt }).catch(() => {})
       return
     }
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -306,7 +356,7 @@ function AnthemPage() {
       fallbackCopy(txt)
       done()
     }
-  }, [])
+  }, [makeShareCard])
 
   /* ---------- mount: engines, daily boot, listeners ---------- */
   useEffect(() => {
@@ -532,6 +582,7 @@ function AnthemPage() {
       stopPlayback: () => pbRef.current?.stop(),
       hideHowto,
       showHowto: () => setHowtoOpen(true),
+      makeShareCard,
     }
   })
 

@@ -11,6 +11,12 @@ export const Route = createFileRoute('/')({
         content:
           'A series of daily, shareable mini games for the 2026 World Cup. One stadium, many games — new kickoff every day.',
       },
+      { property: 'og:title', content: 'MATCHDAY ⚽ World Cup 2026 daily mini games' },
+      {
+        property: 'og:description',
+        content: 'One stadium, many games — new kickoff every day.',
+      },
+      { property: 'og:type', content: 'website' },
     ],
   }),
   component: Hub,
