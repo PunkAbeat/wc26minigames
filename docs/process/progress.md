@@ -17,7 +17,7 @@ Statuses: `todo` · `in_progress` · `blocked` · `done`. One line per item; dur
 | Self-hosted audio (trimmed/normalized, archive.org fallback) | done | as Worker static assets instead of R2 — [ADR-0005](../adr/0005-self-hosted-audio-as-worker-assets.md); `npm run deploy` regenerates |
 | FIFA-wording legal pass ("World Cup" in titles) | todo | see research/questions.md |
 | Error monitoring | done | first-party: Workers Logs (observability enabled) + client beacon /api/error → console.error, self-capped; verified live via wrangler tail. Sentry = upgrade path if triage outgrows it |
-| QA-listen: Iran + Paraguay (`Removed/` recordings), DR Congo verification | todo | HANDOFF §5 |
+| QA-listen: Iran + Paraguay (`Removed/` recordings), DR Congo verification | in_progress | machine QA clean (0/45 flags); human checklist with links: [research/qa-listen.md](../research/qa-listen.md) |
 | Distribution plan (r/soccer, football TikTok/Twitter, group chats) | todo | product work, not code |
 | Owner feedback round 11 Jun (copy, trumpet, OFF TARGET, practice cap 2/day, anthem wiki link, Match #1 = 11 Jun) | done | first deliberate behavior changes post-parity |
 | Feedback round 2: archive mode (previous matches), Esc on modals, hub newsletter capture | done | deployed 11 Jun; D1 subscribers table; suites 10-11; bot defence = honeypot + min-time (**Turnstile deferred until evidence of abuse** — owner decision 11 Jun); junk meter: `SELECT count(*) FROM subscribers` |
