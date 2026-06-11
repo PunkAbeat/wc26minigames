@@ -1,6 +1,7 @@
 /* MATCHDAY hub — ported from the original root index.html. */
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { track } from '../lib/analytics'
 import { trackPageView } from '../lib/analytics'
 import '../styles/hub.css'
 
@@ -145,11 +146,70 @@ function Hub() {
         })}
       </main>
 
+      <NewsletterCard />
+
       <div className="foot">
         Unofficial fan project · not affiliated with FIFA.
         <br />
         Anthem audio: public-domain recordings by the U.S. Navy Band via archive.org.
       </div>
+    </div>
+  )
+}
+
+function NewsletterCard() {
+  const [state, setState] = useState<'idle' | 'sending' | 'done' | 'error'>('idle')
+  const inputRef = useRef<HTMLInputElement>(null)
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const email = inputRef.current?.value.trim() || ''
+    if (!email || state === 'sending') return
+    setState('sending')
+    try {
+      const res = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      if (!res.ok) throw new Error(String(res.status))
+      setState('done')
+      track('newsletter_signup')
+    } catch {
+      setState('error')
+    }
+  }
+  return (
+    <div className="signup" id="signup">
+      {state === 'done' ? (
+        <div className="su-done" id="signupDone">
+          ✅ You’re on the team sheet — we’ll email you when a new game drops.
+        </div>
+      ) : (
+        <>
+          <div className="su-title disp">🔔 More games are coming</div>
+          <div className="su-sub">
+            Want a heads-up when the next one drops? No spam — only new games.
+          </div>
+          <form className="su-form" onSubmit={submit}>
+            {/* 16px input: anything smaller makes iOS zoom the page on focus */}
+            <input
+              ref={inputRef}
+              id="signupEmail"
+              type="email"
+              required
+              placeholder="you@example.com"
+              autoComplete="email"
+              aria-label="Email address"
+            />
+            <button className="disp" id="signupBtn" disabled={state === 'sending'}>
+              {state === 'sending' ? '…' : 'Keep me posted'}
+            </button>
+          </form>
+          <div className="su-msg" id="signupMsg">
+            {state === 'error' ? 'That didn’t go in — check the address and shoot again.' : ''}
+          </div>
+        </>
+      )}
     </div>
   )
 }

@@ -104,6 +104,27 @@ export function bumpPracticePlays(day: number): void {
   }
 }
 
+/* anthem_archive {<day>: "3"|"X"} — results of replayed past matches */
+export function loadArchive(): Record<number, string> {
+  if (!hasStorage()) return {}
+  try {
+    return JSON.parse(localStorage.getItem('anthem_archive') || '{}')
+  } catch {
+    return {}
+  }
+}
+
+export function saveArchiveResult(day: number, tries: string): void {
+  if (!hasStorage()) return
+  try {
+    const a = loadArchive()
+    a[day] = tries
+    localStorage.setItem('anthem_archive', JSON.stringify(a))
+  } catch {
+    /* ignore */
+  }
+}
+
 export function hasSeenHowto(): boolean {
   if (!hasStorage()) return false
   try {

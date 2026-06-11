@@ -12,6 +12,7 @@ export const EVENT_NAMES = [
   'game_finished', // props: mode, tries ('1'..'6'|'X')
   'share_clicked', // props: mode
   'practice_started',
+  'newsletter_signup',
 ] as const
 
 interface AnalyticsEngineLike {

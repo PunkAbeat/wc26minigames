@@ -66,7 +66,7 @@ export const Route = createRootRoute({
         : [
             {
               children:
-                "(function(){var m=location.search.match(/[?&]anthemtest=([1-9])/);if(!m)return;" +
+                "(function(){var m=location.search.match(/[?&]anthemtest=(\\d{1,2})/);if(!m)return;" +
                 'HTMLMediaElement.prototype.load=function(){};' +
                 "HTMLMediaElement.prototype.play=function(){return Promise.reject(new Error('stubbed'))};" +
                 "var s=document.createElement('script');s.src='/tests/anthemtest'+m[1]+'.js';s.defer=true;document.head.appendChild(s);})();",

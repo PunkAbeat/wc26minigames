@@ -22,6 +22,7 @@ import {
 import type { Puzzle } from '../lib/anthem/puzzles'
 import {
   DAILY_ORDER,
+  LAUNCH_DAY,
   POOL,
   dailyPuzzleIndex,
   dayNumber,
@@ -46,11 +47,13 @@ import type { GameState, Mode, Stats } from '../lib/anthem/game'
 import {
   bumpPracticePlays,
   hasSeenHowto,
+  loadArchive,
   loadSavedDaily,
   loadStats,
   loadStreak,
   markHowtoSeen,
   practicePlaysToday,
+  saveArchiveResult,
   saveDaily,
   saveStats,
   saveStreak,
@@ -137,6 +140,9 @@ function AnthemPage() {
   const [flagBroken, setFlagBroken] = useState(false)
   const [globalLine, setGlobalLine] = useState('')
   const [globalTick, setGlobalTick] = useState(0) // bumped after our POST lands
+  const [archiveOpen, setArchiveOpen] = useState(false)
+  const [archiveDay, setArchiveDay] = useState<number | null>(null)
+  const [archiveResults, setArchiveResults] = useState<Record<number, string>>({})
 
   const current: Puzzle | null = puzzleIndex === null ? null : PUZZLES[puzzleIndex]
 
@@ -146,6 +152,7 @@ function AnthemPage() {
   const puzzleIndexRef = useRef<number | null>(null)
   const rmRef = useRef(false)
   const endScrolledForRef = useRef<string | null>(null)
+  const archiveDayRef = useRef<number | null>(null)
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const playBtnRef = useRef<HTMLButtonElement>(null)
@@ -239,7 +246,19 @@ function AnthemPage() {
     [commit, trackView],
   )
 
+  const startArchive = useCallback(
+    (day: number) => {
+      archiveDayRef.current = day
+      setArchiveDay(day)
+      setArchiveOpen(false)
+      loadPuzzleImpl(DAILY_ORDER[day % DAILY_ORDER.length], 'archive')
+    },
+    [loadPuzzleImpl],
+  )
+
   const startDaily = useCallback(() => {
+    archiveDayRef.current = null
+    setArchiveDay(null)
     loadPuzzleImpl(dailyPuzzleIndex(), 'daily')
     const saved = loadSavedDaily(dayNumber())
     if (saved) {
@@ -280,8 +299,13 @@ function AnthemPage() {
         mode: modeRef.current,
         tries: ns.won ? String(ns.attempt) : 'X',
       })
+      if (modeRef.current === 'archive' && archiveDayRef.current !== null) {
+        const tries = ns.won ? String(ns.attempt) : 'X'
+        saveArchiveResult(archiveDayRef.current, tries)
+        setArchiveResults((r) => ({ ...r, [archiveDayRef.current!]: tries }))
+      }
       if (modeRef.current === 'daily') {
-        // practice games never touch the streak or the lifetime stats
+        // practice and archive games never touch the streak or the lifetime stats
         const streak = updateStreak(loadStreak(), utcDay(), ns.won)
         saveStreak(streak)
         saveStats(updateStats(loadStats(), ns.won, ns.attempt, streak.count || 0))
@@ -386,12 +410,18 @@ function AnthemPage() {
     markHowtoSeen()
   }, [])
 
+  const currentMatchNo = useCallback((): number => {
+    return modeRef.current === 'archive' && archiveDayRef.current !== null
+      ? archiveDayRef.current + 1
+      : matchNumber()
+  }, [])
+
   const makeShareCard = useCallback(async (): Promise<Blob | null> => {
     const s = stateRef.current
     return renderShareCard(
-      gameToCardOpts(s, modeRef.current, matchNumber(), location.host),
+      gameToCardOpts(s, modeRef.current, currentMatchNo(), location.host),
     )
-  }, [])
+  }, [currentMatchNo])
 
   const share = useCallback(async () => {
     const s = stateRef.current
@@ -399,7 +429,7 @@ function AnthemPage() {
     /* ?ref=share closes the measurement loop: page_view{ref=share} over
        share_clicked is the viral coefficient */
     const txt =
-      shareText(s, modeRef.current, matchNumber()) +
+      shareText(s, modeRef.current, currentMatchNo()) +
       '\n' +
       location.origin +
       '/anthem?ref=share'
@@ -435,7 +465,7 @@ function AnthemPage() {
       fallbackCopy(txt)
       done()
     }
-  }, [makeShareCard])
+  }, [currentMatchNo, makeShareCard])
 
   /* ---------- mount: engines, daily boot, listeners ---------- */
   useEffect(() => {
@@ -464,6 +494,7 @@ function AnthemPage() {
     window.addEventListener('resize', onResize)
 
     startDaily()
+    setArchiveResults(loadArchive())
     if (!hasSeenHowto()) setHowtoOpen(true)
     trackPageView('/anthem')
 
@@ -474,6 +505,19 @@ function AnthemPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  /* Escape closes whichever modal is open */
+  useEffect(() => {
+    if (!(howtoOpen || statsOpen || archiveOpen)) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      if (howtoOpen) hideHowto()
+      setStatsOpen(false)
+      setArchiveOpen(false)
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [howtoOpen, statsOpen, archiveOpen, hideHowto])
 
   /* close the picker when tapping/clicking outside it */
   useEffect(() => {
@@ -695,13 +739,14 @@ function AnthemPage() {
       stopPlayback: () => pbRef.current?.stop(),
       hideHowto,
       showHowto: () => setHowtoOpen(true),
+      startArchive,
       makeShareCard,
       // suite 7 draws onto a live canvas instead of decoding the PNG blob —
       // image decode stalls under headless virtual time
       drawShareCardTo: (canvas: HTMLCanvasElement) =>
         drawShareCard(
           canvas,
-          gameToCardOpts(stateRef.current, modeRef.current, matchNumber(), location.host),
+          gameToCardOpts(stateRef.current, modeRef.current, currentMatchNo(), location.host),
         ),
     }
   })
@@ -712,7 +757,9 @@ function AnthemPage() {
       ? 'MATCH #…'
       : mode === 'daily'
         ? 'MATCH #' + matchNumber()
-        : '🎯 PRACTICE'
+        : mode === 'archive'
+          ? '📅 MATCH #' + ((archiveDay ?? 0) + 1)
+          : '🎯 PRACTICE'
   const hintsToShow =
     current && !game.finished
       ? Array.from(
@@ -1005,6 +1052,8 @@ function AnthemPage() {
               <span>{game.won ? '🎺 ' + tries + '/6' : '😵 X/6'}</span>
               {mode === 'daily' ? (
                 <span className="g">🔥 Streak {game.streak || 0}</span>
+              ) : mode === 'archive' ? (
+                <span className="g">📅 Archive</span>
               ) : (
                 <span className="g">🎯 Practice</span>
               )}
@@ -1040,8 +1089,13 @@ function AnthemPage() {
           id="practiceBtn"
           onClick={() => (mode === 'daily' ? startPractice() : startDaily())}
         >
-          {mode === 'daily' ? '🎯 Practice mode' : '📅 Back to today’s match'}
+          {mode === 'daily' ? '🎯 Practice mode' : '⚽ Back to today’s match'}
         </button>
+        {dayNumber() > 0 && mode === 'daily' && (
+          <button id="archiveBtn" onClick={() => setArchiveOpen(true)}>
+            📅 Previous matches
+          </button>
+        )}
       </div>
 
       <div className="foot">
@@ -1087,6 +1141,43 @@ function AnthemPage() {
             Let&apos;s play
           </button>
         </div>
+      </div>
+
+      <div
+        className={'modal' + (archiveOpen ? ' show' : '')}
+        id="archiveModal"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) setArchiveOpen(false)
+        }}
+      >
+        {archiveOpen && (
+          <div className="modal-card">
+            <h3 className="disp">Previous matches 📅</h3>
+            <div className="archlist">
+              {Array.from({ length: dayNumber() }, (_, k) => dayNumber() - 1 - k).map((day) => {
+                const d = new Date((LAUNCH_DAY + day) * 86400000)
+                const label = d.toLocaleDateString('en-GB', {
+                  day: 'numeric',
+                  month: 'short',
+                  timeZone: 'UTC',
+                })
+                const res = archiveResults[day]
+                return (
+                  <button key={day} className="archrow" onClick={() => startArchive(day)}>
+                    <span className="archname disp">Match #{day + 1}</span>
+                    <span className="archdate">{label}</span>
+                    <span className={'archres' + (res ? (res === 'X' ? ' lost' : ' won') : '')}>
+                      {res ? (res === 'X' ? '✗' : '✓ ' + res + '/6') : '▶ Play'}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+            <button className="go disp" onClick={() => setArchiveOpen(false)}>
+              Close
+            </button>
+          </div>
+        )}
       </div>
 
       <div

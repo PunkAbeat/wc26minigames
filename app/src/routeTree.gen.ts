@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as OgRouteImport } from './routes/og'
 import { Route as AnthemRouteImport } from './routes/anthem'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiSubscribeRouteImport } from './routes/api.subscribe'
 import { Route as ApiEventRouteImport } from './routes/api.event'
 import { Route as ApiAnthemStatsRouteImport } from './routes/api.anthem-stats'
 
@@ -28,6 +29,11 @@ const AnthemRoute = AnthemRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSubscribeRoute = ApiSubscribeRouteImport.update({
+  id: '/api/subscribe',
+  path: '/api/subscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiEventRoute = ApiEventRouteImport.update({
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/og': typeof OgRoute
   '/api/anthem-stats': typeof ApiAnthemStatsRoute
   '/api/event': typeof ApiEventRoute
+  '/api/subscribe': typeof ApiSubscribeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/og': typeof OgRoute
   '/api/anthem-stats': typeof ApiAnthemStatsRoute
   '/api/event': typeof ApiEventRoute
+  '/api/subscribe': typeof ApiSubscribeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +70,33 @@ export interface FileRoutesById {
   '/og': typeof OgRoute
   '/api/anthem-stats': typeof ApiAnthemStatsRoute
   '/api/event': typeof ApiEventRoute
+  '/api/subscribe': typeof ApiSubscribeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/anthem' | '/og' | '/api/anthem-stats' | '/api/event'
+  fullPaths:
+    | '/'
+    | '/anthem'
+    | '/og'
+    | '/api/anthem-stats'
+    | '/api/event'
+    | '/api/subscribe'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/anthem' | '/og' | '/api/anthem-stats' | '/api/event'
-  id: '__root__' | '/' | '/anthem' | '/og' | '/api/anthem-stats' | '/api/event'
+  to:
+    | '/'
+    | '/anthem'
+    | '/og'
+    | '/api/anthem-stats'
+    | '/api/event'
+    | '/api/subscribe'
+  id:
+    | '__root__'
+    | '/'
+    | '/anthem'
+    | '/og'
+    | '/api/anthem-stats'
+    | '/api/event'
+    | '/api/subscribe'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,6 +105,7 @@ export interface RootRouteChildren {
   OgRoute: typeof OgRoute
   ApiAnthemStatsRoute: typeof ApiAnthemStatsRoute
   ApiEventRoute: typeof ApiEventRoute
+  ApiSubscribeRoute: typeof ApiSubscribeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -102,6 +131,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/subscribe': {
+      id: '/api/subscribe'
+      path: '/api/subscribe'
+      fullPath: '/api/subscribe'
+      preLoaderRoute: typeof ApiSubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/event': {
       id: '/api/event'
       path: '/api/event'
@@ -125,6 +161,7 @@ const rootRouteChildren: RootRouteChildren = {
   OgRoute: OgRoute,
   ApiAnthemStatsRoute: ApiAnthemStatsRoute,
   ApiEventRoute: ApiEventRoute,
+  ApiSubscribeRoute: ApiSubscribeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

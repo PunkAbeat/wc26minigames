@@ -200,3 +200,14 @@
   .page-anthem .wikilink{display:inline-block;color:var(--soft);font-size:12.5px;font-weight:700;font-family:'Baloo 2';
     text-decoration:none;border:2px solid rgba(255,255,255,.22);background:rgba(0,0,0,.16);border-radius:var(--pill);padding:6px 13px;margin-bottom:16px}
   .page-anthem .wikilink:active{transform:scale(.96)}
+  /* ---- previous matches (archive) ---- */
+  .page-anthem .preview{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .page-anthem .archlist{max-height:300px;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:7px;margin-bottom:14px}
+  .page-anthem .archrow{display:flex;align-items:center;gap:10px;width:100%;text-align:left;cursor:pointer;color:#fff;
+    background:rgba(0,0,0,.18);border:2px solid rgba(255,255,255,.14);border-radius:12px;padding:10px 13px;font-family:'Nunito';font-weight:700;font-size:14px}
+  .page-anthem .archrow:active{transform:scale(.98)}
+  .page-anthem .archname{font-weight:800;font-size:15px}
+  .page-anthem .archdate{color:var(--mut);font-size:12.5px}
+  .page-anthem .archres{margin-left:auto;font-family:'Baloo 2';font-weight:700;font-size:12.5px;color:var(--gold)}
+  .page-anthem .archres.won{color:#7ef0ae}
+  .page-anthem .archres.lost{color:#ffb3a0}

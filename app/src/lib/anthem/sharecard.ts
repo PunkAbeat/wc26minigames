@@ -111,7 +111,7 @@ export function drawShareCard(canvas: HTMLCanvasElement, o: ShareCardOpts): void
 
   /* scoreboard pill: MATCH #N · 3/6 (or PRACTICE) */
   const label =
-    (o.mode === 'daily' ? 'MATCH #' + o.matchNo : 'PRACTICE') + '  ·  ' + o.tries + '/6'
+    (o.mode === 'practice' ? 'PRACTICE' : 'MATCH #' + o.matchNo) + '  ·  ' + o.tries + '/6'
   ctx.font = "700 34px 'Baloo 2', sans-serif"
   const pillW = ctx.measureText(label).width + 76
   rr(ctx, (W - pillW) / 2, 274, pillW, 64, 32)

@@ -21,7 +21,7 @@ export interface GameState {
   streak?: number
 }
 
-export type Mode = 'daily' | 'practice'
+export type Mode = 'daily' | 'practice' | 'archive'
 
 export function freshState(): GameState {
   return { attempt: 0, finished: false, won: false, results: [] }
@@ -55,7 +55,8 @@ export function gridString(state: GameState): string {
 
 export function shareText(state: GameState, mode: Mode, matchNo: number): string {
   const tries = state.won ? state.attempt : 'X'
-  const head = mode === 'daily' ? 'ANTHEM ⚽ Match #' + matchNo : 'ANTHEM ⚽ Practice'
+  // archive shares read like the daily they were: "Match #3"
+  const head = mode === 'practice' ? 'ANTHEM ⚽ Practice' : 'ANTHEM ⚽ Match #' + matchNo
   return head + '  ' + tries + '/6\n' + gridString(state) + '\nName the World Cup nation from its anthem'
 }
 

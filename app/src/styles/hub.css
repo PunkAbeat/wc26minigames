@@ -57,3 +57,21 @@
 
 .page-hub .foot{max-width:560px;color:var(--mut);font-size:11px;font-weight:700;text-align:center;margin-top:26px;line-height:1.7;opacity:.85}
 .page-hub .foot a{color:var(--soft)}
+
+/* ---- newsletter capture ---- */
+.page-hub .signup{width:100%;max-width:560px;margin-top:22px;border-radius:var(--r-lg);text-align:center;
+  background:rgba(0,0,0,.22);border:2px solid rgba(255,255,255,.14);padding:20px 18px}
+.page-hub .su-title{font-weight:800;font-size:20px}
+.page-hub .su-sub{color:var(--mut);font-size:13.5px;font-weight:700;margin:7px auto 14px;max-width:380px;line-height:1.5}
+.page-hub .su-form{display:flex;gap:9px;max-width:430px;margin:0 auto}
+.page-hub .su-form input{flex:1;min-width:0;padding:13px 15px;border-radius:var(--r);border:3px solid rgba(255,255,255,.85);background:#063019;color:#fff;
+  font-family:'Nunito';font-size:16px;font-weight:700;outline:none;box-shadow:inset 0 2px 6px rgba(0,0,0,.35)}
+.page-hub .su-form input::placeholder{color:#7fb597}
+.page-hub .su-form input:focus{border-color:var(--gold)}
+.page-hub .su-form button{flex:none;border:none;border-radius:var(--r);padding:0 18px;font-family:'Baloo 2';font-weight:800;font-size:14.5px;cursor:pointer;color:var(--goldink);
+  background:linear-gradient(180deg,#ffe06b,var(--gold));box-shadow:0 5px 0 var(--gold-d),0 10px 16px -8px rgba(0,0,0,.45)}
+.page-hub .su-form button:active{transform:translateY(4px);box-shadow:0 1px 0 var(--gold-d)}
+.page-hub .su-form button:disabled{opacity:.7;cursor:default}
+.page-hub .su-msg{min-height:16px;margin-top:9px;color:#ffd8cc;font-size:12.5px;font-weight:700}
+.page-hub .su-done{font-family:'Baloo 2';font-weight:700;font-size:15.5px;color:var(--soft);padding:8px 0}
+@media (max-width:430px){.page-hub .su-form{flex-direction:column}.page-hub .su-form button{padding:13px}}
