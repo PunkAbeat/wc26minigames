@@ -106,3 +106,27 @@ describe('streak', () => {
     })
   })
 })
+
+describe('stats', () => {
+  it('counts a win into the right distribution slot', async () => {
+    const { freshStats, updateStats, winPct } = await import('../game')
+    let st = updateStats(freshStats(), true, 3, 1)
+    expect(st).toEqual({ played: 1, wins: 1, dist: [0, 0, 1, 0, 0, 0], maxStreak: 1 })
+    st = updateStats(st, false, 6, 0)
+    expect(st.played).toBe(2)
+    expect(st.wins).toBe(1)
+    expect(st.dist).toEqual([0, 0, 1, 0, 0, 0])
+    expect(winPct(st)).toBe(50)
+  })
+  it('tracks max streak across resets', async () => {
+    const { freshStats, updateStats } = await import('../game')
+    let st = updateStats(freshStats(), true, 1, 4)
+    st = updateStats(st, false, 6, 0)
+    st = updateStats(st, true, 2, 1)
+    expect(st.maxStreak).toBe(4)
+  })
+  it('winPct of nothing is 0, never NaN', async () => {
+    const { freshStats, winPct } = await import('../game')
+    expect(winPct(freshStats())).toBe(0)
+  })
+})

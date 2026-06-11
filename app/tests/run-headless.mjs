@@ -12,8 +12,8 @@ import { execFileSync } from 'node:child_process'
 
 const args = process.argv.slice(2)
 const baseUrl = args.find((a) => a.startsWith('http')) || 'http://localhost:4173'
-const suites = args.filter((a) => /^[1-7]$/.test(a)).map(Number)
-const toRun = suites.length ? suites : [1, 2, 3, 4, 5, 6, 7]
+const suites = args.filter((a) => /^[1-8]$/.test(a)).map(Number)
+const toRun = suites.length ? suites : [1, 2, 3, 4, 5, 6, 7, 8]
 
 const CHROME =
   process.env.CHROME_BIN ||

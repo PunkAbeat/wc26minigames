@@ -163,3 +163,21 @@
   .page-anthem .step .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--gold);color:var(--goldink);font-family:'Baloo 2';font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px}
   .page-anthem .modal-card .go{width:100%;margin-top:8px;border:none;border-radius:var(--r);padding:14px;font-family:'Baloo 2';font-weight:800;font-size:16px;cursor:pointer;color:#fff;
     background:linear-gradient(180deg,#ff7d52,var(--coral));box-shadow:0 5px 0 var(--coral-d)}
+  /* ---- stats (post-migration addition, same visual language) ---- */
+  .page-anthem .statsbtn{position:absolute;top:0;right:42px;width:34px;height:34px;border-radius:50%;border:2px solid rgba(255,255,255,.25);
+    background:rgba(0,0,0,.2);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .page-anthem .stats-btn{border:none;border-radius:var(--r);padding:15px 22px;font-family:'Baloo 2';font-weight:800;font-size:16px;cursor:pointer;color:#fff;
+    background:rgba(0,0,0,.22);border:2px solid rgba(255,255,255,.25);transition:transform .09s}
+  .page-anthem .stats-btn:active{transform:translateY(3px)}
+  .page-anthem .statnums{display:flex;gap:8px;justify-content:space-between;margin-bottom:18px}
+  .page-anthem .statnum{flex:1;text-align:center;background:rgba(0,0,0,.18);border:2px solid rgba(255,255,255,.14);border-radius:14px;padding:10px 4px}
+  .page-anthem .statnum b{display:block;font-family:'Baloo 2';font-weight:800;font-size:26px;color:var(--gold);line-height:1.1}
+  .page-anthem .statnum span{font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+  .page-anthem .disttitle{font-weight:700;font-size:14px;margin-bottom:9px;color:var(--soft)}
+  .page-anthem .distwrap{margin-bottom:14px}
+  .page-anthem .distrow{display:flex;align-items:center;gap:9px;margin-bottom:6px}
+  .page-anthem .distn{flex:none;width:14px;font-weight:700;font-size:13px;color:var(--soft);text-align:center}
+  .page-anthem .distbarwrap{flex:1;min-width:0}
+  .page-anthem .distbar{min-width:26px;background:#0a4527;border:1px solid rgba(255,255,255,.14);color:#fff;font-family:'Baloo 2';font-weight:700;
+    font-size:12.5px;border-radius:8px;padding:3px 8px;text-align:right;transition:width .4s ease}
+  .page-anthem .distbar.today{background:linear-gradient(180deg,#1bb85c,#149048);border-color:rgba(255,255,255,.4)}

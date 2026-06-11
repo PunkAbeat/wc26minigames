@@ -35,17 +35,22 @@ import {
   applyGuess,
   applySkip,
   freshState,
+  freshStats,
   gridString,
   shareText,
+  updateStats,
   updateStreak,
+  winPct,
 } from '../lib/anthem/game'
-import type { GameState, Mode } from '../lib/anthem/game'
+import type { GameState, Mode, Stats } from '../lib/anthem/game'
 import {
   hasSeenHowto,
   loadSavedDaily,
+  loadStats,
   loadStreak,
   markHowtoSeen,
   saveDaily,
+  saveStats,
   saveStreak,
 } from '../lib/anthem/storage'
 import { gameToCardOpts, renderShareCard } from '../lib/anthem/sharecard'
@@ -109,6 +114,12 @@ function AnthemPage() {
   const [hiOverride, setHiOverride] = useState<number | null>(null)
   const [toast, setToastState] = useState({ msg: '', on: false })
   const [howtoOpen, setHowtoOpen] = useState(false)
+  const [statsOpen, setStatsOpen] = useState(false)
+  const [stats, setStats] = useState<Stats>(freshStats)
+  const openStats = useCallback(() => {
+    setStats(loadStats()) // re-read: another tab / a fresh finish may have written
+    setStatsOpen(true)
+  }, [])
   const [copied, setCopied] = useState('')
   const [nextIn, setNextIn] = useState('')
   const [flagBroken, setFlagBroken] = useState(false)
@@ -237,9 +248,10 @@ function AnthemPage() {
     (s: GameState): GameState => {
       let ns = s
       if (modeRef.current === 'daily') {
-        // practice games never touch the streak
+        // practice games never touch the streak or the lifetime stats
         const streak = updateStreak(loadStreak(), utcDay(), ns.won)
         saveStreak(streak)
+        saveStats(updateStats(loadStats(), ns.won, ns.attempt, streak.count || 0))
         ns = { ...ns, streak: streak.count }
       }
       if (ns.won) confettiRef.current?.launch()
@@ -626,6 +638,11 @@ function AnthemPage() {
         <button className="help" id="helpBtn" aria-label="How to play" onClick={() => setHowtoOpen(true)}>
           ?
         </button>
+        <button className="statsbtn" id="statsBtn" aria-label="Your stats" onClick={openStats}>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path d="M5 12h3v8H5zM10.5 4h3v16h-3zM16 9h3v11h-3z" />
+          </svg>
+        </button>
         <div className="kicker">World Cup 2026 · Daily</div>
         <div className="wordmark disp">
           <span className="ball" />
@@ -865,6 +882,9 @@ function AnthemPage() {
               <button className="share-btn" id="shareBtn" onClick={share}>
                 📋 Share result
               </button>
+              <button className="stats-btn" id="endStatsBtn" onClick={openStats}>
+                📊 Stats
+              </button>
               <button
                 className="again-btn"
                 id="againBtn"
@@ -937,8 +957,67 @@ function AnthemPage() {
           </button>
         </div>
       </div>
+
+      <div
+        className={'modal' + (statsOpen ? ' show' : '')}
+        id="statsModal"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) setStatsOpen(false)
+        }}
+      >
+        {statsOpen && (
+          <div className="modal-card">
+            <h3 className="disp">Your stats 📊</h3>
+            <div className="statnums">
+              <div className="statnum">
+                <b>{stats.played}</b>
+                <span>Played</span>
+              </div>
+              <div className="statnum">
+                <b>{winPct(stats)}</b>
+                <span>Win %</span>
+              </div>
+              <div className="statnum">
+                <b>{game.streak ?? loadStreakCount()}</b>
+                <span>Streak</span>
+              </div>
+              <div className="statnum">
+                <b>{stats.maxStreak}</b>
+                <span>Best streak</span>
+              </div>
+            </div>
+            <div className="distwrap">
+              <div className="disttitle disp">Guess distribution</div>
+              {stats.dist.map((count, i) => {
+                const max = Math.max(1, ...stats.dist)
+                const today = game.finished && game.won && game.attempt === i + 1
+                return (
+                  <div className="distrow" key={i}>
+                    <span className="distn disp">{i + 1}</span>
+                    <div className="distbarwrap">
+                      <div
+                        className={'distbar' + (today ? ' today' : '')}
+                        style={{ width: Math.max(8, (count / max) * 100) + '%' }}
+                      >
+                        {count}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+            <button className="go disp" id="statsClose" onClick={() => setStatsOpen(false)}>
+              Back to the match
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   )
+}
+
+function loadStreakCount(): number {
+  return loadStreak().count || 0
 }
 
 function fallbackCopy(t: string): void {

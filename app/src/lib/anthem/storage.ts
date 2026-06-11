@@ -5,7 +5,8 @@
      anthem_seen   "1"            how-to-play modal dismissed
    Client-side only: every function no-ops/returns null without a window. */
 
-import type { GameState, Streak } from './game'
+import { freshStats } from './game'
+import type { GameState, Stats, Streak } from './game'
 
 const hasStorage = () => typeof window !== 'undefined' && !!window.localStorage
 
@@ -41,6 +42,38 @@ export function saveStreak(s: Streak): void {
   if (!hasStorage()) return
   try {
     localStorage.setItem('anthem_streak', JSON.stringify(s))
+  } catch {
+    /* ignore */
+  }
+}
+
+/* anthem_stats {played,wins,dist[6],maxStreak} — new key (post-migration);
+   existing players start at zero except maxStreak, seeded from their streak */
+export function loadStats(): Stats {
+  if (!hasStorage()) return freshStats()
+  try {
+    const raw = JSON.parse(localStorage.getItem('anthem_stats') || 'null')
+    if (!raw) {
+      const seeded = freshStats()
+      const streak = JSON.parse(localStorage.getItem('anthem_streak') || '{}')
+      if (streak && typeof streak.count === 'number') seeded.maxStreak = streak.count
+      return seeded
+    }
+    return {
+      played: raw.played || 0,
+      wins: raw.wins || 0,
+      dist: Array.isArray(raw.dist) ? raw.dist.slice(0, 6) : freshStats().dist,
+      maxStreak: raw.maxStreak || 0,
+    }
+  } catch {
+    return freshStats()
+  }
+}
+
+export function saveStats(st: Stats): void {
+  if (!hasStorage()) return
+  try {
+    localStorage.setItem('anthem_stats', JSON.stringify(st))
   } catch {
     /* ignore */
   }

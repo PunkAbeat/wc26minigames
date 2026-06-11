@@ -64,6 +64,40 @@ export interface Streak {
   lastDay?: number
 }
 
+/* lifetime daily stats (Wordle-style). dist[i] = wins in i+1 guesses.
+   Practice games never touch these. */
+export interface Stats {
+  played: number
+  wins: number
+  dist: number[]
+  maxStreak: number
+}
+
+export function freshStats(): Stats {
+  return { played: 0, wins: 0, dist: [0, 0, 0, 0, 0, 0], maxStreak: 0 }
+}
+
+export function updateStats(
+  st: Stats,
+  won: boolean,
+  attempt: number,
+  streakCount: number,
+): Stats {
+  const dist = st.dist.slice()
+  while (dist.length < 6) dist.push(0)
+  if (won && attempt >= 1 && attempt <= 6) dist[attempt - 1]++
+  return {
+    played: st.played + 1,
+    wins: st.wins + (won ? 1 : 0),
+    dist,
+    maxStreak: Math.max(st.maxStreak, streakCount),
+  }
+}
+
+export function winPct(st: Stats): number {
+  return st.played ? Math.round((st.wins / st.played) * 100) : 0
+}
+
 /* daily only — practice games never touch the streak */
 export function updateStreak(s: Streak, today: number, won: boolean): Streak {
   const next: Streak = { ...s }
