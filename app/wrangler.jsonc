@@ -7,6 +7,12 @@
   // global-stats counters. database_id is a placeholder until the real D1 db
   // is created at deploy time (wrangler d1 create wc26minigames); local
   // dev/preview emulate it via miniflare regardless.
+  // funnel events (page_view / game_finished / share_clicked …) — written by
+  // /api/event, queried via the Analytics Engine SQL API. Free, unlimited-ish,
+  // no cookies. Locally a no-op sink.
+  "analytics_engine_datasets": [
+    { "binding": "EVENTS", "dataset": "wc26_events" }
+  ],
   "d1_databases": [
     {
       "binding": "DB",

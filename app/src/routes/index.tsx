@@ -1,6 +1,7 @@
 /* MATCHDAY hub — ported from the original root index.html. */
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
+import { trackPageView } from '../lib/analytics'
 import '../styles/hub.css'
 
 export const Route = createFileRoute('/')({
@@ -73,6 +74,7 @@ function Hub() {
   // placeholder and the first effect tick fills it in (no hydration mismatch)
   const [countdown, setCountdown] = useState('KICKOFF SOON')
   useEffect(() => {
+    trackPageView('/')
     const tick = () => setCountdown(countdownText(new Date()))
     tick()
     const t = setInterval(tick, 30000)

@@ -53,6 +53,7 @@ import {
   saveStats,
   saveStreak,
 } from '../lib/anthem/storage'
+import { track, trackPageView } from '../lib/analytics'
 import { gameToCardOpts, renderShareCard } from '../lib/anthem/sharecard'
 import { scheduleMelody, missThunk } from '../lib/anthem/engine/synth'
 import { PlaybackController } from '../lib/anthem/engine/playback'
@@ -229,6 +230,7 @@ function AnthemPage() {
   }, [commit, loadPuzzleImpl, trackView])
 
   const startPractice = useCallback(() => {
+    track('practice_started')
     loadPuzzleImpl(randomPracticeIndex(puzzleIndexRef.current ?? -1), 'practice')
   }, [loadPuzzleImpl])
 
@@ -249,6 +251,10 @@ function AnthemPage() {
   const endGame = useCallback(
     (s: GameState): GameState => {
       let ns = s
+      track('game_finished', {
+        mode: modeRef.current,
+        tries: ns.won ? String(ns.attempt) : 'X',
+      })
       if (modeRef.current === 'daily') {
         // practice games never touch the streak or the lifetime stats
         const streak = updateStreak(loadStreak(), utcDay(), ns.won)
@@ -350,7 +356,14 @@ function AnthemPage() {
 
   const share = useCallback(async () => {
     const s = stateRef.current
-    const txt = shareText(s, modeRef.current, matchNumber())
+    track('share_clicked', { mode: modeRef.current })
+    /* ?ref=share closes the measurement loop: page_view{ref=share} over
+       share_clicked is the viral coefficient */
+    const txt =
+      shareText(s, modeRef.current, matchNumber()) +
+      '\n' +
+      location.origin +
+      '/anthem?ref=share'
     const done = () => setCopied('Copied — paste it anywhere ✓')
     /* best path: share sheet with the rendered card attached (iOS 15+, Android) */
     if (navigator.share) {
@@ -413,6 +426,7 @@ function AnthemPage() {
 
     startDaily()
     if (!hasSeenHowto()) setHowtoOpen(true)
+    trackPageView('/anthem')
 
     return () => {
       window.removeEventListener('resize', onResize)

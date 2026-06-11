@@ -25,6 +25,19 @@ export const Route = createRootRoute({
       { rel: 'stylesheet', href: appCss },
     ],
     scripts: [
+      /* Cloudflare Web Analytics (visits/referrers, cookieless) — enabled by
+         setting VITE_CF_BEACON_TOKEN at build time once the site is live */
+      ...(import.meta.env.VITE_CF_BEACON_TOKEN
+        ? [
+            {
+              src: 'https://static.cloudflareinsights.com/beacon.min.js',
+              defer: true,
+              'data-cf-beacon': JSON.stringify({
+                token: import.meta.env.VITE_CF_BEACON_TOKEN as string,
+              }),
+            },
+          ]
+        : []),
       {
         // headless test bootstrap: ?anthemtest=N stubs HTMLMediaElement (forcing
         // the synth fallback path — archive.org streaming is not testable

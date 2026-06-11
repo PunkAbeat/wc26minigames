@@ -34,3 +34,17 @@
     R.push('DONE'); pre.textContent = R.join('\n');
   } catch (e) { R.push('FAIL exception: ' + e.message); pre.textContent = R.join('\n'); }
 })();
+/* appendix: event sink contract (same suite to keep the runner at 9) */
+(async () => {
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  for (let i = 0; i < 100 && !document.getElementById('testout'); i++) await sleep(50);
+  const pre = document.getElementById('testout');
+  while (!/DONE|FAIL exception/.test(pre.textContent)) await sleep(100);
+  const add = (c, m) => { pre.textContent = pre.textContent.replace(/\nDONE$/, '') + '\n' + (c ? 'PASS' : 'FAIL') + ' ' + m + '\nDONE'; };
+  try {
+    const okEv = await fetch('/api/event', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name: 'page_view', props: { path: '/anthem', ref: 'share' } }) });
+    add(okEv.status === 204, 'event sink accepts page_view (' + okEv.status + ')');
+    const badEv = await fetch('/api/event', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name: 'evil_event' }) });
+    add(badEv.status === 400, 'unknown events rejected (' + badEv.status + ')');
+  } catch (e) { add(false, 'event sink exception: ' + e.message); }
+})();
