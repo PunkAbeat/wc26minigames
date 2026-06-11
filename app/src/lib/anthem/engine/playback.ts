@@ -147,8 +147,10 @@ export class PlaybackController {
       : this.limit
   }
 
-  private tick = (): void => {
-    if (!this.playing && !this.paused) return
+  /* one paint of playhead + label. Called every frame by tick, and once
+     synchronously on each state change — the label must never wait for the
+     next animation frame (rAF can stall while paused, e.g. headless/hidden) */
+  private paint(): void {
     const el = this.elapsed()
     const lim = this.limitNow()
     const { playhead, clipLabel } = this.hooks.els()
@@ -158,7 +160,12 @@ export class PlaybackController {
     if (playhead) playhead.style.left = x0 + (xEnd - x0) * frac + 'px'
     if (clipLabel)
       clipLabel.textContent = (this.playing ? '▶ ' : '⏸ ') + fmtT(el) + ' / ' + fmtT(lim)
-    if (this.playing && el >= lim - 0.03) {
+  }
+
+  private tick = (): void => {
+    if (!this.playing && !this.paused) return
+    this.paint()
+    if (this.playing && this.elapsed() >= this.limitNow() - 0.03) {
       this.stop()
       return
     }
@@ -193,6 +200,7 @@ export class PlaybackController {
         if (!this.wantPlay) return
         this.failCurrentSource()
       })
+    this.paint()
     cancelAnimationFrame(this.raf)
     this.raf = requestAnimationFrame(this.tick)
   }
@@ -217,6 +225,7 @@ export class PlaybackController {
     this.playing = true
     this.paused = false
     this.setPlaying(true)
+    this.paint()
     cancelAnimationFrame(this.raf)
     this.raf = requestAnimationFrame(this.tick)
   }
@@ -236,6 +245,7 @@ export class PlaybackController {
     this.playing = false
     this.paused = true
     this.setPlaying(false)
+    this.paint()
   }
 
   resume(): void {
@@ -246,6 +256,7 @@ export class PlaybackController {
       this.setPlaying(true)
       const pr = this.audioEl.play()
       if (pr && pr.catch) pr.catch(() => {})
+      this.paint()
     } else this.startSynth(this.offset)
   }
 
