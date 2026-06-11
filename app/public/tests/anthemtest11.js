@@ -21,17 +21,25 @@
     const setVal = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.bind(input);
     const email = 'suite11+' + Date.now() + '@example.com';
     setVal(email); input.dispatchEvent(new Event('input', { bubbles: true }));
+    await sleep(3000); // the bot time-check needs a human-plausible delay after mount
     document.getElementById('signupBtn').click();
     const t1 = Date.now();
     while (!document.getElementById('signupDone') && Date.now() - t1 < 5000) await sleep(80);
     ok(!!document.getElementById('signupDone'), 'success state after subscribing');
     /* API contract directly */
-    const dupe = await fetch('/api/subscribe', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email }) });
+    const post = (body) => fetch('/api/subscribe', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+    const dupe = await post({ email, elapsed: 5000 });
     ok(dupe.status === 200, 'resubscribing same email is a silent success (' + dupe.status + ')');
-    const bad = await fetch('/api/subscribe', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email: 'not-an-email' }) });
+    const bad = await post({ email: 'not-an-email', elapsed: 5000 });
     ok(bad.status === 400, 'garbage email rejected (' + bad.status + ')');
-    const huge = await fetch('/api/subscribe', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email: 'a'.repeat(250) + '@b.co' }) });
+    const huge = await post({ email: 'a'.repeat(250) + '@b.co', elapsed: 5000 });
     ok(huge.status === 400, 'oversized email rejected (' + huge.status + ')');
+    const hp = await post({ email: 'bot+' + Date.now() + '@example.com', website: 'http://spam', elapsed: 5000 });
+    ok(hp.status === 200, 'honeypot gets a FAKE success (' + hp.status + ')');
+    const fast = await post({ email: 'fast@example.com', elapsed: 100 });
+    ok(fast.status === 400, 'sub-human submit speed rejected (' + fast.status + ')');
+    const noTs = await post({ email: 'nots@example.com' });
+    ok(noTs.status === 400, 'missing time signal rejected (' + noTs.status + ')');
     R.push('DONE'); flush();
   } catch (e) { R.push('FAIL exception: ' + e.message); flush(); }
 })();

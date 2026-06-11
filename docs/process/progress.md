@@ -20,7 +20,7 @@ Statuses: `todo` · `in_progress` · `blocked` · `done`. One line per item; dur
 | QA-listen: Iran + Paraguay (`Removed/` recordings), DR Congo verification | todo | HANDOFF §5 |
 | Distribution plan (r/soccer, football TikTok/Twitter, group chats) | todo | product work, not code |
 | Owner feedback round 11 Jun (copy, trumpet, OFF TARGET, practice cap 2/day, anthem wiki link, Match #1 = 11 Jun) | done | first deliberate behavior changes post-parity |
-| Feedback round 2: archive mode (previous matches), Esc on modals, hub newsletter capture | done | deployed 11 Jun (version 1be2f0a7); D1 subscribers table; suites 10-11 |
+| Feedback round 2: archive mode (previous matches), Esc on modals, hub newsletter capture | done | deployed 11 Jun; D1 subscribers table; suites 10-11; bot defence = honeypot + min-time (**Turnstile deferred until evidence of abuse** — owner decision 11 Jun); junk meter: `SELECT count(*) FROM subscribers` |
 
 ## Backlog (not scheduled)
 

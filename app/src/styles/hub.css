@@ -75,3 +75,4 @@
 .page-hub .su-msg{min-height:16px;margin-top:9px;color:#ffd8cc;font-size:12.5px;font-weight:700}
 .page-hub .su-done{font-family:'Baloo 2';font-weight:700;font-size:15.5px;color:var(--soft);padding:8px 0}
 @media (max-width:430px){.page-hub .su-form{flex-direction:column}.page-hub .su-form button{padding:13px}}
+.page-hub .su-form .hp{position:absolute;left:-5000px;top:0;width:1px;height:1px;opacity:0;pointer-events:none}

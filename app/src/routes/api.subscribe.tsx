@@ -36,7 +36,7 @@ export const Route = createFileRoute('/api/subscribe')({
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {
-        let body: { email?: unknown }
+        let body: { email?: unknown; website?: unknown; elapsed?: unknown }
         try {
           body = await request.json()
         } catch {
@@ -45,6 +45,14 @@ export const Route = createFileRoute('/api/subscribe')({
         const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : ''
         if (!email || email.length > 254 || !/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email))
           return json({ error: 'bad email' }, 400)
+        /* bot defence (Turnstile deferred until there's evidence of abuse):
+           1. honeypot — bots fill the invisible "website" field; answer with a
+              fake success so they don't adapt, store nothing
+           2. minimum time — a human needs a few seconds from form mount to
+              submit; 400 (not fake-ok) so a too-quick real user can retry */
+        if (typeof body.website === 'string' && body.website !== '') return json({ ok: true })
+        const elapsed = typeof body.elapsed === 'number' ? body.elapsed : -1
+        if (!Number.isFinite(elapsed) || elapsed < 2500) return json({ error: 'too fast' }, 400)
         try {
           const d1 = await db()
           // INSERT OR IGNORE: re-subscribing is a silent success, not an error

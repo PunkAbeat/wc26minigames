@@ -160,6 +160,11 @@ function Hub() {
 function NewsletterCard() {
   const [state, setState] = useState<'idle' | 'sending' | 'done' | 'error'>('idle')
   const inputRef = useRef<HTMLInputElement>(null)
+  const hpRef = useRef<HTMLInputElement>(null)
+  const mountTs = useRef(0) // set on mount (client-only) for the bot time check
+  useEffect(() => {
+    mountTs.current = Date.now()
+  }, [])
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     const email = inputRef.current?.value.trim() || ''
@@ -169,7 +174,11 @@ function NewsletterCard() {
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({
+          email,
+          website: hpRef.current?.value || '',
+          elapsed: mountTs.current ? Date.now() - mountTs.current : 0,
+        }),
       })
       if (!res.ok) throw new Error(String(res.status))
       setState('done')
@@ -191,6 +200,16 @@ function NewsletterCard() {
             Want a heads-up when the next one drops? No spam — only new games.
           </div>
           <form className="su-form" onSubmit={submit}>
+            {/* honeypot: invisible to humans, irresistible to form bots */}
+            <input
+              ref={hpRef}
+              type="text"
+              name="website"
+              className="hp"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+            />
             {/* 16px input: anything smaller makes iOS zoom the page on focus */}
             <input
               ref={inputRef}
