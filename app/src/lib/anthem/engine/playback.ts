@@ -42,6 +42,9 @@ interface CurrentTrack {
   audioUrl: string | null
   sched: MelodySchedule
   audioOk: boolean
+  /* leading-silence skip (seconds) for the real recording: clip playback
+     starts here so a 1s clip is always audible; the full reveal plays from 0 */
+  startOffset: number
 }
 
 export class PlaybackController {
@@ -77,9 +80,9 @@ export class PlaybackController {
   }
 
   /* loadPuzzle's audio half: point at the new track, reset state */
-  setTrack(audioUrl: string | null, sched: MelodySchedule): void {
+  setTrack(audioUrl: string | null, sched: MelodySchedule, startOffset = 0): void {
     this.stop()
-    this.current = { audioUrl, sched, audioOk: !!audioUrl }
+    this.current = { audioUrl, sched, audioOk: !!audioUrl, startOffset }
     if (audioUrl) {
       this.audioEl.src = audioUrl
       try {
@@ -106,8 +109,12 @@ export class PlaybackController {
     this.hooks.els().playBtn?.classList.toggle('loading', on)
   }
 
+  private realStart(): number {
+    return this.full ? 0 : this.current?.startOffset || 0
+  }
   private elapsed(): number {
-    if (this.src === 'real') return this.audioEl.currentTime || 0
+    if (this.src === 'real')
+      return Math.max(0, (this.audioEl.currentTime || 0) - this.realStart())
     return Math.max(0, this.offset + (this.playing ? audioNow() - this.t0 : 0))
   }
   private limitNow(): number {
@@ -151,9 +158,9 @@ export class PlaybackController {
     this.setLoading(true)
     this.setSource('real')
     try {
-      this.audioEl.currentTime = 0
+      this.audioEl.currentTime = this.realStart()
     } catch {
-      /* not seekable yet */
+      /* not seekable yet — plays from 0, same as pre-offset behaviour */
     }
     this.playing = true
     this.paused = false

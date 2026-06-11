@@ -53,6 +53,7 @@ import {
   saveStats,
   saveStreak,
 } from '../lib/anthem/storage'
+import { START_OFFSETS } from '../lib/anthem/offsets'
 import { track, trackPageView } from '../lib/analytics'
 import { gameToCardOpts, renderShareCard } from '../lib/anthem/sharecard'
 import {
@@ -221,6 +222,7 @@ function AnthemPage() {
       pbRef.current?.setTrack(
         p.audio ? AUDIO_BASE + encodeURI(p.audio) : null,
         scheduleMelody(p.melody || []),
+        START_OFFSETS[p.name] || 0,
       )
       trackView.setStatic(0)
     },
