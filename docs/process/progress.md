@@ -15,7 +15,7 @@ Statuses: `todo` · `in_progress` · `blocked` · `done`. One line per item; dur
 | Set `VITE_SITE_ORIGIN` (activates og:image) | done | app/.env.production → https://wc26minigames.com |
 | CF Web Analytics | done | enabled via zone **auto-injection** (verified in live DOM) — no token needed; `VITE_CF_BEACON_TOKEN` stays as the fallback for non-proxied hosting |
 | Self-hosted audio (trimmed/normalized, archive.org fallback) | done | as Worker static assets instead of R2 — [ADR-0005](../adr/0005-self-hosted-audio-as-worker-assets.md); `npm run deploy` regenerates |
-| FIFA-wording legal pass ("World Cup" in titles) | done | full de-brand (owner decision 11 Jun): titles/OG/manifest/share text/kickers reworded, disclaimer now on /anthem too, factual hints kept — [ADR-0006](../adr/0006-debranded-copy-nominative-use.md); **needs redeploy to go live** |
+| FIFA-wording legal pass ("World Cup" in titles) | done | full de-brand (owner decision 11 Jun): titles/OG/manifest/share text/kickers reworded, disclaimer now on /anthem too, factual hints kept — [ADR-0006](../adr/0006-debranded-copy-nominative-use.md); live 11 Jun (version 4fc0d6c6, verified on prod) |
 | Error monitoring | done | first-party: Workers Logs (observability enabled) + client beacon /api/error → console.error, self-capped; verified live via wrangler tail. Sentry = upgrade path if triage outgrows it |
 | QA-listen: Iran + Paraguay (`Removed/` recordings), DR Congo verification | in_progress | machine QA clean (0/45 flags); human checklist with links: [research/qa-listen.md](../research/qa-listen.md) |
 | Distribution plan (r/soccer, football TikTok/Twitter, group chats) | todo | product work, not code |
