@@ -9,6 +9,10 @@ import { cloudflare } from '@cloudflare/vite-plugin'
 
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
+  // allow iPhone testing through the tailnet hostname (tailscale serve
+  // proxies https://mini-lubuntu.tail4e976f.ts.net:8443 -> this server)
+  server: { allowedHosts: ['.ts.net'] },
+  preview: { allowedHosts: ['.ts.net'] },
   plugins: [
     devtools(),
     cloudflare({ viteEnvironment: { name: 'ssr' } }),
