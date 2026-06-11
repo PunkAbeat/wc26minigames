@@ -10,9 +10,9 @@ Statuses: `todo` · `in_progress` · `blocked` · `done`. One line per item; dur
 |---|---|---|
 | Owner on-device pass of polish (SFX/flash/PWA/offsets) | in_progress | base app verified 11 Jun; owner approved merge |
 | Merge `tanstack-migration` → master + push to GitHub | done | merged 75f1ef3; remote github.com/PunkAbeat/wc26minigames (public), CI running |
-| Production domain | blocked | owner decision — see [research/questions.md](../research/questions.md) |
+| Production domain | in_progress | **decided: wc26minigames.com** (11 Jun, verified available) — purchase pending; recommend Cloudflare Registrar (at-cost, DNS auto-wired for the Worker) |
 | Cloudflare deploy (worker + real D1 id + AE dataset) | blocked | needs CF account creds; `wrangler d1 create wc26minigames` then real `database_id` |
-| Set `VITE_SITE_ORIGIN` (activates og:image) | blocked | on domain |
+| Set `VITE_SITE_ORIGIN` (activates og:image) | done | app/.env.production → https://wc26minigames.com |
 | CF Web Analytics token (`VITE_CF_BEACON_TOKEN`) | blocked | on deploy |
 | Self-hosted audio (trimmed/normalized, archive.org fallback) | done | as Worker static assets instead of R2 — [ADR-0005](../adr/0005-self-hosted-audio-as-worker-assets.md); `npm run deploy` regenerates |
 | FIFA-wording legal pass ("World Cup" in titles) | todo | see research/questions.md |

@@ -22,4 +22,4 @@ Merged to `master` and pushed to github.com/PunkAbeat/wc26minigames (public; **C
 
 ## Recommended next task
 
-Owner: device-check the polish pass, then unblock the deploy chain (domain → CF account → `wrangler d1 create`). Agent, if working before that lands: error monitoring (research/questions.md #4 needs the owner's pick first) or the FIFA-wording copy pass are the next unblocked items; the QA-listen list (Iran/Paraguay/DR Congo) needs human ears — the self-hosted copies in app/public/audio/ are the easiest way to listen.
+Owner: buy **wc26minigames.com** (decided 11 Jun; Cloudflare Registrar recommended) and provide CF account access — that unblocks the whole deploy chain (`wrangler d1 create`, AE dataset, beacon token, DNS). Also still pending: device-check of the polish + feedback rounds. Agent, if working before that lands: error monitoring (research/questions.md #4 needs the owner's pick first) or the FIFA-wording copy pass are the next unblocked items; the QA-listen list (Iran/Paraguay/DR Congo) needs human ears — the self-hosted copies in app/public/audio/ are the easiest way to listen.
