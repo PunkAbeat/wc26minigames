@@ -4,7 +4,7 @@
 
 ## State
 
-Branch `tanstack-migration`, clean tree, all gates green (43 vitest, 9 headless suites, typecheck, build, CI workflow in place). The production build is live on the tailnet at `https://mini-lubuntu.tail4e976f.ts.net:8443/` via `wc26-preview.service`; the original static site sits at `:8444/wc26minigames/` for comparison. Milestones: [001 done](../process/milestones/001-migration-and-virality.md), [002 in progress](../process/milestones/002-go-live.md).
+Merged to `master` and pushed to github.com/PunkAbeat/wc26minigames (public; CI live). Clean tree, all gates green (43 vitest, 9 headless suites, typecheck, build, CI workflow in place). The production build is live on the tailnet at `https://mini-lubuntu.tail4e976f.ts.net:8443/` via `wc26-preview.service`; the original static site sits at `:8444/wc26minigames/` for comparison. Milestones: [001 done](../process/milestones/001-migration-and-virality.md), [002 in progress](../process/milestones/002-go-live.md). Work now happens on `master` (or short-lived branches + PRs).
 
 ## Unresolved risks
 

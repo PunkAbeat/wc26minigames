@@ -8,8 +8,8 @@ Statuses: `todo` · `in_progress` · `blocked` · `done`. One line per item; dur
 
 | Item | Status | Notes |
 |---|---|---|
-| Owner on-device pass of migration + polish | in_progress | base app verified on iPhone 11 Jun; polish pass (SFX/flash/PWA/offsets) awaiting device check |
-| Merge `tanstack-migration` → master | blocked | on the device pass above |
+| Owner on-device pass of polish (SFX/flash/PWA/offsets) | in_progress | base app verified 11 Jun; owner approved merge |
+| Merge `tanstack-migration` → master + push to GitHub | done | merged 75f1ef3; remote github.com/PunkAbeat/wc26minigames (public), CI running |
 | Production domain | blocked | owner decision — see [research/questions.md](../research/questions.md) |
 | Cloudflare deploy (worker + real D1 id + AE dataset) | blocked | needs CF account creds; `wrangler d1 create wc26minigames` then real `database_id` |
 | Set `VITE_SITE_ORIGIN` (activates og:image) | blocked | on domain |
