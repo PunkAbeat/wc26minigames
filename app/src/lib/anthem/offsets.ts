@@ -17,6 +17,7 @@ export const START_OFFSETS: Record<string, number> = {
   "Algeria": 0.5,
   "Jordan": 1,
   "Portugal": 0.5,
+  "DR Congo": 2,
   "England": 2.3,
   "Ghana": 0.5
 }

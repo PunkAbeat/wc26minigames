@@ -16,14 +16,14 @@ const DAY_MS = 86400000
 const LAUNCH_MS = Date.UTC(2026, 5, 11)
 
 describe('daily schedule', () => {
-  it('pool has 45 playable nations (3 lack audio + melody)', () => {
-    expect(POOL).toHaveLength(45)
+  it('pool has 46 playable nations (2 lack audio + melody)', () => {
+    expect(POOL).toHaveLength(46)
     const excluded = PUZZLES.filter((_, i) => !POOL.includes(i)).map((p) => p.name)
-    expect(excluded.sort()).toEqual(['Curaçao', 'DR Congo', 'Scotland'])
+    expect(excluded.sort()).toEqual(['Curaçao', 'Scotland'])
   })
 
   it('daily order is a permutation of the pool', () => {
-    expect(new Set(DAILY_ORDER).size).toBe(45)
+    expect(new Set(DAILY_ORDER).size).toBe(46)
     expect([...DAILY_ORDER].sort((a, b) => a - b)).toEqual(POOL)
   })
 
@@ -52,9 +52,9 @@ describe('daily schedule', () => {
     expect(utcDay(0)).toBe(0)
   })
 
-  it('rotation wraps after 45 days', () => {
+  it('rotation wraps after 46 days', () => {
     const idx0 = dailyPuzzleIndex(LAUNCH_MS)
-    expect(dailyPuzzleIndex(LAUNCH_MS + 45 * DAY_MS)).toBe(idx0)
+    expect(dailyPuzzleIndex(LAUNCH_MS + 46 * DAY_MS)).toBe(idx0)
     expect(dailyPuzzleIndex(LAUNCH_MS + DAY_MS)).toBe(DAILY_ORDER[1])
   })
 

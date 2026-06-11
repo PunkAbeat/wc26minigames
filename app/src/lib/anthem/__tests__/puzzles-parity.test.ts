@@ -16,8 +16,16 @@ function originalPuzzles(): any[] {
   return new Function('return ' + m[1])()
 }
 
+/* deliberate post-migration divergences from the frozen original, each one a
+   documented product decision — the parity gate must approve them explicitly */
+const DIVERGENCES: Record<string, Record<string, unknown>> = {
+  // owner verified by ear 11 Jun 2026: archive's Current/Congo.mp3 IS
+  // "Debout Congolais" — DR Congo becomes the 46th playable nation
+  'DR Congo': { audio: 'Current/Congo.mp3' },
+}
+
 describe('PUZZLES parity with the original game', () => {
-  const orig = originalPuzzles()
+  const orig = originalPuzzles().map((p: any) => ({ ...p, ...(DIVERGENCES[p.name] || {}) }))
 
   it('has the same 48 nations in the same order', () => {
     expect(PUZZLES.map((p) => p.name)).toEqual(orig.map((p: any) => p.name))

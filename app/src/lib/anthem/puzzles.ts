@@ -158,7 +158,7 @@ export const PUZZLES: Puzzle[] = [
   { name:"Portugal", flag:"🇵🇹", cc:"pt", colors:["#046A38","#DA291C"], aliases:["portugal","selecao das quinas"], audio:"Current/Portugal.mp3",
     verdict:"“A Portuguesa.” To arms, to arms!",
     hints:["UEFA (Europe)","Green & red with an armillary sphere","Group K","Its anthem ends with a call to arms","Starts with P"] },
-  { name:"DR Congo", flag:"🇨🇩", cc:"cd", colors:["#007FFF","#F7D618"], aliases:["dr congo","drc","congo dr","congo","democratic republic of the congo","democratic republic of congo"], audio:null,
+  { name:"DR Congo", flag:"🇨🇩", cc:"cd", colors:["#007FFF","#F7D618"], aliases:["dr congo","drc","congo dr","congo","democratic republic of the congo","democratic republic of congo"], audio:"Current/Congo.mp3",
     verdict:"“Debout Congolais.” Arise, Congolese.",
     hints:["CAF (Africa)","Sky blue with a yellow star & red stripe","Group K","Last seen at a World Cup as Zaire in 1974","Starts with D"] },
   { name:"Uzbekistan", flag:"🇺🇿", cc:"uz", colors:["#0099B5","#1EB53A"], aliases:["uzbekistan","white wolves"], audio:"Current/Uzbekistan.mp3",

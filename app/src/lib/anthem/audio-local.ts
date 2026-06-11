@@ -159,6 +159,10 @@ export const LOCAL_AUDIO: Record<string, { file: string; duration: number }> = {
     "file": "pt.mp3",
     "duration": 69.6
   },
+  "DR Congo": {
+    "file": "cd.mp3",
+    "duration": 87.1
+  },
   "Uzbekistan": {
     "file": "uz.mp3",
     "duration": 146.2
