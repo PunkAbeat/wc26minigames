@@ -14,13 +14,31 @@ export const Route = createRootRoute({
           'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover',
       },
       { title: 'MATCHDAY ⚽ World Cup 2026 daily mini games' },
+      // pitch-green chrome on iOS standalone / Android task switcher
+      { name: 'theme-color', content: '#053a22' },
+      { name: 'apple-mobile-web-app-capable', content: 'yes' },
+      { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
+      { name: 'apple-mobile-web-app-title', content: 'MATCHDAY' },
     ],
     links: [
-      { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-      { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
+      { rel: 'manifest', href: '/manifest.json' },
+      { rel: 'icon', href: '/icon-192.png', type: 'image/png' },
+      { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
+      /* fonts are self-hosted (see styles.css @font-face); preload the two
+         latin files the first paint always needs */
       {
-        rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@600;700;800&display=swap',
+        rel: 'preload',
+        href: '/fonts/baloo2-latin.woff2',
+        as: 'font',
+        type: 'font/woff2',
+        crossOrigin: 'anonymous',
+      },
+      {
+        rel: 'preload',
+        href: '/fonts/nunito-latin.woff2',
+        as: 'font',
+        type: 'font/woff2',
+        crossOrigin: 'anonymous',
       },
       { rel: 'stylesheet', href: appCss },
     ],
