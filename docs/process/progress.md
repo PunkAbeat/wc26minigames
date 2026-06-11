@@ -13,7 +13,7 @@ Statuses: `todo` · `in_progress` · `blocked` · `done`. One line per item; dur
 | Production domain | done | wc26minigames.com bought + routed (apex & www custom domains on the worker) |
 | Cloudflare deploy (worker + real D1 id + AE dataset) | done | **LIVE 11 Jun** — D1 3622f763 migrated, AE dataset enabled, version 58b2d706; smoke-tested (routes, audio, OG, APIs, test hooks 404) |
 | Set `VITE_SITE_ORIGIN` (activates og:image) | done | app/.env.production → https://wc26minigames.com |
-| CF Web Analytics token (`VITE_CF_BEACON_TOKEN`) | todo | unblocked — create in dashboard for wc26minigames.com, set at build, redeploy |
+| CF Web Analytics | done | enabled via zone **auto-injection** (verified in live DOM) — no token needed; `VITE_CF_BEACON_TOKEN` stays as the fallback for non-proxied hosting |
 | Self-hosted audio (trimmed/normalized, archive.org fallback) | done | as Worker static assets instead of R2 — [ADR-0005](../adr/0005-self-hosted-audio-as-worker-assets.md); `npm run deploy` regenerates |
 | FIFA-wording legal pass ("World Cup" in titles) | todo | see research/questions.md |
 | Error monitoring (Sentry or Worker-side log) | todo | provider undecided |

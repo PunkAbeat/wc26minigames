@@ -71,7 +71,7 @@ Three layers, all CI-gated:
 | Var | Effect |
 |---|---|
 | `VITE_SITE_ORIGIN` | absolute origin for `og:image`/`og:url` (unset → tags omitted) |
-| `VITE_CF_BEACON_TOKEN` | enables the Cloudflare Web Analytics tag |
+| `VITE_CF_BEACON_TOKEN` | renders a manual CF Web Analytics tag — NOT needed in production (the zone auto-injects the beacon; setting it there would double-count) |
 | `VITE_STRIP_TEST_HOOKS` | set by `build:prod`; removes the test bootstrap |
 
 ## Code standards
