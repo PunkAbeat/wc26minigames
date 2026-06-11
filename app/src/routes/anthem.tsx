@@ -55,7 +55,13 @@ import {
 } from '../lib/anthem/storage'
 import { track, trackPageView } from '../lib/analytics'
 import { gameToCardOpts, renderShareCard } from '../lib/anthem/sharecard'
-import { scheduleMelody, missThunk } from '../lib/anthem/engine/synth'
+import {
+  missThunk,
+  scheduleMelody,
+  sfxGoal,
+  sfxKick,
+  sfxWhistle,
+} from '../lib/anthem/engine/synth'
 import { PlaybackController } from '../lib/anthem/engine/playback'
 import { TrackView } from '../lib/anthem/engine/track'
 import { Confetti } from '../lib/anthem/engine/confetti'
@@ -151,6 +157,7 @@ function AnthemPage() {
   const pickerRef = useRef<HTMLDivElement>(null)
   const cardRef = useRef<HTMLDivElement>(null)
   const confettiCanvasRef = useRef<HTMLCanvasElement>(null)
+  const goalflashRef = useRef<HTMLDivElement>(null)
 
   const pbRef = useRef<PlaybackController | null>(null)
   const confettiRef = useRef<Confetti | null>(null)
@@ -275,7 +282,20 @@ function AnthemPage() {
           .then(() => setGlobalTick((t) => t + 1)) // refetch including ourselves
           .catch(() => {})
       }
-      if (ns.won) confettiRef.current?.launch()
+      if (ns.won) {
+        confettiRef.current?.launch()
+        if (!rmRef.current) {
+          sfxGoal()
+          /* gold flash behind the confetti — transient, engine-style DOM */
+          const fl = goalflashRef.current
+          if (fl) {
+            fl.classList.remove('on')
+            void fl.offsetWidth
+            fl.classList.add('on')
+            setTimeout(() => fl.classList.remove('on'), 750)
+          }
+        }
+      } else if (!rmRef.current) sfxWhistle() // full time
       /* reveal: play the whole anthem (win or lose). Only here — i.e. in the same
          user-gesture chain as the final guess — so autoplay is allowed; a restored
          finished game won't autoplay. */
@@ -308,6 +328,7 @@ function AnthemPage() {
     }
     if (inp) inp.value = ''
     setInputValue('')
+    if (!rmRef.current) sfxKick() // the shot is away
     let ns = applyGuess(s, p, val)
     if (ns.won) {
       ns = endGame(ns)
@@ -687,6 +708,7 @@ function AnthemPage() {
   return (
     <div className="page page-anthem">
       <canvas id="confetti" ref={confettiCanvasRef} />
+      <div id="goalflash" ref={goalflashRef} aria-hidden="true" />
       <div className="bunting">
         {Array.from({ length: 15 }, (_, i) => (
           <i key={i} style={{ borderTopColor: BUNTING_COLS[i % BUNTING_COLS.length] }} />

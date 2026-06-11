@@ -182,3 +182,111 @@ export function missThunk(): void {
     /* audio unavailable — silent miss */
   }
 }
+
+/* ---- moment SFX (post-migration polish). All gated behind the caller's
+   reduced-motion check, matching the original thunk's behaviour. ---- */
+
+/* ball strike on SHOOT: low thump + tiny noise snap */
+export function sfxKick(): void {
+  try {
+    const ctx = ensureCtx()
+    const t = ctx.currentTime
+    const o = ctx.createOscillator()
+    const g = ctx.createGain()
+    o.type = 'sine'
+    o.frequency.setValueAtTime(150, t)
+    o.frequency.exponentialRampToValueAtTime(55, t + 0.09)
+    g.gain.setValueAtTime(0.22, t)
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.12)
+    o.connect(g)
+    g.connect(ctx.destination)
+    o.start(t)
+    o.stop(t + 0.13)
+    const len = Math.floor(ctx.sampleRate * 0.04)
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate)
+    const d = buf.getChannelData(0)
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len)
+    const n = ctx.createBufferSource()
+    n.buffer = buf
+    const hp = ctx.createBiquadFilter()
+    hp.type = 'highpass'
+    hp.frequency.value = 2500
+    const ng = ctx.createGain()
+    ng.gain.setValueAtTime(0.05, t)
+    ng.gain.exponentialRampToValueAtTime(0.001, t + 0.04)
+    n.connect(hp)
+    hp.connect(ng)
+    ng.connect(ctx.destination)
+    n.start(t)
+  } catch {
+    /* no audio — silent */
+  }
+}
+
+/* GOAL: quick rising major arpeggio with a bright echo */
+export function sfxGoal(): void {
+  try {
+    const ctx = ensureCtx()
+    const t0 = ctx.currentTime + 0.02
+    const freqs = [523.25, 659.25, 783.99, 1046.5] // C5 E5 G5 C6
+    freqs.forEach((f, i) => {
+      const at = t0 + i * 0.085
+      ;[0, 7].forEach((det) => {
+        const o = ctx.createOscillator()
+        o.type = 'triangle'
+        o.frequency.value = f
+        o.detune.value = det
+        const g = ctx.createGain()
+        const dur = i === freqs.length - 1 ? 0.6 : 0.22
+        g.gain.setValueAtTime(0, at)
+        g.gain.linearRampToValueAtTime(0.12, at + 0.015)
+        g.gain.exponentialRampToValueAtTime(0.001, at + dur)
+        o.connect(g)
+        g.connect(ctx.destination)
+        o.start(at)
+        o.stop(at + dur + 0.05)
+      })
+    })
+  } catch {
+    /* silent */
+  }
+}
+
+/* FULL TIME: referee whistle — peep, peep, peeeep (trilled ~2.8kHz) */
+export function sfxWhistle(): void {
+  try {
+    const ctx = ensureCtx()
+    const t0 = ctx.currentTime + 0.02
+    const blast = (at: number, dur: number) => {
+      const o = ctx.createOscillator()
+      o.type = 'square'
+      o.frequency.value = 2750
+      const trill = ctx.createOscillator()
+      trill.frequency.value = 38 // the pea rattling
+      const trillAmt = ctx.createGain()
+      trillAmt.gain.value = 220
+      trill.connect(trillAmt)
+      trillAmt.connect(o.frequency)
+      const g = ctx.createGain()
+      g.gain.setValueAtTime(0, at)
+      g.gain.linearRampToValueAtTime(0.05, at + 0.01)
+      g.gain.setValueAtTime(0.05, at + dur - 0.02)
+      g.gain.linearRampToValueAtTime(0.0001, at + dur)
+      const lp = ctx.createBiquadFilter()
+      lp.type = 'lowpass'
+      lp.frequency.value = 5200
+      o.connect(lp)
+      lp.connect(g)
+      g.connect(ctx.destination)
+      o.start(at)
+      o.stop(at + dur + 0.02)
+      trill.start(at)
+      trill.stop(at + dur + 0.02)
+    }
+    blast(t0, 0.14)
+    blast(t0 + 0.22, 0.14)
+    blast(t0 + 0.44, 0.55)
+  } catch {
+    /* silent */
+  }
+}

@@ -182,3 +182,16 @@
     font-size:12.5px;border-radius:8px;padding:3px 8px;text-align:right;transition:width .4s ease}
   .page-anthem .distbar.today{background:linear-gradient(180deg,#1bb85c,#149048);border-color:rgba(255,255,255,.4)}
   .page-anthem .globalstats{font-family:'Baloo 2';font-weight:700;font-size:13.5px;color:var(--soft);margin:2px 0 10px;letter-spacing:.02em}
+  /* ---- GOAL moment: gold flash behind the confetti (suppressed by the
+     global reduced-motion override) ---- */
+  .page-anthem #goalflash{position:fixed;inset:0;pointer-events:none;z-index:39;opacity:0;
+    background:radial-gradient(120% 90% at 50% 35%, rgba(255,224,107,.85), rgba(255,210,63,.35) 45%, transparent 75%)}
+  .page-anthem #goalflash.on{animation:goalFlash .7s ease-out both}
+  @keyframes goalFlash{0%{opacity:0}12%{opacity:.9}100%{opacity:0}}
+  /* flag reveal: card-flip entrance instead of the generic pop */
+  .page-anthem .flagwrap{animation:none}
+  .page-anthem #endFlagImg{animation:flagReveal .8s cubic-bezier(.3,1.4,.45,1) both;backface-visibility:hidden}
+  @keyframes flagReveal{0%{opacity:0;transform:perspective(640px) rotateY(78deg) scale(.7)}
+    62%{opacity:1;transform:perspective(640px) rotateY(-14deg) scale(1.06)}
+    82%{transform:perspective(640px) rotateY(6deg) scale(.99)}
+    100%{opacity:1;transform:none}}
