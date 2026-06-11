@@ -123,6 +123,8 @@ function AnthemPage() {
   const [copied, setCopied] = useState('')
   const [nextIn, setNextIn] = useState('')
   const [flagBroken, setFlagBroken] = useState(false)
+  const [globalLine, setGlobalLine] = useState('')
+  const [globalTick, setGlobalTick] = useState(0) // bumped after our POST lands
 
   const current: Puzzle | null = puzzleIndex === null ? null : PUZZLES[puzzleIndex]
 
@@ -253,6 +255,19 @@ function AnthemPage() {
         saveStreak(streak)
         saveStats(updateStats(loadStats(), ns.won, ns.attempt, streak.count || 0))
         ns = { ...ns, streak: streak.count }
+        /* anonymous global counter — only on a live daily finish, never a
+           restore. Fire-and-forget: the game must work without the backend. */
+        fetch('/api/anthem-stats', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            day: dayNumber(),
+            tries: ns.won ? String(ns.attempt) : 'X',
+          }),
+          keepalive: true,
+        })
+          .then(() => setGlobalTick((t) => t + 1)) // refetch including ourselves
+          .catch(() => {})
       }
       if (ns.won) confettiRef.current?.launch()
       /* reveal: play the whole anthem (win or lose). Only here — i.e. in the same
@@ -447,6 +462,39 @@ function AnthemPage() {
     const t = setInterval(tick, 1000)
     return () => clearInterval(t)
   }, [game.finished, mode])
+
+  /* global "X% solved it" line for the end screen (daily only; silent when the
+     backend is missing or empty) */
+  useEffect(() => {
+    if (!(game.finished && mode === 'daily')) {
+      setGlobalLine('')
+      return
+    }
+    let dead = false
+    ;(async () => {
+      try {
+        const res = await fetch('/api/anthem-stats?day=' + dayNumber())
+        if (!res.ok) return
+        const d: { total: number; dist: Record<string, number> } = await res.json()
+        if (dead || !d.total) return
+        const pct = (n: number) => Math.round((n / d.total) * 100)
+        const solved = d.total - (d.dist.X || 0)
+        let line = '📊 ' + pct(solved) + '% of today’s players solved it'
+        const s = stateRef.current
+        if (s.won && s.attempt > 1) {
+          let leN = 0
+          for (let i = 1; i <= s.attempt; i++) leN += d.dist[String(i)] || 0
+          line += ' · ' + pct(leN) + '% in ' + s.attempt + ' or fewer'
+        }
+        setGlobalLine(line)
+      } catch {
+        /* offline / no backend — just don't show the line */
+      }
+    })()
+    return () => {
+      dead = true
+    }
+  }, [game.finished, mode, globalTick])
 
   /* make sure the result is actually on screen (player may be scrolled deep into
      hints/rows) — once per game only, so it never fights the user's own scrolling */
@@ -870,6 +918,11 @@ function AnthemPage() {
             <div className="grid-share" id="gridShare">
               {gridString(game)}
             </div>
+            {globalLine && (
+              <div className="globalstats" id="globalStats">
+                {globalLine}
+              </div>
+            )}
             <div className="streak" id="streakLine">
               <span>{game.won ? '🎺 ' + tries + '/6' : '😵 X/6'}</span>
               {mode === 'daily' ? (

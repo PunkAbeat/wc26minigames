@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as OgRouteImport } from './routes/og'
 import { Route as AnthemRouteImport } from './routes/anthem'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiAnthemStatsRouteImport } from './routes/api.anthem-stats'
 
 const OgRoute = OgRouteImport.update({
   id: '/og',
@@ -28,35 +29,44 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAnthemStatsRoute = ApiAnthemStatsRouteImport.update({
+  id: '/api/anthem-stats',
+  path: '/api/anthem-stats',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/anthem': typeof AnthemRoute
   '/og': typeof OgRoute
+  '/api/anthem-stats': typeof ApiAnthemStatsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/anthem': typeof AnthemRoute
   '/og': typeof OgRoute
+  '/api/anthem-stats': typeof ApiAnthemStatsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/anthem': typeof AnthemRoute
   '/og': typeof OgRoute
+  '/api/anthem-stats': typeof ApiAnthemStatsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/anthem' | '/og'
+  fullPaths: '/' | '/anthem' | '/og' | '/api/anthem-stats'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/anthem' | '/og'
-  id: '__root__' | '/' | '/anthem' | '/og'
+  to: '/' | '/anthem' | '/og' | '/api/anthem-stats'
+  id: '__root__' | '/' | '/anthem' | '/og' | '/api/anthem-stats'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnthemRoute: typeof AnthemRoute
   OgRoute: typeof OgRoute
+  ApiAnthemStatsRoute: typeof ApiAnthemStatsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +92,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/anthem-stats': {
+      id: '/api/anthem-stats'
+      path: '/api/anthem-stats'
+      fullPath: '/api/anthem-stats'
+      preLoaderRoute: typeof ApiAnthemStatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnthemRoute: AnthemRoute,
   OgRoute: OgRoute,
+  ApiAnthemStatsRoute: ApiAnthemStatsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

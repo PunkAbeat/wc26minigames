@@ -181,3 +181,4 @@
   .page-anthem .distbar{min-width:26px;background:#0a4527;border:1px solid rgba(255,255,255,.14);color:#fff;font-family:'Baloo 2';font-weight:700;
     font-size:12.5px;border-radius:8px;padding:3px 8px;text-align:right;transition:width .4s ease}
   .page-anthem .distbar.today{background:linear-gradient(180deg,#1bb85c,#149048);border-color:rgba(255,255,255,.4)}
+  .page-anthem .globalstats{font-family:'Baloo 2';font-weight:700;font-size:13.5px;color:var(--soft);margin:2px 0 10px;letter-spacing:.02em}

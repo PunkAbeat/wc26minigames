@@ -3,5 +3,16 @@
   "name": "wc26minigames",
   "compatibility_date": "2025-09-02",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "@tanstack/react-start/server-entry"
+  "main": "@tanstack/react-start/server-entry",
+  // global-stats counters. database_id is a placeholder until the real D1 db
+  // is created at deploy time (wrangler d1 create wc26minigames); local
+  // dev/preview emulate it via miniflare regardless.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "wc26minigames",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ]
 }
