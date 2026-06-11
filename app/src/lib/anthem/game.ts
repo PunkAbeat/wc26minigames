@@ -57,7 +57,7 @@ export function shareText(state: GameState, mode: Mode, matchNo: number): string
   const tries = state.won ? state.attempt : 'X'
   // archive shares read like the daily they were: "Match #3"
   const head = mode === 'practice' ? 'ANTHEM ⚽ Practice' : 'ANTHEM ⚽ Match #' + matchNo
-  return head + '  ' + tries + '/6\n' + gridString(state) + '\nName the World Cup nation from its anthem'
+  return head + '  ' + tries + '/6\n' + gridString(state) + '\nName the nation from its anthem'
 }
 
 export interface Streak {

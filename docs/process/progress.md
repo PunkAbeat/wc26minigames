@@ -16,7 +16,7 @@ Statuses: `todo` · `in_progress` · `blocked` · `done`. One line per item; dur
 | CF Web Analytics | done | enabled via zone **auto-injection** (verified in live DOM) — no token needed; `VITE_CF_BEACON_TOKEN` stays as the fallback for non-proxied hosting |
 | Self-hosted audio (trimmed/normalized, archive.org fallback) | done | as Worker static assets instead of R2 — [ADR-0005](../adr/0005-self-hosted-audio-as-worker-assets.md); `npm run deploy` regenerates |
 | FIFA-wording legal pass ("World Cup" in titles) | todo | see research/questions.md |
-| Error monitoring (Sentry or Worker-side log) | todo | provider undecided |
+| Error monitoring | done | first-party: Workers Logs (observability enabled) + client beacon /api/error → console.error, self-capped; verified live via wrangler tail. Sentry = upgrade path if triage outgrows it |
 | QA-listen: Iran + Paraguay (`Removed/` recordings), DR Congo verification | todo | HANDOFF §5 |
 | Distribution plan (r/soccer, football TikTok/Twitter, group chats) | todo | product work, not code |
 | Owner feedback round 11 Jun (copy, trumpet, OFF TARGET, practice cap 2/day, anthem wiki link, Match #1 = 11 Jun) | done | first deliberate behavior changes post-parity |

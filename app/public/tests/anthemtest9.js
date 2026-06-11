@@ -46,5 +46,9 @@
     add(okEv.status === 204, 'event sink accepts page_view (' + okEv.status + ')');
     const badEv = await fetch('/api/event', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name: 'evil_event' }) });
     add(badEv.status === 400, 'unknown events rejected (' + badEv.status + ')');
+    const er = await fetch('/api/error', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ message: 'suite9 synthetic error', stack: 'at nowhere', url: '/anthem' }) });
+    add(er.status === 204, 'error sink accepts reports (' + er.status + ')');
+    const erBad = await fetch('/api/error', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ nope: 1 }) });
+    add(erBad.status === 400, 'messageless error reports rejected (' + erBad.status + ')');
   } catch (e) { add(false, 'event sink exception: ' + e.message); }
 })();

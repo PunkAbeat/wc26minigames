@@ -11,9 +11,9 @@ export const Route = createFileRoute('/')({
       {
         name: 'description',
         content:
-          'A series of shareable mini games for the 2026 World Cup. One stadium, many games.',
+          'A series of shareable mini games for the 2026 tournament. One stadium, many games.',
       },
-      { property: 'og:title', content: 'MATCHDAY ⚽ World Cup 2026 mini games' },
+      { property: 'og:title', content: 'MATCHDAY ⚽ WC26 mini games' },
       {
         property: 'og:description',
         content: 'One stadium, many games.',
@@ -91,13 +91,13 @@ function Hub() {
       </div>
 
       <header>
-        <div className="kicker">World Cup 2026 · Mini Games</div>
+        <div className="kicker">Summer 2026 · Mini Games</div>
         <div className="wordmark disp">
           <span className="ball" />
           MATCHDAY
         </div>
         <div className="sub">
-          Mini games for the World Cup.
+          Mini games for the 2026 tournament.
           <br />
           One stadium, many games.
         </div>

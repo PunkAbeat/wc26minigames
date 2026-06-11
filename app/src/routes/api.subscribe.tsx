@@ -61,7 +61,8 @@ export const Route = createFileRoute('/api/subscribe')({
             .bind(email)
             .run()
           return json({ ok: true })
-        } catch {
+        } catch (e) {
+          console.error('[subscribe]', e instanceof Error ? e.message : String(e))
           return json({ error: 'unavailable' }, 503)
         }
       },

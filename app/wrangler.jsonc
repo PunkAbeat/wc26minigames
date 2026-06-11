@@ -3,6 +3,9 @@
   "name": "wc26minigames",
   "compatibility_date": "2025-09-02",
   "compatibility_flags": ["nodejs_compat"],
+  // Workers Logs: persists invocations, uncaught exceptions and console.* in
+  // the dashboard (Observability tab) — the server half of error monitoring
+  "observability": { "enabled": true },
   "main": "@tanstack/react-start/server-entry",
   "routes": [
     { "pattern": "wc26minigames.com", "custom_domain": true },

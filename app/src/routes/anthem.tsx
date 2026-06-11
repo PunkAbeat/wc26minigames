@@ -82,13 +82,13 @@ const ORIGIN = (import.meta.env.VITE_SITE_ORIGIN as string | undefined) || ''
 export const Route = createFileRoute('/anthem')({
   head: () => ({
     meta: [
-      { title: 'ANTHEM ⚽ Guess the World Cup nation' },
+      { title: 'ANTHEM ⚽ Guess the nation from its anthem' },
       {
         name: 'description',
         content:
-          'Hear a snippet of a national anthem and guess the World Cup nation in six tries. A new anthem every day at midnight UTC.',
+          'Hear a snippet of a national anthem and guess the nation in six tries. A new anthem every day at midnight UTC.',
       },
-      { property: 'og:title', content: 'ANTHEM ⚽ Guess the World Cup nation' },
+      { property: 'og:title', content: 'ANTHEM ⚽ Guess the nation from its anthem' },
       {
         property: 'og:description',
         content: 'One anthem a day, six guesses. Can you keep your streak?',
@@ -799,7 +799,7 @@ function AnthemPage() {
             <path d="M5 12h3v8H5zM10.5 4h3v16h-3zM16 9h3v11h-3z" />
           </svg>
         </button>
-        <div className="kicker">World Cup 2026 · Daily</div>
+        <div className="kicker">Summer 2026 · Daily</div>
         <div className="wordmark disp">
           <span className="emblem" aria-hidden="true">🎺</span>
           ANTHEM
@@ -1101,6 +1101,8 @@ function AnthemPage() {
       <div className="foot">
         A new anthem every day at midnight UTC · part of the MATCHDAY mini games. Anthem
         recordings by the U.S. Navy Band (public domain, via archive.org).
+        <br />
+        Unofficial fan project · not affiliated with FIFA.
       </div>
 
       <div className={'toast' + (toast.on ? ' show' : '')} id="toast">

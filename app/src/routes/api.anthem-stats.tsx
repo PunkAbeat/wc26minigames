@@ -66,7 +66,8 @@ export const Route = createFileRoute('/api/anthem-stats')({
             total += r.n
           }
           return json({ day, total, dist })
-        } catch {
+        } catch (e) {
+          console.error('[anthem-stats]', e instanceof Error ? e.message : String(e))
           return json({ error: 'unavailable' }, 503)
         }
       },
@@ -98,7 +99,8 @@ export const Route = createFileRoute('/api/anthem-stats')({
             .bind(day, tries)
             .run()
           return new Response(null, { status: 204 })
-        } catch {
+        } catch (e) {
+          console.error('[anthem-stats]', e instanceof Error ? e.message : String(e))
           return json({ error: 'unavailable' }, 503)
         }
       },

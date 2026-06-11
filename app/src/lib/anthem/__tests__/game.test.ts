@@ -65,14 +65,14 @@ describe('share text', () => {
     let s = applyGuess(freshState(), france, 'Brazil')
     s = applyGuess(s, france, 'France')
     expect(shareText(s, 'daily', 2)).toBe(
-      'ANTHEM ⚽ Match #2  2/6\n🟥🟩\nName the World Cup nation from its anthem',
+      'ANTHEM ⚽ Match #2  2/6\n🟥🟩\nName the nation from its anthem',
     )
   })
   it('practice + loss format', () => {
     let s = freshState()
     for (let i = 0; i < 6; i++) s = applySkip(s)
     expect(shareText(s, 'practice', 7)).toBe(
-      'ANTHEM ⚽ Practice  X/6\n⬛⬛⬛⬛⬛⬛\nName the World Cup nation from its anthem',
+      'ANTHEM ⚽ Practice  X/6\n⬛⬛⬛⬛⬛⬛\nName the nation from its anthem',
     )
   })
 })

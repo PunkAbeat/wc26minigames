@@ -1,5 +1,7 @@
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+import { useEffect } from 'react'
 
+import { installErrorMonitor } from '../lib/errormon'
 import appCss from '../styles.css?url'
 
 export const Route = createRootRoute({
@@ -13,7 +15,7 @@ export const Route = createRootRoute({
         content:
           'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover',
       },
-      { title: 'MATCHDAY ⚽ World Cup 2026 mini games' },
+      { title: 'MATCHDAY ⚽ WC26 mini games' },
       // pitch-green chrome on iOS standalone / Android task switcher
       { name: 'theme-color', content: '#053a22' },
       { name: 'apple-mobile-web-app-capable', content: 'yes' },
@@ -78,6 +80,9 @@ export const Route = createRootRoute({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    installErrorMonitor()
+  }, [])
   return (
     <html lang="en">
       <head>
