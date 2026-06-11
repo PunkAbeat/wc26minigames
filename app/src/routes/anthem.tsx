@@ -56,7 +56,7 @@ import {
 import { LOCAL_AUDIO } from '../lib/anthem/audio-local'
 import { START_OFFSETS } from '../lib/anthem/offsets'
 import { track, trackPageView } from '../lib/analytics'
-import { gameToCardOpts, renderShareCard } from '../lib/anthem/sharecard'
+import { drawShareCard, gameToCardOpts, renderShareCard } from '../lib/anthem/sharecard'
 import {
   missThunk,
   scheduleMelody,
@@ -688,6 +688,13 @@ function AnthemPage() {
       hideHowto,
       showHowto: () => setHowtoOpen(true),
       makeShareCard,
+      // suite 7 draws onto a live canvas instead of decoding the PNG blob —
+      // image decode stalls under headless virtual time
+      drawShareCardTo: (canvas: HTMLCanvasElement) =>
+        drawShareCard(
+          canvas,
+          gameToCardOpts(stateRef.current, modeRef.current, matchNumber(), location.host),
+        ),
     }
   })
 

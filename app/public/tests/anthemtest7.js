@@ -22,13 +22,12 @@
     ok(!!blob, 'share card rendered');
     ok(blob && blob.type === 'image/png', 'card is a PNG (' + (blob && blob.type) + ')');
     ok(blob && blob.size > 20000, 'card has real pixel content (' + (blob && blob.size) + ' bytes)');
-    /* decode it back and sanity-check dimensions + that it is not a blank frame */
-    const bmp = await createImageBitmap(blob);
-    ok(bmp.width === 1200 && bmp.height === 630, 'card is 1200x630 (' + bmp.width + 'x' + bmp.height + ')');
+    /* draw the same card onto a live canvas (PNG decode stalls under headless
+       virtual time) and sanity-check dimensions + that it is not a blank frame */
     const cv = document.createElement('canvas');
-    cv.width = bmp.width; cv.height = bmp.height;
+    A.drawShareCardTo(cv);
+    ok(cv.width === 1200 && cv.height === 630, 'card is 1200x630 (' + cv.width + 'x' + cv.height + ')');
     const ctx = cv.getContext('2d');
-    ctx.drawImage(bmp, 0, 0);
     const d = ctx.getImageData(0, 0, cv.width, cv.height).data;
     const colors = new Set();
     for (let i = 0; i < d.length; i += 4 * 997) colors.add(d[i] + ',' + d[i + 1] + ',' + d[i + 2]);
