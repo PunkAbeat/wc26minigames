@@ -38,13 +38,19 @@ function fracFor(stage: number): number {
   return (stage + 1) / 6
 }
 
+export interface AudioSource {
+  url: string
+  /* leading-silence skip (seconds) for this recording: clip playback starts
+     here so a 1s clip is always audible; the full reveal plays from 0.
+     Self-hosted files have it baked in (0); archive.org originals don't. */
+  startOffset: number
+}
+
 interface CurrentTrack {
-  audioUrl: string | null
+  sources: AudioSource[]
+  idx: number // active source; bumped on error until exhausted
   sched: MelodySchedule
   audioOk: boolean
-  /* leading-silence skip (seconds) for the real recording: clip playback
-     starts here so a 1s clip is always audible; the full reveal plays from 0 */
-  startOffset: number
 }
 
 export class PlaybackController {
@@ -63,14 +69,7 @@ export class PlaybackController {
   constructor(private hooks: PlaybackHooks) {
     this.audioEl = new Audio()
     this.audioEl.preload = 'auto'
-    this.audioEl.addEventListener('error', () => {
-      if (this.current) {
-        this.current.audioOk = false
-        this.setSource('synth')
-        this.setLoading(false)
-        if (this.wantPlay && this.src === 'real') this.startSynth(0)
-      }
-    })
+    this.audioEl.addEventListener('error', () => this.failCurrentSource())
     this.audioEl.addEventListener('ended', () => this.stop())
     this.audioEl.addEventListener('waiting', () => {
       if (this.wantPlay) this.setLoading(true)
@@ -80,20 +79,42 @@ export class PlaybackController {
   }
 
   /* loadPuzzle's audio half: point at the new track, reset state */
-  setTrack(audioUrl: string | null, sched: MelodySchedule, startOffset = 0): void {
+  setTrack(sources: AudioSource[], sched: MelodySchedule): void {
     this.stop()
-    this.current = { audioUrl, sched, audioOk: !!audioUrl, startOffset }
-    if (audioUrl) {
-      this.audioEl.src = audioUrl
-      try {
-        this.audioEl.load()
-      } catch {
-        /* some browsers throw on load() mid-stream */
-      }
+    this.current = { sources, idx: 0, sched, audioOk: sources.length > 0 }
+    if (this.current.audioOk) {
+      this.loadActiveSource()
       this.setSource('real')
     } else {
       this.setSource('synth')
     }
+  }
+
+  private loadActiveSource(): void {
+    if (!this.current) return
+    this.audioEl.src = this.current.sources[this.current.idx].url
+    try {
+      this.audioEl.load()
+    } catch {
+      /* some browsers throw on load() mid-stream */
+    }
+  }
+
+  /* active source is broken (404, decode error, blocked play()): advance to
+     the next one — self-hosted → archive.org → synth */
+  private failCurrentSource(): void {
+    const c = this.current
+    if (!c || !c.audioOk) return
+    if (c.idx < c.sources.length - 1) {
+      c.idx++
+      this.loadActiveSource()
+      if (this.wantPlay && this.src === 'real') this.startReal()
+      return
+    }
+    c.audioOk = false
+    this.setSource('synth')
+    this.setLoading(false)
+    if (this.wantPlay && this.src === 'real') this.startSynth(0)
   }
 
   private setSource(kind: 'real' | 'synth'): void {
@@ -110,7 +131,8 @@ export class PlaybackController {
   }
 
   private realStart(): number {
-    return this.full ? 0 : this.current?.startOffset || 0
+    if (this.full || !this.current?.audioOk) return 0
+    return this.current.sources[this.current.idx]?.startOffset || 0
   }
   private elapsed(): number {
     if (this.src === 'real')
@@ -148,7 +170,7 @@ export class PlaybackController {
     this.full = this.hooks.isFinished() // game over → reveal the whole anthem
     this.limit = this.full ? Infinity : STAGES[this.hooks.getStage()]
     this.hooks.els().playhead?.classList.add('show')
-    if (this.current?.audioUrl && this.current.audioOk !== false) this.startReal()
+    if (this.current?.audioOk) this.startReal()
     else this.startSynth(0)
   }
 
@@ -169,10 +191,7 @@ export class PlaybackController {
     if (pr && pr.catch)
       pr.catch(() => {
         if (!this.wantPlay) return
-        this.setLoading(false)
-        if (this.current) this.current.audioOk = false
-        this.setSource('synth')
-        this.startSynth(0)
+        this.failCurrentSource()
       })
     cancelAnimationFrame(this.raf)
     this.raf = requestAnimationFrame(this.tick)

@@ -53,6 +53,7 @@ import {
   saveStats,
   saveStreak,
 } from '../lib/anthem/storage'
+import { LOCAL_AUDIO } from '../lib/anthem/audio-local'
 import { START_OFFSETS } from '../lib/anthem/offsets'
 import { track, trackPageView } from '../lib/analytics'
 import { gameToCardOpts, renderShareCard } from '../lib/anthem/sharecard'
@@ -64,6 +65,7 @@ import {
   sfxWhistle,
 } from '../lib/anthem/engine/synth'
 import { PlaybackController } from '../lib/anthem/engine/playback'
+import type { AudioSource } from '../lib/anthem/engine/playback'
 import { TrackView } from '../lib/anthem/engine/track'
 import { Confetti } from '../lib/anthem/engine/confetti'
 import '../styles/anthem.css'
@@ -219,11 +221,17 @@ function AnthemPage() {
       if (inputRef.current) inputRef.current.value = ''
       setSuggOpen(false)
       setHiOverride(null)
-      pbRef.current?.setTrack(
-        p.audio ? AUDIO_BASE + encodeURI(p.audio) : null,
-        scheduleMelody(p.melody || []),
-        START_OFFSETS[p.name] || 0,
-      )
+      /* audio resolution order: self-hosted trimmed copy (offset baked in) →
+         archive.org original (measured offset) → synth fallback */
+      const sources: AudioSource[] = []
+      const local = LOCAL_AUDIO[p.name]
+      if (local) sources.push({ url: '/audio/' + local.file, startOffset: 0 })
+      if (p.audio)
+        sources.push({
+          url: AUDIO_BASE + encodeURI(p.audio),
+          startOffset: START_OFFSETS[p.name] || 0,
+        })
+      pbRef.current?.setTrack(sources, scheduleMelody(p.melody || []))
       trackView.setStatic(0)
     },
     [commit, trackView],

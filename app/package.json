@@ -13,7 +13,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:headless": "node tests/run-headless.mjs",
-    "deploy": "npm run build:prod && wrangler deploy",
+    "audio:prepare": "node tools/prepare-audio.mjs",
+    "deploy": "npm run audio:prepare && npm run build:prod && wrangler deploy",
     "build:prod": "VITE_STRIP_TEST_HOOKS=1 vite build && rm -rf dist/client/tests"
   },
   "dependencies": {

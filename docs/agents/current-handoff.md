@@ -9,7 +9,7 @@ Merged to `master` and pushed to github.com/PunkAbeat/wc26minigames (public; CI 
 ## Unresolved risks
 
 - **iOS verification gap:** the polish pass (SFX, GOAL flash, flag reveal, PWA install, England first-clip offset) has NOT yet had the owner's on-device check. Logic gates don't catch iOS quirks.
-- **archive.org dependency:** all anthem audio still streams from archive.org — slow and not ours. R2 re-hosting is the planned fix (downloads already cached in `/tmp/anthem-audio`).
+- **archive.org dependency: resolved** for the common path — audio is self-hosted ([ADR-0005](../adr/0005-self-hosted-audio-as-worker-assets.md)); archive.org is now only the fallback. `public/audio/` is gitignored: run `npm run audio:prepare` after a fresh clone or the tailnet preview falls back to archive streaming.
 - **Global stats are honest but not tamper-proof** ([ADR-0004](../adr/0004-anonymous-global-stats-on-d1.md)) — fine until someone notices.
 - **Seek-before-canplay:** start offsets set `audioEl.currentTime` inside try/catch; if iOS ignores the early seek the clip silently falls back to 0s (pre-offset behavior). Watch for it on-device with England.
 
@@ -22,4 +22,4 @@ Merged to `master` and pushed to github.com/PunkAbeat/wc26minigames (public; CI 
 
 ## Recommended next task
 
-Owner: device-check the polish pass, then unblock the deploy chain (domain → CF account → `wrangler d1 create`). Agent, if working before that lands: R2 re-hosting prep (a script that trims/normalizes the cached mp3s with ffmpeg and emits an upload manifest) is the highest-value unblocked item; the QA-listen list (Iran/Paraguay/DR Congo) needs human ears.
+Owner: device-check the polish pass, then unblock the deploy chain (domain → CF account → `wrangler d1 create`). Agent, if working before that lands: error monitoring (research/questions.md #4 needs the owner's pick first) or the FIFA-wording copy pass are the next unblocked items; the QA-listen list (Iran/Paraguay/DR Congo) needs human ears — the self-hosted copies in app/public/audio/ are the easiest way to listen.

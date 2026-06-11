@@ -10,3 +10,4 @@ Open (undecided) questions do **not** go here — they live in [../research/ques
 | [0002](0002-imperative-engines-in-refs.md) | Audio/playback/confetti stay imperative modules in refs, not React state | accepted |
 | [0003](0003-first-party-cookieless-analytics.md) | First-party, cookieless analytics; no third-party trackers | accepted |
 | [0004](0004-anonymous-global-stats-on-d1.md) | Global stats are anonymous (day, tries) counters on D1 | accepted |
+| [0005](0005-self-hosted-audio-as-worker-assets.md) | Anthem audio self-hosted as Worker static assets (not R2) | accepted |

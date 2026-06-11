@@ -14,7 +14,7 @@ Statuses: `todo` · `in_progress` · `blocked` · `done`. One line per item; dur
 | Cloudflare deploy (worker + real D1 id + AE dataset) | blocked | needs CF account creds; `wrangler d1 create wc26minigames` then real `database_id` |
 | Set `VITE_SITE_ORIGIN` (activates og:image) | blocked | on domain |
 | CF Web Analytics token (`VITE_CF_BEACON_TOKEN`) | blocked | on deploy |
-| R2 audio re-hosting (trimmed/normalized, archive.org fallback) | todo | needs CF account; tools/measure-offsets.mjs cache in /tmp/anthem-audio is a head start |
+| Self-hosted audio (trimmed/normalized, archive.org fallback) | done | as Worker static assets instead of R2 — [ADR-0005](../adr/0005-self-hosted-audio-as-worker-assets.md); `npm run deploy` regenerates |
 | FIFA-wording legal pass ("World Cup" in titles) | todo | see research/questions.md |
 | Error monitoring (Sentry or Worker-side log) | todo | provider undecided |
 | QA-listen: Iran + Paraguay (`Removed/` recordings), DR Congo verification | todo | HANDOFF §5 |

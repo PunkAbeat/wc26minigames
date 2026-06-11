@@ -44,6 +44,7 @@ TanStack Start (React 19, Vite) targeting Cloudflare Workers via `@cloudflare/vi
 | `node tools/gen-og.mjs` | regenerate the OG image (server must be up) |
 | `node tools/gen-icons.mjs` | regenerate PWA icons from `tools/icon.html` |
 | `node tools/measure-offsets.mjs` | re-measure anthem leading-silence offsets (ffmpeg) |
+| `npm run audio:prepare` | trim/normalize all anthems into `public/audio/` + manifest ([ADR-0005](adr/0005-self-hosted-audio-as-worker-assets.md)) |
 
 ## Test system
 
