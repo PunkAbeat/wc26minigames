@@ -13,7 +13,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:headless": "node tests/run-headless.mjs",
-    "deploy": "npm run build && wrangler deploy"
+    "deploy": "npm run build:prod && wrangler deploy",
+    "build:prod": "VITE_STRIP_TEST_HOOKS=1 vite build && rm -rf dist/client/tests"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.26.0",
