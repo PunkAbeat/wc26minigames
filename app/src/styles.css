@@ -1,17 +1,41 @@
+/* Shared MATCHDAY look — ported from the original index.html files.
+   No Tailwind: the games are hand-styled vanilla CSS and Tailwind's preflight
+   would fight the candy buttons. Page-specific rules live in styles/hub.css
+   and styles/anthem.css, prefixed with .page-hub / .page-anthem so both
+   stylesheets can coexist after client navigation without clobbering each other. */
 
-@import "tailwindcss";
-
-* {
-  box-sizing: border-box;
+:root{
+  --pitch1:#2fb955; --pitch2:#1d9243;
+  --bg1:#0a5230; --bg2:#053a22;
+  --ink:#06321c; --txt:#fff; --soft:#e6fff0; --mut:#bfead0;
+  --gold:#ffd23f; --gold-d:#e0a400; --goldink:#4a3500;
+  --coral:#ff6b3d; --coral-d:#d8431a;
+  --r:16px; --r-lg:24px; --r-sm:12px; --pill:999px;
 }
-
-html,
-body,
-#app {
-  min-height: 100%;
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--bg2)} /* over-scroll shows pitch green, never white */
+/* overflow-x:clip (NOT hidden): hidden on html+body re-roots the scroll container and
+   breaks wheel scrolling in some browsers; clip just clips. pan-y suppresses double-tap
+   zoom + stray horizontal pan; overscroll-behavior kills the rubber-band bounce */
+html,body{margin:0;padding:0;overflow-x:clip;touch-action:pan-y;overscroll-behavior:none}
+body{
+  font-family:'Nunito',system-ui,sans-serif; color:var(--txt);
+  background:
+    radial-gradient(700px 360px at 50% -60px, rgba(255,226,140,.30), transparent 65%),
+    radial-gradient(1200px 700px at 50% 120%, rgba(0,0,0,.45), transparent 60%),
+    linear-gradient(180deg, var(--bg1), var(--bg2));
+  background-attachment:fixed;
 }
+/* the original put the column layout on <body>; here each route renders one
+   .page wrapper so the rules survive client-side navigation */
+.page{min-height:100vh;padding:0 16px 60px;display:flex;flex-direction:column;align-items:center}
+.disp{font-family:'Baloo 2',cursive}
 
-body {
-  margin: 0;
+@keyframes sway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+@keyframes bob{50%{transform:translateY(-4px) rotate(12deg)}}
+@keyframes blink{50%{opacity:.35}}
+@keyframes pop{from{opacity:0;transform:scale(.85) translateY(8px)}to{opacity:1;transform:none}}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation:none!important;transition:none!important}
 }
-
