@@ -6,6 +6,7 @@
    to archive.org streaming, then synth — so a checkout without the files
    still works. Requires ffmpeg/ffprobe; downloads cache in /tmp/anthem-audio.
    Usage: node tools/prepare-audio.mjs */
+import { createHash } from 'node:crypto'
 import { execFileSync, execSync } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -27,6 +28,21 @@ const offsetsSrc = readFileSync(join(here, '../src/lib/anthem/offsets.ts'), 'utf
 const offsets = JSON.parse(offsetsSrc.slice(offsetsSrc.indexOf('{'), offsetsSrc.lastIndexOf('}') + 1))
 
 const BASE = 'https://archive.org/download/us-navy-band-national-anthems-public-domain/'
+
+/* skip the whole encode when nothing that affects output has changed —
+   re-encoding 46 files cost ~2 min on every deploy */
+const signature = createHash('sha256')
+  .update(readFileSync(fileURLToPath(import.meta.url)))
+  .update(offsetsSrc)
+  .update(JSON.stringify(withAudio))
+  .digest('hex')
+const sigFile = join(OUT, '.signature')
+const allPresent = withAudio.every(({ cc }) => existsSync(join(OUT, `${cc}.mp3`)))
+if (allPresent && existsSync(sigFile) && readFileSync(sigFile, 'utf-8') === signature) {
+  console.log(`audio up to date (${withAudio.length} files) — skipping encode`)
+  process.exit(0)
+}
+
 const manifest = {}
 let failed = 0
 
@@ -82,3 +98,4 @@ const body =
 writeFileSync(join(here, '../src/lib/anthem/audio-local.ts'), body)
 console.log(`\n${Object.keys(manifest).length} encoded, ${failed} failed → audio-local.ts`)
 if (failed) process.exit(1)
+writeFileSync(sigFile, signature)

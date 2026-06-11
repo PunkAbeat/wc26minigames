@@ -1,9 +1,10 @@
 /* MATCHDAY hub — ported from the original root index.html. */
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
-import { track } from '../lib/analytics'
-import { trackPageView } from '../lib/analytics'
+import { track, trackPageView } from '../lib/analytics'
 import '../styles/hub.css'
+
+const ORIGIN = (import.meta.env.VITE_SITE_ORIGIN as string | undefined) || ''
 
 export const Route = createFileRoute('/')({
   head: () => ({
@@ -19,6 +20,17 @@ export const Route = createFileRoute('/')({
         content: 'One stadium, many games.',
       },
       { property: 'og:type', content: 'website' },
+      /* the root link is what people paste — it must unfurl with a card */
+      ...(ORIGIN
+        ? [
+            { property: 'og:url', content: ORIGIN + '/' },
+            { property: 'og:image', content: ORIGIN + '/og/anthem.png' },
+            { property: 'og:image:width', content: '1200' },
+            { property: 'og:image:height', content: '630' },
+            { name: 'twitter:card', content: 'summary_large_image' },
+            { name: 'twitter:image', content: ORIGIN + '/og/anthem.png' },
+          ]
+        : []),
     ],
   }),
   component: Hub,
