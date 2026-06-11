@@ -10,12 +10,12 @@ export const Route = createFileRoute('/')({
       {
         name: 'description',
         content:
-          'A series of daily, shareable mini games for the 2026 World Cup. One stadium, many games — new kickoff every day.',
+          'A series of shareable mini games for the 2026 World Cup. One stadium, many games.',
       },
-      { property: 'og:title', content: 'MATCHDAY ⚽ World Cup 2026 daily mini games' },
+      { property: 'og:title', content: 'MATCHDAY ⚽ World Cup 2026 mini games' },
       {
         property: 'og:description',
-        content: 'One stadium, many games — new kickoff every day.',
+        content: 'One stadium, many games.',
       },
       { property: 'og:type', content: 'website' },
     ],
@@ -90,15 +90,15 @@ function Hub() {
       </div>
 
       <header>
-        <div className="kicker">World Cup 2026 · USA · Canada · Mexico</div>
+        <div className="kicker">World Cup 2026 · Mini Games</div>
         <div className="wordmark disp">
           <span className="ball" />
           MATCHDAY
         </div>
         <div className="sub">
-          Daily mini games for the World Cup.
+          Mini games for the World Cup.
           <br />
-          One stadium, many games — new kickoff every day.
+          One stadium, many games.
         </div>
         <div className="scoreboard">
           <span className="live" />

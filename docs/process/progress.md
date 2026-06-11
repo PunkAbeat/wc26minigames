@@ -19,11 +19,13 @@ Statuses: `todo` · `in_progress` · `blocked` · `done`. One line per item; dur
 | Error monitoring (Sentry or Worker-side log) | todo | provider undecided |
 | QA-listen: Iran + Paraguay (`Removed/` recordings), DR Congo verification | todo | HANDOFF §5 |
 | Distribution plan (r/soccer, football TikTok/Twitter, group chats) | todo | product work, not code |
+| Owner feedback round 11 Jun (copy, trumpet, OFF TARGET, practice cap 2/day, anthem wiki link, Match #1 = 11 Jun) | done | first deliberate behavior changes post-parity |
 
 ## Backlog (not scheduled)
 
 | Item | Notes |
 |---|---|
+| i18n (EN+ES+FR first) | owner wants full participant coverage — phased plan + open question in [research/questions.md](../research/questions.md) |
 | Per-user leaderboards / "friends" comparison | needs auth — deliberately out of scope ([product.md](../product.md)) |
 | Second game for the hub | add-a-game checklist in root README |
 | Abuse hardening on global stats | only if visibly gamed — [ADR-0004](../adr/0004-anonymous-global-stats-on-d1.md) |

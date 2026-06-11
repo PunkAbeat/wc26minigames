@@ -195,3 +195,8 @@
     62%{opacity:1;transform:perspective(640px) rotateY(-14deg) scale(1.06)}
     82%{transform:perspective(640px) rotateY(6deg) scale(.99)}
     100%{opacity:1;transform:none}}
+  /* ---- 2026-06-11 feedback round ---- */
+  .page-anthem .wordmark .emblem{font-size:36px;line-height:1;filter:drop-shadow(0 4px 6px rgba(0,0,0,.35));animation:bob 2.6s ease-in-out infinite}
+  .page-anthem .wikilink{display:inline-block;color:var(--soft);font-size:12.5px;font-weight:700;font-family:'Baloo 2';
+    text-decoration:none;border:2px solid rgba(255,255,255,.22);background:rgba(0,0,0,.16);border-radius:var(--pill);padding:6px 13px;margin-bottom:16px}
+  .page-anthem .wikilink:active{transform:scale(.96)}

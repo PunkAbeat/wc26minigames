@@ -79,6 +79,31 @@ export function saveStats(st: Stats): void {
   }
 }
 
+/* anthem_practice {day,count} — practice games played today. Capped so the
+   daily challenge keeps its scarcity (and the anthem pool stays learnable
+   only slowly). */
+export function practicePlaysToday(day: number): number {
+  if (!hasStorage()) return 0
+  try {
+    const d = JSON.parse(localStorage.getItem('anthem_practice') || 'null')
+    return d && d.day === day ? d.count || 0 : 0
+  } catch {
+    return 0
+  }
+}
+
+export function bumpPracticePlays(day: number): void {
+  if (!hasStorage()) return
+  try {
+    localStorage.setItem(
+      'anthem_practice',
+      JSON.stringify({ day, count: practicePlaysToday(day) + 1 }),
+    )
+  } catch {
+    /* ignore */
+  }
+}
+
 export function hasSeenHowto(): boolean {
   if (!hasStorage()) return false
   try {

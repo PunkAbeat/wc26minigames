@@ -13,7 +13,7 @@ export const Route = createRootRoute({
         content:
           'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover',
       },
-      { title: 'MATCHDAY ⚽ World Cup 2026 daily mini games' },
+      { title: 'MATCHDAY ⚽ World Cup 2026 mini games' },
       // pitch-green chrome on iOS standalone / Android task switcher
       { name: 'theme-color', content: '#053a22' },
       { name: 'apple-mobile-web-app-capable', content: 'yes' },

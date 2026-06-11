@@ -44,11 +44,13 @@ import {
 } from '../lib/anthem/game'
 import type { GameState, Mode, Stats } from '../lib/anthem/game'
 import {
+  bumpPracticePlays,
   hasSeenHowto,
   loadSavedDaily,
   loadStats,
   loadStreak,
   markHowtoSeen,
+  practicePlaysToday,
   saveDaily,
   saveStats,
   saveStreak,
@@ -246,10 +248,16 @@ function AnthemPage() {
     }
   }, [commit, loadPuzzleImpl, trackView])
 
+  const PRACTICE_CAP = 2 // per UTC day — scarcity is the engine of the format
   const startPractice = useCallback(() => {
+    if (practicePlaysToday(dayNumber()) >= PRACTICE_CAP) {
+      setToast('Practice limit reached — next anthem at midnight UTC ⏱')
+      return
+    }
+    bumpPracticePlays(dayNumber())
     track('practice_started')
     loadPuzzleImpl(randomPracticeIndex(puzzleIndexRef.current ?? -1), 'practice')
-  }, [loadPuzzleImpl])
+  }, [loadPuzzleImpl, setToast])
 
   const playClip = useCallback(() => {
     pbRef.current?.toggle()
@@ -746,7 +754,7 @@ function AnthemPage() {
         </button>
         <div className="kicker">World Cup 2026 · Daily</div>
         <div className="wordmark disp">
-          <span className="ball" />
+          <span className="emblem" aria-hidden="true">🎺</span>
           ANTHEM
         </div>
         <div className="sub">Guess the nation from its anthem</div>
@@ -943,7 +951,7 @@ function AnthemPage() {
             style={{ display: game.finished ? 'block' : 'none', background: endBg }}
           >
             <div className={'bigresult disp' + (game.won ? '' : ' lose')} id="bigResult">
-              {game.won ? 'GOAL! ⚽' : 'FULL TIME'}
+              {game.won ? 'GOAL! ⚽' : 'OFF TARGET'}
             </div>
             <div className="flagwrap">
               <img
@@ -968,6 +976,23 @@ function AnthemPage() {
             <div className="verdict" id="endVerdict">
               {current?.verdict}
             </div>
+            {current && (
+              <a
+                className="wikilink"
+                id="anthemWiki"
+                href={
+                  'https://en.wikipedia.org/wiki/Special:Search?search=' +
+                  encodeURIComponent(
+                    (current.verdict.match(/[“"]([^”"]+)[”"]/) || [])[1] ||
+                      current.name + ' national anthem',
+                  )
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                About this anthem ↗
+              </a>
+            )}
             <div className="grid-share" id="gridShare">
               {gridString(game)}
             </div>

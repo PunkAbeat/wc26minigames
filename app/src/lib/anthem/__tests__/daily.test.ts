@@ -13,7 +13,7 @@ import {
 import { PUZZLES } from '../puzzles'
 
 const DAY_MS = 86400000
-const LAUNCH_MS = Date.UTC(2026, 5, 10)
+const LAUNCH_MS = Date.UTC(2026, 5, 11)
 
 describe('daily schedule', () => {
   it('pool has 45 playable nations (3 lack audio + melody)', () => {

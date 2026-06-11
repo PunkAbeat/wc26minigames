@@ -45,6 +45,9 @@
     ok(A.mode === 'practice' && !A.state.finished, 'again loads fresh practice anthem (' + A.current.name + ')');
     A.startDaily(); await sleep(80);
     ok(A.mode === 'daily' && A.state.finished && A.state.won, 'back to finished daily');
+    A.startPractice(); await sleep(60);
+    ok(A.mode === 'daily', 'third practice of the day blocked by the cap');
+    ok(JSON.parse(localStorage.getItem('anthem_practice')).count === 2, 'practice plays counted');
     ok(A.POOL.length === 45, 'pool=45 (' + A.POOL.length + ')');
     ok(new Set(A.DAILY_ORDER).size === 45, 'daily order covers pool once');
     R.push('DONE'); pre.textContent = R.join('\n');

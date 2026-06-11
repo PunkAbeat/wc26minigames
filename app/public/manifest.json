@@ -1,7 +1,7 @@
 {
-  "name": "MATCHDAY — World Cup 2026 daily mini games",
+  "name": "MATCHDAY — World Cup 2026 mini games",
   "short_name": "MATCHDAY",
-  "description": "Daily, shareable mini games for the 2026 World Cup. One stadium, many games.",
+  "description": "Shareable mini games for the 2026 World Cup. One stadium, many games.",
   "icons": [
     { "src": "/icon-192.png", "type": "image/png", "sizes": "192x192" },
     { "src": "/icon-512.png", "type": "image/png", "sizes": "512x512" }

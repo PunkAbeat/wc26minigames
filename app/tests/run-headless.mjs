@@ -38,6 +38,16 @@ const unescapeHtml = (s) =>
     .replace(/&#39;/g, "'")
     .replace(/&amp;/g, '&')
 
+/* warm the target first: a freshly (re)started preview loads the worker into
+   workerd lazily, and a cold first hit can eat suite 1's startup budget */
+try {
+  execFileSync('curl', ['-fs', '-o', '/dev/null', '--retry', '10', '--retry-delay', '1', '--retry-all-errors', `${baseUrl}/anthem`], { timeout: 60000 })
+  execFileSync('curl', ['-fs', '-o', '/dev/null', `${baseUrl}/api/anthem-stats?day=0`], { timeout: 30000 })
+} catch {
+  console.error(`target ${baseUrl} not reachable`)
+  process.exit(2)
+}
+
 let failed = false
 for (const n of toRun) {
   const url = `${baseUrl}/anthem?anthemtest=${n}`

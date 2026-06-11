@@ -7,7 +7,7 @@
 
 import { PUZZLES } from './puzzles'
 
-export const LAUNCH_DAY = Math.floor(Date.UTC(2026, 5, 10) / 86400000) // Match #1 = 10 Jun 2026 (UTC)
+export const LAUNCH_DAY = Math.floor(Date.UTC(2026, 5, 11) / 86400000) // Match #1 = 11 Jun 2026 (UTC) — the real opening day at the Azteca
 
 export function utcDay(now: number = Date.now()): number {
   return Math.floor(now / 86400000)
