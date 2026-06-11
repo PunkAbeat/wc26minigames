@@ -1,0 +1,30 @@
+name: CI
+on:
+  push:
+    branches: [main, master, tanstack-migration]
+  pull_request:
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      # behavioral gate: serve the production build and drive it with the
+      # headless Chrome suites (google-chrome is preinstalled on the runner)
+      - name: headless suites
+        run: |
+          npm run preview -- --port 4173 &
+          for i in $(seq 1 30); do curl -fs http://localhost:4173/ >/dev/null && break; sleep 1; done
+          npm run test:headless

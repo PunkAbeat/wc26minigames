@@ -2,48 +2,58 @@
 
 A series of daily, shareable browser mini games built around the **2026 FIFA World Cup** (USA / Canada / Mexico, 11 Jun – 19 Jul 2026), all reachable from a single landing page ("the stadium").
 
-Everything is **static, no build step, no dependencies**: the hub and each game are self-contained HTML files using vanilla JS.
-
-> "MATCHDAY" is a working title for the hub — easy to rename later (it lives in `index.html` only).
-
-## Structure
-
-```
-index.html              ← landing page / hub (games manifest lives here)
-games/
-  anthem/
-    index.html          ← ANTHEM — guess the nation from its anthem
-    HANDOFF.md          ← ANTHEM's full design brief, decisions & roadmap
-```
-
-## Run it
-
-Open `index.html` in any modern browser (the hub links to each game with relative paths, so plain `file://` works). Or serve the folder for a cleaner setup:
-
-```sh
-python3 -m http.server 8000
-# → http://localhost:8000
-```
-
-Internet connection recommended: games stream audio (archive.org), web fonts (Google Fonts), and flag images (flagcdn), with graceful fallbacks.
+> "MATCHDAY" is a working title — see [docs/research/questions.md](docs/research/questions.md).
 
 ## The games
 
 | Game | Status | What it is |
 |---|---|---|
-| **ANTHEM** 🎺 | Live (daily + practice) | Hear a growing snippet of a national anthem, guess the nation in six tries — a "Heardle" for World Cup anthems. One official anthem per UTC day (same for everyone, streaks + share grid) across all 48 qualified nations, plus an unlimited practice mode. See [games/anthem/HANDOFF.md](games/anthem/HANDOFF.md) for the full story and roadmap. |
+| **ANTHEM** 🎺 | Live (daily + practice) | Hear a growing snippet of a national anthem, guess the nation in six tries — a "Heardle" for World Cup anthems. One official anthem per UTC day across all 48 qualified nations, with streaks, lifetime + global stats, and a shareable result card. Design brief: [games/anthem/HANDOFF.md](games/anthem/HANDOFF.md). |
 | ??? | Planned | More daily fixtures to come. |
+
+## Repository layout
+
+```
+app/                      ← THE APPLICATION — TanStack Start (React) on Cloudflare Workers
+                            hub at /, ANTHEM at /anthem, API routes, tests, tools
+index.html                ← original static hub  ─┐ frozen prototypes: the behavioral
+games/anthem/index.html   ← original static game ─┘ reference until the migration merges
+games/anthem/HANDOFF.md   ← ANTHEM's design brief, decisions & roadmap
+docs/                     ← documentation system (see map below)
+.github/workflows/ci.yml  ← CI: typecheck, unit tests, build, headless suites
+```
+
+## Run it
+
+```sh
+cd app && npm install && npm run dev     # → http://localhost:3000
+```
+
+More (build, tests, tailnet serving, deploy): [docs/engineering.md](docs/engineering.md).
+
+## Documentation map
+
+| Doc | What's in it |
+|---|---|
+| [AGENTS.md](AGENTS.md) | rules for coding agents: scope, gates, handoff duties |
+| [docs/onboarding.md](docs/onboarding.md) | five-minute human ramp |
+| [docs/product.md](docs/product.md) | what we're building, for whom, what's out of scope |
+| [docs/engineering.md](docs/engineering.md) | architecture, commands, runtime rules, test system |
+| [docs/adr/](docs/adr/README.md) | durable decisions (don't re-litigate silently) |
+| [docs/process/progress.md](docs/process/progress.md) | active milestone, statuses, backlog |
+| [docs/agents/current-handoff.md](docs/agents/current-handoff.md) | where work stands right now |
+| [docs/research/questions.md](docs/research/questions.md) | open questions awaiting a human decision |
+| [games/anthem/HANDOFF.md](games/anthem/HANDOFF.md) | the game itself: design, rationale, roadmap |
 
 ## Adding a game
 
-1. Create `games/<id>/index.html` — self-contained, vanilla JS, no build step.
-2. Add an entry to the `GAMES` array at the top of the root `index.html` (`{id, name, icon, tagline, status, badge, href}`).
-3. Give the game a back-to-hub link in its header (`<a class="back" href="../../index.html">⚽ Games</a>` — see ANTHEM for the pattern).
-4. Reuse the shared look: each file carries the same CSS variables / fonts (Baloo 2 + Nunito, pitch greens, gold/coral candy buttons) so the family feels cohesive. Copy the `:root` block from an existing file as a starting point.
+1. Create a route under `app/src/routes/` (self-contained page; reuse the shared look — copy the CSS-variable block and page-prefix pattern from `styles/anthem.css`).
+2. Add an entry to the `GAMES` array at the top of `app/src/routes/index.tsx`.
+3. Give it a back-to-hub link in its header (see ANTHEM's `⚽ Games` pattern) and a `.page-<id>` CSS prefix.
+4. Add behavioral coverage: a headless suite in `app/public/tests/` plus unit tests for pure logic.
 
-## Attribution / licensing notes
+## Attribution / licensing
 
 - Anthem recordings: U.S. Navy Band — works of the U.S. federal government, **public domain**. Source: <https://archive.org/details/us-navy-band-national-anthems-public-domain>
-- Flags: <https://flagcdn.com> (free flag CDN).
-- Fonts: Google Fonts — Baloo 2 + Nunito (Open Font License).
-- "FIFA" / "World Cup" are trademarks of FIFA. This is an unofficial fan project; before any public launch, review FIFA trademark/branding use (avoid official marks, logos, and team crests).
+- Flags: <https://flagcdn.com> · Fonts: Baloo 2 + Nunito (OFL, self-hosted)
+- "FIFA" / "World Cup" are trademarks of FIFA. Unofficial fan project; see the legal item in [docs/process/progress.md](docs/process/progress.md) before any public launch.
