@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
     "test": "vitest run",
+    "test:headless": "node tests/run-headless.mjs",
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {

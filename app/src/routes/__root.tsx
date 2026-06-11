@@ -24,6 +24,19 @@ export const Route = createRootRoute({
       },
       { rel: 'stylesheet', href: appCss },
     ],
+    scripts: [
+      {
+        // headless test bootstrap: ?anthemtest=N stubs HTMLMediaElement (forcing
+        // the synth fallback path — archive.org streaming is not testable
+        // headlessly) and loads the matching suite from /tests/. Inert without
+        // the query param; the suites drive the game via window.__anthem.
+        children:
+          "(function(){var m=location.search.match(/[?&]anthemtest=([1-6])/);if(!m)return;" +
+          'HTMLMediaElement.prototype.load=function(){};' +
+          "HTMLMediaElement.prototype.play=function(){return Promise.reject(new Error('stubbed'))};" +
+          "var s=document.createElement('script');s.src='/tests/anthemtest'+m[1]+'.js';s.defer=true;document.head.appendChild(s);})();",
+      },
+    ],
   }),
   shellComponent: RootDocument,
 })

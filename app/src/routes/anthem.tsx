@@ -516,6 +516,9 @@ function AnthemPage() {
       PUZZLES,
       POOL,
       DAILY_ORDER,
+      get dailyIndex() {
+        return dailyPuzzleIndex()
+      },
       startDaily,
       startPractice,
       loadPuzzle: (idx: number) => loadPuzzleImpl(idx, modeRef.current),
