@@ -18,8 +18,10 @@
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html{background:var(--bg2)} /* over-scroll shows pitch green, never white */
-  /* pan-y: vertical scroll only — suppresses double-tap zoom, stray horizontal pan and (where honored) pinch zoom; overscroll-behavior kills the rubber-band bounce */
-  html,body{margin:0;padding:0;overflow-x:hidden;touch-action:pan-y;overscroll-behavior:none}
+  /* overflow-x:clip (NOT hidden): hidden on html+body re-roots the scroll container and
+     breaks wheel scrolling in some browsers; clip just clips. pan-y suppresses double-tap
+     zoom + stray horizontal pan; overscroll-behavior kills the rubber-band bounce */
+  html,body{margin:0;padding:0;overflow-x:clip;touch-action:pan-y;overscroll-behavior:none}
   body{
     font-family:'Nunito',system-ui,sans-serif; color:var(--txt);
     min-height:100vh; padding:0 16px 60px; display:flex; flex-direction:column; align-items:center;
@@ -159,27 +161,27 @@
   .grow .gtext{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .grow .tag{font-size:11px;font-weight:700;opacity:.85}
 
-  .end{display:none;text-align:center;margin-top:6px;padding:18px 14px;border-radius:18px}
-  .bigresult{font-family:'Baloo 2';font-size:46px;font-weight:800;line-height:1;margin-bottom:6px;color:var(--gold);text-shadow:0 4px 0 rgba(0,0,0,.18);animation:goalPop .5s cubic-bezier(.34,1.7,.5,1) both}
+  .end{display:none;text-align:center;margin-top:8px;padding:24px 16px 20px;border-radius:18px}
+  .bigresult{font-family:'Baloo 2';font-size:46px;font-weight:800;line-height:1;margin-bottom:14px;color:var(--gold);text-shadow:0 4px 0 rgba(0,0,0,.18);animation:goalPop .5s cubic-bezier(.34,1.7,.5,1) both}
   .bigresult.lose{color:#fff;opacity:.85;font-size:36px}
   @keyframes goalPop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
-  .flagwrap{margin:6px 0;animation:pop .5s cubic-bezier(.34,1.56,.64,1) both}
-  #endFlagImg{width:96px;height:auto;border-radius:8px;border:2px solid rgba(255,255,255,.7);box-shadow:0 8px 18px -6px rgba(0,0,0,.5)}
+  .flagwrap{margin:10px 0 4px;animation:pop .5s cubic-bezier(.34,1.56,.64,1) both}
+  #endFlagImg{display:block;margin:0 auto;width:96px;height:auto;border-radius:8px;border:2px solid rgba(255,255,255,.7);box-shadow:0 8px 18px -6px rgba(0,0,0,.5)}
   #endFlagEmoji{font-size:62px}
-  .end .ans{font-family:'Baloo 2';font-size:25px;font-weight:800;margin-top:6px}
-  .end .verdict{color:var(--soft);font-size:14px;font-weight:700;margin:8px auto 14px;max-width:300px;line-height:1.5}
-  .grid-share{font-size:26px;letter-spacing:6px;margin:6px 0}
-  .streak{display:inline-flex;gap:16px;align-items:center;background:var(--ink);border:2px solid rgba(255,255,255,.14);font-family:'Baloo 2';font-weight:700;font-size:14px;padding:9px 18px;border-radius:var(--pill);margin:6px 0 16px;color:#fff}
+  .end .ans{font-family:'Baloo 2';font-size:25px;font-weight:800;margin-top:12px}
+  .end .verdict{color:var(--soft);font-size:14px;font-weight:700;margin:10px auto 18px;max-width:300px;line-height:1.55}
+  .grid-share{font-size:26px;letter-spacing:6px;margin:10px 0}
+  .streak{display:inline-flex;gap:16px;align-items:center;background:var(--ink);border:2px solid rgba(255,255,255,.14);font-family:'Baloo 2';font-weight:700;font-size:14px;padding:9px 18px;border-radius:var(--pill);margin:8px 0 20px;color:#fff}
   .streak .g{color:var(--gold)}
   .share-btn{border:none;border-radius:var(--r);padding:15px 28px;font-family:'Baloo 2';font-weight:800;font-size:16px;cursor:pointer;color:var(--goldink);
     background:linear-gradient(180deg,#ffe06b,var(--gold));box-shadow:0 6px 0 var(--gold-d),0 12px 18px -8px rgba(0,0,0,.45),inset 0 2px 2px rgba(255,255,255,.6);transition:transform .09s,box-shadow .09s}
   .share-btn:active{transform:translateY(5px);box-shadow:0 1px 0 var(--gold-d),0 5px 10px -8px rgba(0,0,0,.45),inset 0 2px 2px rgba(255,255,255,.6)}
   .copied{color:#fff;font-weight:800;font-size:13px;min-height:18px;margin-top:10px}
-  .endbtns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .endbtns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
   .again-btn{border:none;border-radius:var(--r);padding:15px 22px;font-family:'Baloo 2';font-weight:800;font-size:16px;cursor:pointer;color:#fff;
     background:linear-gradient(180deg,#ff7d52,var(--coral));box-shadow:0 6px 0 var(--coral-d),0 12px 18px -8px rgba(0,0,0,.45),inset 0 2px 2px rgba(255,255,255,.4);transition:transform .09s,box-shadow .09s}
   .again-btn:active{transform:translateY(5px);box-shadow:0 1px 0 var(--coral-d),0 5px 10px -8px rgba(0,0,0,.45),inset 0 2px 2px rgba(255,255,255,.4)}
-  .nextin{font-family:'Baloo 2';font-weight:700;font-size:13px;color:var(--soft);letter-spacing:.06em;margin-top:12px;min-height:16px}
+  .nextin{font-family:'Baloo 2';font-weight:700;font-size:13px;color:var(--soft);letter-spacing:.06em;margin-top:16px;min-height:16px}
 
   .preview{margin-top:18px}
   .preview button{background:rgba(0,0,0,.22);border:2px solid rgba(255,255,255,.18);color:var(--soft);font-family:'Baloo 2';font-weight:600;border-radius:var(--pill);padding:9px 16px;font-size:12.5px;cursor:pointer}
@@ -635,7 +637,7 @@ const ALL_NATIONS=PUZZLES.map(p=>p.name).sort();
 
 /* ===================== GAME ===================== */
 let state={attempt:0,finished:false,won:false,results:[]};
-let current=null,puzzleIndex=0,MODE="daily";
+let current=null,puzzleIndex=0,MODE="daily",endScrolledFor=null;
 function hexA(h,a){const n=h.replace("#","");const r=parseInt(n.substr(0,2),16),g=parseInt(n.substr(2,2),16),b=parseInt(n.substr(4,2),16);return "rgba("+r+","+g+","+b+","+a+")";}
 
 /* --- daily schedule: same anthem for everyone, keyed to the UTC date ---
@@ -768,9 +770,13 @@ function renderEnd(){
   document.getElementById("againBtn").style.display=MODE==="practice"?"inline-block":"none";
   if(MODE==="daily")startCountdown();else{clearInterval(cdTimer);document.getElementById("nextIn").textContent="";}
   document.getElementById("copied").textContent="";
-  /* make sure the result is actually on screen (player may be scrolled deep into hints/rows) */
-  const eb=document.getElementById("end").getBoundingClientRect();
-  if(eb.top<0||eb.top>innerHeight*0.5)document.querySelector(".card").scrollIntoView({behavior:RM?"auto":"smooth",block:"start"});
+  /* make sure the result is actually on screen (player may be scrolled deep into hints/rows) —
+     once per game only, so it never fights the user's own scrolling */
+  if(endScrolledFor!==MODE+puzzleIndex){
+    endScrolledFor=MODE+puzzleIndex;
+    const eb=document.getElementById("end").getBoundingClientRect();
+    if(eb.top<0||eb.top>innerHeight*0.5)document.querySelector(".card").scrollIntoView({behavior:RM?"auto":"smooth",block:"start"});
+  }
 }
 function shareText(){const tries=state.won?state.attempt:"X";
   const head=MODE==="daily"?("ANTHEM ⚽ Match #"+matchNumber()):"ANTHEM ⚽ Practice";

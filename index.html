@@ -19,8 +19,10 @@
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html{background:var(--bg2)} /* over-scroll shows pitch green, never white */
-  /* pan-y: vertical scroll only — suppresses double-tap zoom, stray horizontal pan and (where honored) pinch zoom; overscroll-behavior kills the rubber-band bounce */
-  html,body{margin:0;padding:0;overflow-x:hidden;touch-action:pan-y;overscroll-behavior:none}
+  /* overflow-x:clip (NOT hidden): hidden on html+body re-roots the scroll container and
+     breaks wheel scrolling in some browsers; clip just clips. pan-y suppresses double-tap
+     zoom + stray horizontal pan; overscroll-behavior kills the rubber-band bounce */
+  html,body{margin:0;padding:0;overflow-x:clip;touch-action:pan-y;overscroll-behavior:none}
   body{
     font-family:'Nunito',system-ui,sans-serif; color:var(--txt);
     min-height:100vh; padding:0 16px 60px; display:flex; flex-direction:column; align-items:center;
