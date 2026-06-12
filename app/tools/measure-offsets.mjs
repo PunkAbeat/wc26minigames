@@ -35,6 +35,11 @@ function leadingSilence(file) {
   return (r.stderr || '') + (r.stdout || '')
 }
 
+/* Human listening verdicts (docs/research/qa-listen.md): these intros are
+   soft (-37..-27dB) rather than silent, so silencedetect@-32dB misses them.
+   Floor, not replacement — a louder future measurement still wins. */
+const EAR_FLOOR = { Qatar: 2, Jordan: 2.5 }
+
 const offsets = {}
 for (const { name, audio } of withAudio) {
   const cached = join(CACHE, audio.replace(/[\/ ]/g, '_'))
@@ -54,6 +59,7 @@ for (const { name, audio } of withAudio) {
   if (start && end && parseFloat(start[1]) <= 0.1) off = parseFloat(end[1])
   /* only meaningful intros; cap so a detection glitch can't skip half a clip-stage budget */
   off = Math.min(12, Math.round(off * 10) / 10)
+  if (EAR_FLOOR[name]) off = Math.max(off, EAR_FLOOR[name])
   if (off >= 0.4) offsets[name] = off
   console.log(`${name.padEnd(24)} ${off >= 0.4 ? off + 's' : '—'}`)
 }

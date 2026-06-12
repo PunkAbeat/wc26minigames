@@ -31,4 +31,7 @@ Also from `Removed/` (`Paraguay (2000).mp3`). "Paraguayos, República o Muerte" 
 
 Qatar (`/audio/qa.mp3`) and Jordan (`/audio/jo.mp3`) open quietly (~-37 dB first second — soft intro, not silence). Play each and judge whether the 1-second first clip is audible enough on a phone speaker; if not, the agent can nudge their start offsets.
 
-- ☐ Qatar OK? ☐ Jordan OK?
+- ✅ Owner verdict 12 Jun: "nudge a little bit" → ear-floor offsets added to
+  measure-offsets.mjs (Qatar 2s, Jordan 2.5s — silencedetect@-32dB can't see
+  these soft intros). First-second loudness after re-encode: Qatar -37→-21.5dB,
+  Jordan -36→-20.2dB. All QA-listen items closed.

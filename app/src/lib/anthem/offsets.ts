@@ -4,6 +4,7 @@
    starts at 0 (the intro is part of the anthem). */
 export const START_OFFSETS: Record<string, number> = {
   "Bosnia and Herzegovina": 0.5,
+  "Qatar": 2,
   "Morocco": 0.5,
   "Paraguay": 0.6,
   "Türkiye": 0.6,
@@ -15,7 +16,7 @@ export const START_OFFSETS: Record<string, number> = {
   "Cape Verde": 0.7,
   "Saudi Arabia": 0.9,
   "Algeria": 0.5,
-  "Jordan": 1,
+  "Jordan": 2.5,
   "Portugal": 0.5,
   "DR Congo": 2,
   "England": 2.3,

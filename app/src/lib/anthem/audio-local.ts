@@ -29,7 +29,7 @@ export const LOCAL_AUDIO: Record<string, { file: string; duration: number }> = {
   },
   "Qatar": {
     "file": "qa.mp3",
-    "duration": 86.6
+    "duration": 84.6
   },
   "Switzerland": {
     "file": "ch.mp3",
@@ -153,7 +153,7 @@ export const LOCAL_AUDIO: Record<string, { file: string; duration: number }> = {
   },
   "Jordan": {
     "file": "jo.mp3",
-    "duration": 36.4
+    "duration": 34.9
   },
   "Portugal": {
     "file": "pt.mp3",
