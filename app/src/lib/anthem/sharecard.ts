@@ -44,11 +44,9 @@ export interface ShareCardOpts {
   host: string // e.g. location.host — where to play
 }
 
-export function drawShareCard(canvas: HTMLCanvasElement, o: ShareCardOpts): void {
-  canvas.width = W
-  canvas.height = H
-  const ctx = canvas.getContext('2d')!
-
+/* everything above the card-specific content: background, pitch markings,
+   bunting, gold ball, ANTHEM wordmark, subtitle */
+function drawChrome(ctx: CanvasRenderingContext2D, subtitle: string): void {
   /* pitch-night background + warm stadium glow */
   const bg = ctx.createLinearGradient(0, 0, 0, H)
   bg.addColorStop(0, C.bg1)
@@ -107,7 +105,24 @@ export function drawShareCard(canvas: HTMLCanvasElement, o: ShareCardOpts): void
   ctx.textAlign = 'center'
   ctx.fillStyle = C.mut
   ctx.font = "700 30px 'Nunito', sans-serif"
-  ctx.fillText('Guess the nation from its anthem', W / 2, 232)
+  ctx.fillText(subtitle, W / 2, 232)
+}
+
+function drawFooter(ctx: CanvasRenderingContext2D, host: string): void {
+  ctx.fillStyle = C.mut
+  ctx.font = "700 26px 'Nunito', sans-serif"
+  ctx.textAlign = 'right'
+  ctx.textBaseline = 'middle'
+  ctx.fillText(host ? 'play at ' + host + '/anthem' : '', W - 56, H - 52)
+}
+
+export function drawShareCard(canvas: HTMLCanvasElement, o: ShareCardOpts): void {
+  canvas.width = W
+  canvas.height = H
+  const ctx = canvas.getContext('2d')!
+  drawChrome(ctx, 'Guess the nation from its anthem')
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
 
   /* scoreboard pill: MATCH #N · 3/6 (or PRACTICE) */
   const label =
@@ -188,14 +203,72 @@ export function drawShareCard(canvas: HTMLCanvasElement, o: ShareCardOpts): void
     ctx.fillText('STREAK ' + o.streak, W / 2, 576)
   }
 
-  /* where to play */
-  ctx.fillStyle = C.mut
-  ctx.font = "700 26px 'Nunito', sans-serif"
-  ctx.textAlign = 'right'
-  ctx.fillText(o.host ? 'play at ' + o.host + '/anthem' : '', W - 56, H - 52)
+  drawFooter(ctx, o.host)
 }
 
-export async function renderShareCard(o: ShareCardOpts): Promise<Blob | null> {
+/* lifetime-stats card — same art direction, shareable from the stats modal */
+export interface StatsCardOpts {
+  played: number
+  winPct: number
+  streak: number
+  maxStreak: number
+  dist: number[] // wins in 1..6 guesses
+  host: string
+}
+
+export function drawStatsCard(canvas: HTMLCanvasElement, o: StatsCardOpts): void {
+  canvas.width = W
+  canvas.height = H
+  const ctx = canvas.getContext('2d')!
+  drawChrome(ctx, 'My anthem record')
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+
+  /* four headline numbers, mirroring the stats modal */
+  const cols: [string, string][] = [
+    [String(o.played), 'PLAYED'],
+    [o.winPct + '%', 'WIN RATE'],
+    [String(o.streak), 'STREAK'],
+    [String(o.maxStreak), 'BEST'],
+  ]
+  cols.forEach(([num, lab], i) => {
+    const x = W / 2 + (i - 1.5) * 230
+    ctx.fillStyle = C.gold
+    ctx.font = "800 60px 'Baloo 2', sans-serif"
+    ctx.fillText(num, x, 300)
+    ctx.fillStyle = C.mut
+    ctx.font = "700 24px 'Nunito', sans-serif"
+    ctx.fillText(lab, x, 348)
+  })
+
+  /* guess distribution bars (1..6) */
+  const max = Math.max(1, ...o.dist)
+  const bx = 420
+  const bw = 380
+  const rowH = 24
+  const gap = 5
+  const y0 = 392
+  for (let i = 0; i < 6; i++) {
+    const n = o.dist[i] || 0
+    const y = y0 + i * (rowH + gap)
+    ctx.textAlign = 'right'
+    ctx.fillStyle = C.soft
+    ctx.font = "800 22px 'Baloo 2', sans-serif"
+    ctx.fillText(String(i + 1), bx - 14, y + rowH / 2)
+    const w = Math.max(rowH, (n / max) * bw)
+    rr(ctx, bx, y, w, rowH, 8)
+    ctx.fillStyle = n ? C.green : 'rgba(0,0,0,.25)'
+    ctx.fill()
+    ctx.textAlign = 'left'
+    ctx.fillStyle = n ? 'rgba(255,255,255,.95)' : C.mut
+    ctx.font = "700 20px 'Nunito', sans-serif"
+    ctx.fillText(String(n), bx + w + 10, y + rowH / 2)
+  }
+
+  drawFooter(ctx, o.host)
+}
+
+async function renderCardBlob(draw: (canvas: HTMLCanvasElement) => void): Promise<Blob | null> {
   if (typeof document === 'undefined') return null
   /* make sure the display fonts are actually loaded before drawing text */
   try {
@@ -206,8 +279,16 @@ export async function renderShareCard(o: ShareCardOpts): Promise<Blob | null> {
     /* draw with fallback fonts */
   }
   const canvas = document.createElement('canvas')
-  drawShareCard(canvas, o)
+  draw(canvas)
   return new Promise((resolve) => canvas.toBlob((b) => resolve(b), 'image/png'))
+}
+
+export function renderShareCard(o: ShareCardOpts): Promise<Blob | null> {
+  return renderCardBlob((c) => drawShareCard(c, o))
+}
+
+export function renderStatsCard(o: StatsCardOpts): Promise<Blob | null> {
+  return renderCardBlob((c) => drawStatsCard(c, o))
 }
 
 export function gameToCardOpts(

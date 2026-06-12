@@ -36,6 +36,14 @@
        canvas, but assert the share *text* stays spoiler-free too */
     const txt = document.getElementById('gridShare').textContent;
     ok(!txt.includes('England'), 'share grid is spoiler-free');
+    /* lifetime-stats card: same chrome, headline numbers + distribution */
+    const sv = document.createElement('canvas');
+    A.drawStatsCardTo(sv);
+    ok(sv.width === 1200 && sv.height === 630, 'stats card is 1200x630 (' + sv.width + 'x' + sv.height + ')');
+    const sd = sv.getContext('2d').getImageData(0, 0, sv.width, sv.height).data;
+    const scolors = new Set();
+    for (let i = 0; i < sd.length; i += 4 * 997) scolors.add(sd[i] + ',' + sd[i + 1] + ',' + sd[i + 2]);
+    ok(scolors.size > 8, 'stats card is not a flat frame (' + scolors.size + ' sampled colours)');
     R.push('DONE'); pre.textContent = R.join('\n');
   } catch (e) { R.push('FAIL exception: ' + e.message); pre.textContent = R.join('\n'); }
 })();

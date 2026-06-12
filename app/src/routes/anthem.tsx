@@ -26,7 +26,6 @@ import {
   POOL,
   dailyPuzzleIndex,
   dayNumber,
-  matchNumber,
   randomPracticeIndex,
   utcDay,
 } from '../lib/anthem/daily'
@@ -39,6 +38,7 @@ import {
   freshStats,
   gridString,
   shareText,
+  statsShareText,
   updateStats,
   updateStreak,
   winPct,
@@ -61,7 +61,14 @@ import {
 import { LOCAL_AUDIO } from '../lib/anthem/audio-local'
 import { START_OFFSETS } from '../lib/anthem/offsets'
 import { track, trackPageView } from '../lib/analytics'
-import { drawShareCard, gameToCardOpts, renderShareCard } from '../lib/anthem/sharecard'
+import {
+  drawShareCard,
+  drawStatsCard,
+  gameToCardOpts,
+  renderShareCard,
+  renderStatsCard,
+} from '../lib/anthem/sharecard'
+import type { StatsCardOpts } from '../lib/anthem/sharecard'
 import {
   missThunk,
   scheduleMelody,
@@ -153,6 +160,9 @@ function AnthemPage() {
   const rmRef = useRef(false)
   const endScrolledForRef = useRef<string | null>(null)
   const archiveDayRef = useRef<number | null>(null)
+  /* day the current daily game was STARTED on — a game spanning UTC midnight
+     keeps saving/scoring against its own day, not the new one */
+  const dailyDayRef = useRef<number | null>(null)
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const playBtnRef = useRef<HTMLButtonElement>(null)
@@ -210,9 +220,11 @@ function AnthemPage() {
     toastTimer.current = setTimeout(() => setToastState((t) => ({ ...t, on: false })), 1400)
   }, [])
 
+  const dailyDay = useCallback(() => dailyDayRef.current ?? dayNumber(), [])
+
   const persistDaily = useCallback((s: GameState) => {
     if (modeRef.current !== 'daily') return
-    saveDaily(dayNumber(), s)
+    saveDaily(dailyDayRef.current ?? dayNumber(), s)
   }, [])
 
   const loadPuzzleImpl = useCallback(
@@ -259,8 +271,9 @@ function AnthemPage() {
   const startDaily = useCallback(() => {
     archiveDayRef.current = null
     setArchiveDay(null)
+    dailyDayRef.current = dayNumber()
     loadPuzzleImpl(dailyPuzzleIndex(), 'daily')
-    const saved = loadSavedDaily(dayNumber())
+    const saved = loadSavedDaily(dailyDayRef.current)
     if (saved) {
       commit(saved)
       trackView.setStatic(Math.min(saved.attempt, 5))
@@ -306,7 +319,10 @@ function AnthemPage() {
       }
       if (modeRef.current === 'daily') {
         // practice and archive games never touch the streak or the lifetime stats
-        const streak = updateStreak(loadStreak(), utcDay(), ns.won)
+        // (day captured at game start: a finish just past UTC midnight credits
+        // the day actually played, so tomorrow's game still extends the streak)
+        const day = dailyDayRef.current ?? dayNumber()
+        const streak = updateStreak(loadStreak(), LAUNCH_DAY + day, ns.won)
         saveStreak(streak)
         saveStats(updateStats(loadStats(), ns.won, ns.attempt, streak.count || 0))
         ns = { ...ns, streak: streak.count }
@@ -316,7 +332,7 @@ function AnthemPage() {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({
-            day: dayNumber(),
+            day,
             tries: ns.won ? String(ns.attempt) : 'X',
           }),
           keepalive: true,
@@ -413,8 +429,8 @@ function AnthemPage() {
   const currentMatchNo = useCallback((): number => {
     return modeRef.current === 'archive' && archiveDayRef.current !== null
       ? archiveDayRef.current + 1
-      : matchNumber()
-  }, [])
+      : dailyDay() + 1
+  }, [dailyDay])
 
   const makeShareCard = useCallback(async (): Promise<Blob | null> => {
     const s = stateRef.current
@@ -442,7 +458,7 @@ function AnthemPage() {
         if (blob) {
           const f = new File(
             [blob],
-            'anthem-' + (modeRef.current === 'daily' ? 'match-' + matchNumber() : 'practice') + '.png',
+            'anthem-' + (modeRef.current === 'daily' ? 'match-' + currentMatchNo() : 'practice') + '.png',
             { type: 'image/png' },
           )
           if (navigator.canShare && navigator.canShare({ files: [f] })) files = [f]
@@ -466,6 +482,52 @@ function AnthemPage() {
       done()
     }
   }, [currentMatchNo, makeShareCard])
+
+  const statsCardOpts = useCallback((): StatsCardOpts => {
+    const st = loadStats()
+    return {
+      played: st.played,
+      winPct: winPct(st),
+      streak: loadStreak().count || 0,
+      maxStreak: st.maxStreak,
+      dist: st.dist,
+      host: location.host,
+    }
+  }, [])
+
+  const shareStats = useCallback(async () => {
+    track('share_clicked', { mode: 'stats' })
+    const st = loadStats()
+    const txt =
+      statsShareText(st, loadStreak().count || 0) + '\n' + location.origin + '/anthem?ref=share'
+    if (navigator.share) {
+      let files: File[] | undefined
+      try {
+        const blob = await renderStatsCard(statsCardOpts())
+        if (blob) {
+          const f = new File([blob], 'anthem-record.png', { type: 'image/png' })
+          if (navigator.canShare && navigator.canShare({ files: [f] })) files = [f]
+        }
+      } catch {
+        /* card render failed — share text only */
+      }
+      navigator.share(files ? { files, text: txt } : { text: txt }).catch(() => {})
+      return
+    }
+    const done = () => setToast('Copied — paste it anywhere ✓')
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard
+        .writeText(txt)
+        .then(done)
+        .catch(() => {
+          fallbackCopy(txt)
+          done()
+        })
+    } else {
+      fallbackCopy(txt)
+      done()
+    }
+  }, [setToast, statsCardOpts])
 
   /* ---------- mount: engines, daily boot, listeners ---------- */
   useEffect(() => {
@@ -570,7 +632,7 @@ function AnthemPage() {
     let dead = false
     ;(async () => {
       try {
-        const res = await fetch('/api/anthem-stats?day=' + dayNumber())
+        const res = await fetch('/api/anthem-stats?day=' + dailyDay())
         if (!res.ok) return
         const d: { total: number; dist: Record<string, number> } = await res.json()
         if (dead || !d.total) return
@@ -748,6 +810,8 @@ function AnthemPage() {
           canvas,
           gameToCardOpts(stateRef.current, modeRef.current, currentMatchNo(), location.host),
         ),
+      drawStatsCardTo: (canvas: HTMLCanvasElement) => drawStatsCard(canvas, statsCardOpts()),
+      shareStats,
     }
   })
 
@@ -756,7 +820,7 @@ function AnthemPage() {
     puzzleIndex === null
       ? 'MATCH #…'
       : mode === 'daily'
-        ? 'MATCH #' + matchNumber()
+        ? 'MATCH #' + (dailyDay() + 1)
         : mode === 'archive'
           ? '📅 MATCH #' + ((archiveDay ?? 0) + 1)
           : '🎯 PRACTICE'
@@ -1230,7 +1294,16 @@ function AnthemPage() {
                 )
               })}
             </div>
-            <button className="go disp" id="statsClose" onClick={() => setStatsOpen(false)}>
+            {stats.played > 0 && (
+              <button className="go disp" id="statsShare" onClick={shareStats}>
+                Share my record 📣
+              </button>
+            )}
+            <button
+              className={'go disp' + (stats.played > 0 ? ' ghost' : '')}
+              id="statsClose"
+              onClick={() => setStatsOpen(false)}
+            >
               Back to the match
             </button>
           </div>

@@ -99,6 +99,21 @@ export function winPct(st: Stats): number {
   return st.played ? Math.round((st.wins / st.played) * 100) : 0
 }
 
+/* the text that travels with the lifetime-stats card */
+export function statsShareText(st: Stats, streak: number): string {
+  return (
+    'ANTHEM ⚽ My record\n' +
+    'Played ' +
+    st.played +
+    ' · Win ' +
+    winPct(st) +
+    '% · Streak ' +
+    streak +
+    (st.maxStreak > streak ? ' (best ' + st.maxStreak + ')' : '') +
+    '\nName the nation from its anthem'
+  )
+}
+
 /* daily only — practice games never touch the streak */
 export function updateStreak(s: Streak, today: number, won: boolean): Streak {
   const next: Streak = { ...s }

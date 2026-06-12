@@ -5,6 +5,7 @@ import {
   freshState,
   gridString,
   shareText,
+  statsShareText,
   updateStreak,
 } from '../game'
 import { PUZZLES } from '../puzzles'
@@ -73,6 +74,18 @@ describe('share text', () => {
     for (let i = 0; i < 6; i++) s = applySkip(s)
     expect(shareText(s, 'practice', 7)).toBe(
       'ANTHEM ⚽ Practice  X/6\n⬛⬛⬛⬛⬛⬛\nName the nation from its anthem',
+    )
+  })
+  it('lifetime record format', () => {
+    const st = { played: 12, wins: 10, dist: [1, 2, 3, 2, 1, 1], maxStreak: 7 }
+    expect(statsShareText(st, 5)).toBe(
+      'ANTHEM ⚽ My record\nPlayed 12 · Win 83% · Streak 5 (best 7)\nName the nation from its anthem',
+    )
+  })
+  it('lifetime record omits best when streak is the best', () => {
+    const st = { played: 3, wins: 3, dist: [0, 1, 2, 0, 0, 0], maxStreak: 3 }
+    expect(statsShareText(st, 3)).toBe(
+      'ANTHEM ⚽ My record\nPlayed 3 · Win 100% · Streak 3\nName the nation from its anthem',
     )
   })
 })
