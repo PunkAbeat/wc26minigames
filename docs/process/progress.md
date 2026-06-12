@@ -21,8 +21,8 @@ Statuses: `todo` · `in_progress` · `blocked` · `done`. One line per item; dur
 | Distribution plan (r/soccer, football TikTok/Twitter, group chats) | todo | product work, not code |
 | Owner feedback round 11 Jun (copy, trumpet, OFF TARGET, practice cap 2/day, anthem wiki link, Match #1 = 11 Jun) | done | first deliberate behavior changes post-parity |
 | Feedback round 2: archive mode (previous matches), Esc on modals, hub newsletter capture | done | deployed 11 Jun; D1 subscribers table; suites 10-11; bot defence = honeypot + min-time (**Turnstile deferred until evidence of abuse** — owner decision 11 Jun); junk meter: `SELECT count(*) FROM subscribers` |
-
-| i18n phase 1 (EN+ES+FR) | done | **live 12 Jun** — full UI chrome + share text + ES/FR nation names as guess aliases; lang switcher; SSR stays EN (placeholder-then-fill, no hydration risk). Phase 2 = hints/verdicts/cards + more languages |
+| i18n phase 1 (EN+ES+FR) | done | **live 12 Jun** — full UI chrome + share text + ES/FR nation names as guess aliases; lang switcher; SSR stays EN (placeholder-then-fill, no hydration risk) |
+| i18n phase 2: 11 languages (+PT/DE/NL/TR, +AR/FA RTL, +JA/KO) + localized share cards + MATCHDAY hub og:image | done | **live 12 Jun** — owner picked top world languages ∩ WC26 participants; per-lang string files (typed completeness); native-name dropdown; <html dir> RTL with the audio player pinned LTR; 48 nations named in all 11 langs as guess aliases. **AR/FA/JA/KO are machine-written — need native-speaker review before promoting those locales** |
 | Stats share card ("Share my record" in stats modal) | done | live 12 Jun; tracked as share_clicked{mode:stats} |
 | Mid-game UTC-midnight rollover edge | done | fixed 12 Jun — daily game pins its day at start (save/streak/global-stats all use it) |
 
@@ -30,7 +30,7 @@ Statuses: `todo` · `in_progress` · `blocked` · `done`. One line per item; dur
 
 | Item | Notes |
 |---|---|
-| i18n phase 2 | per-nation hints/verdicts, canvas-card labels, og/meta per locale, more languages — scope call pending |
+| i18n phase 3 | per-nation hints/verdicts (48 × 10 of editorial content), og/meta per locale, native review of ar/fa/ja/ko |
 | Per-user leaderboards / "friends" comparison | needs auth — deliberately out of scope ([product.md](../product.md)) |
 | Second game for the hub | add-a-game checklist in root README |
 | Abuse hardening on global stats | only if visibly gamed — [ADR-0004](../adr/0004-anonymous-global-stats-on-d1.md) |

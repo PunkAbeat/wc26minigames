@@ -56,3 +56,12 @@ body{
 .langswitch .langsel:focus{outline:none}
 .langswitch .langsel option{color:#0a2a1a;background:#fff}
 .langswitch.inline{position:static;margin-top:14px}
+
+/* RTL (ar/fa): text flows right-to-left, but the audio player is a physical
+   timeline driven by px math (playhead, ball) — pin it LTR. Latin brand
+   wordmarks and the share grid stay LTR too. */
+[dir='rtl'] .player{direction:ltr}
+[dir='rtl'] .wordmark{direction:ltr}
+[dir='rtl'] .grid-share{direction:ltr}
+[dir='rtl'] .langswitch{left:14px;right:auto}
+[dir='rtl'] .langswitch.inline{left:auto}

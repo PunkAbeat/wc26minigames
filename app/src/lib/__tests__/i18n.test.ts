@@ -35,10 +35,14 @@ describe('i18n nation names', () => {
     expect(isCorrect('Deutschland', germany)).toBe(true) // de
     expect(isCorrect('Duitsland', germany)).toBe(true) // nl
     expect(isCorrect('Almanya', germany)).toBe(true) // tr
+    expect(isCorrect('ألمانيا', germany)).toBe(true) // ar
+    expect(isCorrect('آلمان', germany)).toBe(true) // fa
+    expect(isCorrect('ドイツ', germany)).toBe(true) // ja
+    expect(isCorrect('독일', germany)).toBe(true) // ko
   })
   it('every shipped language has a name for every nation', () => {
     for (const [nation, n] of Object.entries(NATION_NAMES_I18N)) {
-      for (const lang of ['es', 'fr', 'pt', 'de', 'nl', 'tr'] as const) {
+      for (const lang of ['es', 'fr', 'pt', 'de', 'nl', 'tr', 'ar', 'fa', 'ja', 'ko'] as const) {
         expect(n.names[lang], nation + ' missing ' + lang).toBeTruthy()
       }
     }

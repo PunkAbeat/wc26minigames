@@ -3,10 +3,11 @@
    missing translation is a compile error). Deliberately NOT a library — a
    lookup and a {var} substituter cover everything this site says.
 
-   Phase status: en/es/fr/pt/de/nl/tr shipped (Latin scripts).
-   ar/fa (RTL) and ja/ko (CJK fonts) land in the next phase — add the table,
-   list it in LANGS, done. Per-nation editorial content (hints, verdicts)
-   stays EN for now.
+   Phase status: all 11 shipped — en/es/fr/pt/de/nl/tr (Latin) + ar/fa
+   (RTL; <html dir> from LANGS, the audio player is pinned LTR in CSS) +
+   ja/ko (CJK glyphs come from system-font fallback — Baloo 2/Nunito only
+   ship Latin subsets). ar/fa/ja/ko are machine-written and flagged for
+   native review. Per-nation editorial content (hints, verdicts) stays EN.
 
    SSR note: the server always renders EN ('en' is the useState initial
    value); the detected/saved language is applied in the first client effect —
@@ -23,10 +24,14 @@ import { pt } from './pt'
 import { de } from './de'
 import { nl } from './nl-lang'
 import { tr } from './tr'
+import { ar } from './ar'
+import { fa } from './fa'
+import { ja } from './ja'
+import { ko } from './ko'
 
 export type { StringKey }
 
-const TABLES = { en, es, fr, pt, de, nl, tr }
+const TABLES = { en, es, fr, pt, de, nl, tr, ar, fa, ja, ko }
 export type Lang = keyof typeof TABLES
 
 /* native names — a language picker should never make you read a foreign word
@@ -39,6 +44,10 @@ export const LANGS: { code: Lang; native: string; dir: 'ltr' | 'rtl' }[] = [
   { code: 'de', native: 'Deutsch', dir: 'ltr' },
   { code: 'nl', native: 'Nederlands', dir: 'ltr' },
   { code: 'tr', native: 'Türkçe', dir: 'ltr' },
+  { code: 'ar', native: 'العربية', dir: 'rtl' },
+  { code: 'fa', native: 'فارسی', dir: 'rtl' },
+  { code: 'ja', native: '日本語', dir: 'ltr' },
+  { code: 'ko', native: '한국어', dir: 'ltr' },
 ]
 
 const LS_KEY = 'wc26_lang'
