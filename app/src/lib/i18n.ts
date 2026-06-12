@@ -227,6 +227,18 @@ const T = {
   stats_share: ['Share my record 📣', 'Compartir mi récord 📣', 'Partager mon bilan 📣'],
   back_to_match: ['Back to the match', 'Volver al partido', 'Retour au match'],
 
+  /* ---- canvas share cards (drawn labels — no emoji glyphs) ---- */
+  card_practice: ['PRACTICE', 'PRÁCTICA', 'ENTRAÎNEMENT'],
+  card_goal: ['GOAL!', '¡GOL!', 'BUT !'],
+  card_fulltime: ['FULL TIME', 'FIN DEL PARTIDO', 'FIN DU MATCH'],
+  card_streak_n: ['STREAK {n}', 'RACHA {n}', 'SÉRIE {n}'],
+  card_play_at: ['play at {h}', 'juega en {h}', 'jouez sur {h}'],
+  card_record_sub: ['My anthem record', 'Mi récord de himnos', 'Mon bilan des hymnes'],
+  card_played: ['PLAYED', 'JUGADOS', 'JOUÉS'],
+  card_winrate: ['WIN RATE', '% VICTORIAS', '% VICTOIRES'],
+  card_streak: ['STREAK', 'RACHA', 'SÉRIE'],
+  card_best: ['BEST', 'MEJOR', 'RECORD'],
+
   /* ---- share text (travels with the card) ---- */
   share_tail: [
     'Name the nation from its anthem',

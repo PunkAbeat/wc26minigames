@@ -27,11 +27,11 @@ export const Route = createFileRoute('/')({
       ...(ORIGIN
         ? [
             { property: 'og:url', content: ORIGIN + '/' },
-            { property: 'og:image', content: ORIGIN + '/og/anthem.png' },
+            { property: 'og:image', content: ORIGIN + '/og/matchday.png' },
             { property: 'og:image:width', content: '1200' },
             { property: 'og:image:height', content: '630' },
             { name: 'twitter:card', content: 'summary_large_image' },
-            { name: 'twitter:image', content: ORIGIN + '/og/anthem.png' },
+            { name: 'twitter:image', content: ORIGIN + '/og/matchday.png' },
           ]
         : []),
     ],

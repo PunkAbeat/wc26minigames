@@ -5,6 +5,8 @@
    art direction works for the OG image. Client-only. */
 
 import type { GameState, Mode, ResultType } from './game'
+import { t } from '../i18n'
+import type { Lang } from '../i18n'
 
 const W = 1200
 const H = 630
@@ -42,11 +44,12 @@ export interface ShareCardOpts {
   matchNo: number
   streak: number
   host: string // e.g. location.host — where to play
+  lang?: Lang // card labels follow the UI language (default en)
 }
 
 /* everything above the card-specific content: background, pitch markings,
-   bunting, gold ball, ANTHEM wordmark, subtitle */
-function drawChrome(ctx: CanvasRenderingContext2D, subtitle: string): void {
+   bunting, gold ball, wordmark, subtitle */
+function drawChrome(ctx: CanvasRenderingContext2D, word: string, subtitle: string): void {
   /* pitch-night background + warm stadium glow */
   const bg = ctx.createLinearGradient(0, 0, 0, H)
   bg.addColorStop(0, C.bg1)
@@ -80,25 +83,30 @@ function drawChrome(ctx: CanvasRenderingContext2D, subtitle: string): void {
     ctx.fill()
   }
 
-  /* gold ball + wordmark */
+  /* gold ball + wordmark, centred as one group whatever the word's width */
   const cy = 150
-  const ball = ctx.createRadialGradient(W / 2 - 180, cy - 12, 6, W / 2 - 172, cy, 44)
+  ctx.font = "800 92px 'Baloo 2', sans-serif"
+  const tw = ctx.measureText(word).width
+  const ballR = 36
+  const gap = 18
+  const x0 = (W - (ballR * 2 + gap + tw)) / 2
+  const bx = x0 + ballR
+  const ball = ctx.createRadialGradient(bx - 8, cy - 12, 6, bx, cy, 44)
   ball.addColorStop(0, '#fff')
   ball.addColorStop(0.45, '#ffe9a6')
   ball.addColorStop(0.8, C.gold)
   ball.addColorStop(1, C.goldD)
   ctx.fillStyle = ball
   ctx.beginPath()
-  ctx.arc(W / 2 - 172, cy, 36, 0, Math.PI * 2)
+  ctx.arc(bx, cy, ballR, 0, Math.PI * 2)
   ctx.fill()
 
   ctx.textAlign = 'left'
   ctx.textBaseline = 'middle'
   ctx.fillStyle = C.white
-  ctx.font = "800 92px 'Baloo 2', sans-serif"
   ctx.shadowColor = 'rgba(0,0,0,.25)'
   ctx.shadowOffsetY = 5
-  ctx.fillText('ANTHEM', W / 2 - 118, cy)
+  ctx.fillText(word, x0 + ballR * 2 + gap, cy)
   ctx.shadowColor = 'transparent'
   ctx.shadowOffsetY = 0
 
@@ -108,25 +116,29 @@ function drawChrome(ctx: CanvasRenderingContext2D, subtitle: string): void {
   ctx.fillText(subtitle, W / 2, 232)
 }
 
-function drawFooter(ctx: CanvasRenderingContext2D, host: string): void {
+function drawFooter(ctx: CanvasRenderingContext2D, host: string, lang: Lang): void {
   ctx.fillStyle = C.mut
   ctx.font = "700 26px 'Nunito', sans-serif"
   ctx.textAlign = 'right'
   ctx.textBaseline = 'middle'
-  ctx.fillText(host ? 'play at ' + host + '/anthem' : '', W - 56, H - 52)
+  ctx.fillText(host ? t(lang, 'card_play_at', { h: host + '/anthem' }) : '', W - 56, H - 52)
 }
 
 export function drawShareCard(canvas: HTMLCanvasElement, o: ShareCardOpts): void {
+  const L = o.lang || 'en'
   canvas.width = W
   canvas.height = H
   const ctx = canvas.getContext('2d')!
-  drawChrome(ctx, 'Guess the nation from its anthem')
+  drawChrome(ctx, 'ANTHEM', t(L, 'an_sub'))
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
 
   /* scoreboard pill: MATCH #N · 3/6 (or PRACTICE) */
   const label =
-    (o.mode === 'practice' ? 'PRACTICE' : 'MATCH #' + o.matchNo) + '  ·  ' + o.tries + '/6'
+    (o.mode === 'practice' ? t(L, 'card_practice') : t(L, 'match_label', { n: o.matchNo })) +
+    '  ·  ' +
+    o.tries +
+    '/6'
   ctx.font = "700 34px 'Baloo 2', sans-serif"
   const pillW = ctx.measureText(label).width + 76
   rr(ctx, (W - pillW) / 2, 274, pillW, 64, 32)
@@ -196,14 +208,14 @@ export function drawShareCard(canvas: HTMLCanvasElement, o: ShareCardOpts): void
   /* result line + streak */
   ctx.fillStyle = o.won ? C.gold : C.soft
   ctx.font = "800 44px 'Baloo 2', sans-serif"
-  ctx.fillText(o.won ? 'GOAL!' : 'FULL TIME', W / 2, 532)
+  ctx.fillText(o.won ? t(L, 'card_goal') : t(L, 'card_fulltime'), W / 2, 532)
   if (o.mode === 'daily' && o.streak > 0) {
     ctx.fillStyle = C.coral
     ctx.font = "700 30px 'Baloo 2', sans-serif"
-    ctx.fillText('STREAK ' + o.streak, W / 2, 576)
+    ctx.fillText(t(L, 'card_streak_n', { n: o.streak }), W / 2, 576)
   }
 
-  drawFooter(ctx, o.host)
+  drawFooter(ctx, o.host, L)
 }
 
 /* lifetime-stats card — same art direction, shareable from the stats modal */
@@ -214,22 +226,24 @@ export interface StatsCardOpts {
   maxStreak: number
   dist: number[] // wins in 1..6 guesses
   host: string
+  lang?: Lang
 }
 
 export function drawStatsCard(canvas: HTMLCanvasElement, o: StatsCardOpts): void {
+  const L = o.lang || 'en'
   canvas.width = W
   canvas.height = H
   const ctx = canvas.getContext('2d')!
-  drawChrome(ctx, 'My anthem record')
+  drawChrome(ctx, 'ANTHEM', t(L, 'card_record_sub'))
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
 
   /* four headline numbers, mirroring the stats modal */
   const cols: [string, string][] = [
-    [String(o.played), 'PLAYED'],
-    [o.winPct + '%', 'WIN RATE'],
-    [String(o.streak), 'STREAK'],
-    [String(o.maxStreak), 'BEST'],
+    [String(o.played), t(L, 'card_played')],
+    [o.winPct + '%', t(L, 'card_winrate')],
+    [String(o.streak), t(L, 'card_streak')],
+    [String(o.maxStreak), t(L, 'card_best')],
   ]
   cols.forEach(([num, lab], i) => {
     const x = W / 2 + (i - 1.5) * 230
@@ -265,7 +279,77 @@ export function drawStatsCard(canvas: HTMLCanvasElement, o: StatsCardOpts): void
     ctx.fillText(String(n), bx + w + 10, y + rowH / 2)
   }
 
-  drawFooter(ctx, o.host)
+  drawFooter(ctx, o.host, L)
+}
+
+/* MATCHDAY hub card — the unfurl image for the root link. EN only: link
+   previews are rendered once by the crawler, not per viewer. */
+export function drawMatchdayCard(canvas: HTMLCanvasElement): void {
+  canvas.width = W
+  canvas.height = H
+  const ctx = canvas.getContext('2d')!
+  drawChrome(ctx, 'MATCHDAY', t('en', 'hub_sub2'))
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+
+  /* season pill */
+  const label = t('en', 'hub_kicker').toUpperCase()
+  ctx.font = "700 34px 'Baloo 2', sans-serif"
+  const pillW = ctx.measureText(label).width + 76
+  rr(ctx, (W - pillW) / 2, 274, pillW, 64, 32)
+  ctx.fillStyle = C.ink
+  ctx.fill()
+  ctx.strokeStyle = 'rgba(255,255,255,.18)'
+  ctx.lineWidth = 3
+  ctx.stroke()
+  ctx.fillStyle = C.coral
+  ctx.beginPath()
+  ctx.arc((W - pillW) / 2 + 34, 306, 7, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.fillStyle = C.gold
+  ctx.fillText(label, W / 2 + 12, 308)
+
+  /* fixture tiles: one live game, two on the way */
+  const tiles: [string, boolean][] = [
+    ['ANTHEM', true],
+    ['???', false],
+    ['???', false],
+  ]
+  const tw = 300
+  const th = 150
+  const tg = 36
+  const tx0 = (W - (tiles.length * tw + (tiles.length - 1) * tg)) / 2
+  const ty = 386
+  tiles.forEach(([name, live], i) => {
+    const x = tx0 + i * (tw + tg)
+    rr(ctx, x, ty, tw, th, 22)
+    if (live) {
+      const g = ctx.createLinearGradient(0, ty, 0, ty + th)
+      g.addColorStop(0, C.green)
+      g.addColorStop(1, C.green + 'cc')
+      ctx.fillStyle = g
+    } else ctx.fillStyle = 'rgba(0,0,0,.28)'
+    ctx.fill()
+    ctx.strokeStyle = live ? 'rgba(255,255,255,.4)' : 'rgba(255,255,255,.12)'
+    ctx.lineWidth = 3
+    ctx.stroke()
+    ctx.fillStyle = live ? C.white : C.mut
+    ctx.font = "800 40px 'Baloo 2', sans-serif"
+    ctx.fillText(name, x + tw / 2, ty + th / 2 - 12)
+    ctx.font = "700 22px 'Nunito', sans-serif"
+    ctx.fillStyle = live ? '#eafff2' : 'rgba(255,255,255,.45)'
+    ctx.fillText(
+      live ? t('en', 'badge_live').toUpperCase() : t('en', 'badge_soon').toUpperCase(),
+      x + tw / 2,
+      ty + th / 2 + 36,
+    )
+    if (live) {
+      ctx.fillStyle = C.gold
+      ctx.beginPath()
+      ctx.arc(x + 28, ty + 28, 8, 0, Math.PI * 2)
+      ctx.fill()
+    }
+  })
 }
 
 async function renderCardBlob(draw: (canvas: HTMLCanvasElement) => void): Promise<Blob | null> {
@@ -296,6 +380,7 @@ export function gameToCardOpts(
   mode: Mode,
   matchNo: number,
   host: string,
+  lang: Lang = 'en',
 ): ShareCardOpts {
   return {
     results: state.results.map((r) => r.type),
@@ -305,5 +390,6 @@ export function gameToCardOpts(
     matchNo,
     streak: state.streak || 0,
     host,
+    lang,
   }
 }

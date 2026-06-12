@@ -445,7 +445,7 @@ function AnthemPage() {
   const makeShareCard = useCallback(async (): Promise<Blob | null> => {
     const s = stateRef.current
     return renderShareCard(
-      gameToCardOpts(s, modeRef.current, currentMatchNo(), location.host),
+      gameToCardOpts(s, modeRef.current, currentMatchNo(), location.host, langRef.current),
     )
   }, [currentMatchNo])
 
@@ -502,6 +502,7 @@ function AnthemPage() {
       maxStreak: st.maxStreak,
       dist: st.dist,
       host: location.host,
+      lang: langRef.current,
     }
   }, [])
 
@@ -821,7 +822,7 @@ function AnthemPage() {
       drawShareCardTo: (canvas: HTMLCanvasElement) =>
         drawShareCard(
           canvas,
-          gameToCardOpts(stateRef.current, modeRef.current, currentMatchNo(), location.host),
+          gameToCardOpts(stateRef.current, modeRef.current, currentMatchNo(), location.host, langRef.current),
         ),
       drawStatsCardTo: (canvas: HTMLCanvasElement) => drawStatsCard(canvas, statsCardOpts()),
       shareStats,
