@@ -4,9 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>SQUAD — feel mock</title>
+<title>SQUAD — feel mock v2</title>
 <style>
-  /* Feel mock only — disposable. Stats are approximate placeholders. */
+  /* Feel mock only — disposable. Stats are approximate placeholders.
+     v2 after owner gut check: visible rival identity, football scoring,
+     reveal choreography, sudden death, rank chips. */
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; height: 100%; }
   body {
@@ -18,28 +20,38 @@
     padding: env(safe-area-inset-top) 10px calc(10px + env(safe-area-inset-bottom));
     user-select: none; -webkit-user-select: none;
   }
-  header { text-align: center; padding: 8px 0 2px; }
-  .kicker { font-size: 11px; letter-spacing: 2px; font-weight: 800; color: #2c5e1a; text-transform: uppercase; }
-  h1 { margin: 0; font-size: 30px; font-weight: 900; letter-spacing: 1px; color: #14324f; }
-  h1 .ball { font-size: 24px; }
-  .mockTag { font-size: 11px; font-weight: 700; color: #14324fb0; }
-
-  .tally { display: flex; gap: 7px; justify-content: center; margin: 8px 0 4px; }
-  .tally i {
-    width: 16px; height: 16px; border-radius: 50%;
-    background: #ffffff80; border: 2px solid #14324f40; font-style: normal;
+  body.shake { animation: shake .4s; }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); } 20% { transform: translateX(-7px); }
+    40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(3px); }
   }
-  .tally i.w { background: #ffd34d; border-color: #c79a00; }
-  .tally i.l { background: #14324f; border-color: #14324f; }
-  .tally i.t { background: #b9c4cf; border-color: #8795a3; }
+  header { text-align: center; padding: 6px 0 0; }
+  .kicker { font-size: 11px; letter-spacing: 2px; font-weight: 800; color: #2c5e1a; text-transform: uppercase; }
+  h1 { margin: 0; font-size: 26px; font-weight: 900; letter-spacing: 1px; color: #14324f; }
+
+  .scoreboard {
+    display: flex; align-items: center; gap: 10px; margin: 6px 0 2px;
+    background: #14324f; color: #fff; border-radius: 12px; padding: 6px 16px;
+    box-shadow: 0 4px 10px #0004;
+  }
+  .scoreboard .team { font-size: 12px; font-weight: 800; letter-spacing: 1px; color: #9fb6cc; }
+  .scoreboard b { font-size: 30px; font-weight: 900; min-width: 26px; text-align: center; transition: transform .2s; }
+  .scoreboard b.bump { transform: scale(1.45); color: #ffd34d; }
+  .scoreboard .dash { color: #5a7a99; font-weight: 900; }
+  .dots { display: flex; gap: 6px; justify-content: center; margin: 4px 0 0; }
+  .dots i { width: 13px; height: 13px; border-radius: 50%; background: #ffffff80; border: 2px solid #14324f40; font-style: normal; }
+  .dots i.w { background: #ffd34d; border-color: #c79a00; }
+  .dots i.l { background: #14324f; border-color: #14324f; }
+  .dots i.t { background: #b9c4cf; border-color: #8795a3; }
 
   .prompt {
-    min-height: 42px; display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 15px; color: #14324f; text-align: center; padding: 0 8px;
+    min-height: 44px; display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 14.5px; color: #14324f; text-align: center; padding: 0 8px;
   }
   .prompt .rivalcall { color: #a8233d; }
+  .prompt .late { color: #a8233d; }
 
-  .table { display: flex; gap: 12px; justify-content: center; align-items: flex-start; min-height: 252px; perspective: 900px; }
+  .table { display: flex; gap: 12px; justify-content: center; align-items: flex-start; min-height: 256px; perspective: 900px; }
   .slot { width: min(44vw, 175px); }
   .slotlabel { text-align: center; font-size: 11px; font-weight: 800; letter-spacing: 1px; color: #ffffffd9; text-shadow: 0 1px 2px #0003; margin-bottom: 4px; }
 
@@ -51,10 +63,13 @@
   }
   .face.front { background: #fff; transform: rotateY(180deg); display: flex; flex-direction: column; }
   .face.back {
-    background: repeating-linear-gradient(45deg, #14324f 0 14px, #1c4067 14px 28px);
-    display: flex; align-items: center; justify-content: center; font-size: 44px; color: #ffd34d;
-    border: 3px solid #fff;
+    background: linear-gradient(160deg, #14324f, #1c4067);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+    border: 3px solid #fff; color: #fff; text-align: center; padding: 10px;
   }
+  .face.back img { width: 56px; height: 39px; object-fit: cover; border-radius: 4px; box-shadow: 0 2px 6px #0006; }
+  .face.back .nm { font-weight: 900; font-size: 15px; }
+  .face.back .hidden { font-size: 11px; font-weight: 700; color: #9fb6cc; letter-spacing: 1px; }
   .mine .face.front { transform: none; }
   .mine .face.back { transform: rotateY(180deg); }
 
@@ -63,29 +78,40 @@
   .cardhead .nm { font-weight: 900; font-size: 13.5px; line-height: 1.1; }
   .stats { flex: 1; display: flex; flex-direction: column; padding: 4px 5px 7px; gap: 2px; }
   .stat {
-    flex: 1; display: flex; align-items: center; justify-content: space-between;
+    flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 4px;
     border: 0; background: none; font: inherit; text-align: left;
     border-radius: 8px; padding: 2px 7px; font-size: 12.5px; color: #1d2733;
+    transition: opacity .3s, transform .3s;
   }
   .stat .lab { font-weight: 700; color: #5a6b7d; }
-  .stat .val { font-weight: 900; }
+  .stat .val { font-weight: 900; white-space: nowrap; }
+  .stat .rank { font-size: 9.5px; font-weight: 900; color: #fff; background: #5a6b7d; border-radius: 999px; padding: 1px 6px; opacity: 0; transition: opacity .25s; }
+  .stat .rank.top { background: #c79a00; }
+  .stat .rank.show { opacity: 1; }
   .stat.pickable { background: #eef4fb; box-shadow: inset 0 0 0 1.5px #b9d4ef; cursor: pointer; }
   .stat.pickable:active { background: #dcebfa; }
   .stat.chosen { background: #ffd34d; box-shadow: inset 0 0 0 2px #c79a00; }
   .stat.chosen .lab { color: #6b5200; }
-  .stat.win  { background: #c9efbe; box-shadow: inset 0 0 0 2px #4f9b38; }
-  .stat.lose { background: #f6cfd6; box-shadow: inset 0 0 0 2px #b04a5e; }
+  .stats.duel .stat:not(.contest) { opacity: .18; }
+  .stat.contest { transform: scale(1.07); background: #fff8e1; box-shadow: inset 0 0 0 2px #c79a00; }
+  .stat.contest .val { font-size: 15px; }
+  .stat.win  { background: #c9efbe !important; box-shadow: inset 0 0 0 2.5px #4f9b38 !important; }
+  .stat.lose { background: #f6cfd6 !important; box-shadow: inset 0 0 0 2.5px #b04a5e !important; }
 
   .flash {
     position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
     pointer-events: none; z-index: 50;
   }
   .flash span {
-    font-size: 34px; font-weight: 900; color: #fff; text-shadow: 0 3px 10px #0006;
-    background: #14324fe0; padding: 14px 26px; border-radius: 18px;
-    transform: scale(.6); opacity: 0; transition: transform .3s cubic-bezier(.2,.8,.3,1.4), opacity .25s;
+    font-size: 40px; font-weight: 900; color: #fff; text-shadow: 0 3px 10px #0006;
+    padding: 16px 30px; border-radius: 18px;
+    transform: scale(.5) rotate(-4deg); opacity: 0;
+    transition: transform .28s cubic-bezier(.2,.8,.3,1.5), opacity .22s;
   }
-  .flash.show span { transform: scale(1); opacity: 1; }
+  .flash span.goal { background: #2c8c1de8; }
+  .flash span.bad  { background: #a8233de8; }
+  .flash span.meh  { background: #14324fe0; font-size: 30px; }
+  .flash.show span { transform: scale(1) rotate(-4deg); opacity: 1; }
 
   .handwrap { margin-top: auto; width: 100%; max-width: 460px; }
   .handlabel { text-align: center; font-size: 11px; font-weight: 800; letter-spacing: 1px; color: #ffffffd9; text-shadow: 0 1px 2px #0003; margin-bottom: 5px; }
@@ -105,34 +131,41 @@
   @media (prefers-reduced-motion: reduce) {
     .hand.active .hcard { animation: none; }
     .card3d { transition: none; }
+    body.shake { animation: none; }
   }
+
+  .conf { position: fixed; top: -30px; z-index: 55; font-size: 22px; pointer-events: none; }
 
   .end {
     position: fixed; inset: 0; background: #14324fcc; z-index: 60;
     display: none; align-items: center; justify-content: center; padding: 20px;
   }
   .end.show { display: flex; }
-  .endcard { background: #fff; border-radius: 18px; padding: 26px 30px; text-align: center; max-width: 320px; box-shadow: 0 10px 30px #0006; }
+  .endcard { background: #fff; border-radius: 18px; padding: 24px 30px; text-align: center; max-width: 330px; box-shadow: 0 10px 30px #0006; }
+  .endcard .ft { font-size: 12px; font-weight: 900; letter-spacing: 3px; color: #5a6b7d; }
   .endcard .big { font-size: 44px; }
   .endcard h2 { margin: 6px 0 2px; font-size: 24px; font-weight: 900; color: #14324f; }
-  .endcard p { margin: 4px 0 16px; color: #5a6b7d; font-weight: 700; }
+  .endcard .line { font-size: 30px; font-weight: 900; color: #14324f; margin: 2px 0 6px; }
+  .endcard p { margin: 4px 0 16px; color: #5a6b7d; font-weight: 700; font-size: 13.5px; }
   .btn {
     font: inherit; font-weight: 900; font-size: 17px; border: 0; cursor: pointer;
     background: #ffd34d; color: #6b5200; border-radius: 999px; padding: 12px 28px;
     box-shadow: 0 4px 0 #c79a00;
   }
   .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #c79a00; }
-  footer { font-size: 10.5px; color: #ffffffc4; text-shadow: 0 1px 2px #0003; padding: 8px 0 2px; text-align: center; font-weight: 700; }
+  footer { font-size: 10.5px; color: #ffffffc4; text-shadow: 0 1px 2px #0003; padding: 6px 0 2px; text-align: center; font-weight: 700; }
 </style>
 </head>
 <body>
   <header>
-    <div class="kicker">Matchday · feel mock</div>
-    <h1><span class="ball">🃏</span> SQUAD</h1>
-    <div class="mockTag">nations card duel — mock data, mock visuals</div>
+    <div class="kicker">Matchday · feel mock v2</div>
+    <h1>🃏 SQUAD</h1>
   </header>
 
-  <div class="tally" id="tally"></div>
+  <div class="scoreboard">
+    <span class="team">YOU</span><b id="sw">0</b><span class="dash">–</span><b id="sl">0</b><span class="team">RIVAL</span>
+  </div>
+  <div class="dots" id="dots"></div>
   <div class="prompt" id="prompt"></div>
 
   <div class="table">
@@ -154,8 +187,10 @@
 
   <div class="flash" id="flash"><span id="flashtxt"></span></div>
   <div class="end" id="end"><div class="endcard">
+    <div class="ft">FULL TIME</div>
     <div class="big" id="endemoji"></div>
     <h2 id="endtitle"></h2>
+    <div class="line" id="endline"></div>
     <p id="endsub"></p>
     <button class="btn" id="again">DEAL AGAIN</button>
   </div></div>
@@ -194,33 +229,33 @@ const STATS = [
   ["🏆","World Cup titles", v=>v],
   ["📅","WC appearances", v=>v],
   ["⚽","All-time WC goals", v=>v],
-  ["📈","Ranking points", v=>v.toLocaleString("en-US")],
-  ["👥","Population", v=>v>=1 ? v+"M" : (v*1000)+"k"],
-  ["🗺️","Area", v=>v>=1 ? v.toLocaleString("en-US")+"k km²" : (v*1000)+" km²"],
+  ["📈","Ranking points", v=>Math.round(v).toLocaleString("en-US")],
+  ["👥","Population", v=>v>=1 ? (Math.round(v*10)/10)+"M" : Math.round(v*1000)+"k"],
+  ["🗺️","Area", v=>v>=1 ? Math.round(v).toLocaleString("en-US")+"k km²" : Math.round(v*1000)+" km²"],
 ];
 const flagUrl = cc => "https://flagcdn.com/w80/"+cc+".png";
 
-// percentile rank of each nation per stat — the rival uses this to pick its strongest stat
-const pct = N.map(row => STATS.map((_,s) => {
-  const v = row[2+s];
-  return N.filter(o => o[2+s] < v).length / N.length;
-}));
+// per stat: percentile (rival brain) and rank "#k of 48" (reveal chips)
+const pct  = N.map(row => STATS.map((_,s) => N.filter(o => o[2+s] < row[2+s]).length / N.length));
+const rank = N.map(row => STATS.map((_,s) => 1 + N.filter(o => o[2+s] > row[2+s]).length));
 
 const $ = id => document.getElementById(id);
-let myHand, rivalHand, round, score, busy; // score: [wins, losses, ties]
-let results = []; // 'w' | 'l' | 't'
+const REGULATION = 5;
+let myHand, rivalHand, round, score, busy, sudden;
+let results = [];
 
 function deal() {
   const idx = [...N.keys()];
   for (let i = idx.length-1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [idx[i],idx[j]] = [idx[j],idx[i]]; }
   myHand = idx.slice(0,5); rivalHand = idx.slice(5,10);
-  round = 1; score = [0,0,0]; results = []; busy = false;
+  round = 1; score = [0,0,0]; results = []; busy = false; sudden = false;
+  $("sw").textContent = "0"; $("sl").textContent = "0";
   $("end").classList.remove("show");
-  renderTally(); renderHand(); startRound();
+  renderDots(); renderHand(); startRound();
 }
 
-function renderTally() {
-  $("tally").innerHTML = Array.from({length:5}, (_,i) =>
+function renderDots() {
+  $("dots").innerHTML = Array.from({length: Math.max(REGULATION, results.length)}, (_,i) =>
     `<i class="${results[i]||""}"></i>`).join("");
 }
 
@@ -235,29 +270,42 @@ function renderHand() {
 function cardFront(i, picker) {
   const rows = STATS.map(([em, lab, fmt], s) =>
     `<button class="stat ${picker ? "pickable" : ""}" data-s="${s}">
-       <span class="lab">${em} ${lab}</span><span class="val">${fmt(N[i][2+s])}</span>
+       <span class="lab">${em} ${lab}</span>
+       <span style="display:flex;align-items:center;gap:4px"><span class="rank" data-r="${rank[i][s]}">#${rank[i][s]} of 48</span><span class="val" data-v="${N[i][2+s]}">${fmt(N[i][2+s])}</span></span>
      </button>`).join("");
   return `<div class="face front"><div class="cardhead"><img src="${flagUrl(N[i][1])}" alt=""><span class="nm">${N[i][0]}</span></div>
-    <div class="stats">${rows}</div></div><div class="face back">⚽</div>`;
+    <div class="stats">${rows}</div></div>
+    <div class="face back"><img src="${flagUrl(N[i][1])}" alt=""><div class="nm">${N[i][0]}</div><div class="hidden">STATS HIDDEN</div></div>`;
 }
 
 let rivalCardIdx, rivalStat, myCardIdx;
 
 function startRound() {
-  if (round > 5) return endDuel();
+  if (!sudden && round > REGULATION) {
+    if (score[0] !== score[1]) return endDuel();
+    sudden = true; // level after 5 — golden goal, fresh cards
+    const used = new Set([...myHand, ...rivalHand]);
+    const fresh = [...N.keys()].filter(i => !used.has(i));
+    myHand = [fresh[Math.floor(Math.random()*fresh.length)]];
+    rivalHand = [fresh.filter(i => i !== myHand[0])[Math.floor(Math.random()*(fresh.length-1))]];
+    renderHand();
+  }
   myCardIdx = null;
   rivalCardIdx = rivalHand[Math.floor(Math.random()*rivalHand.length)];
-  const youPick = round % 2 === 1;
+  const youPick = sudden || round % 2 === 1;
   rivalStat = null;
+  // rival identity is visible before the flip — the read is the game
   $("rcard").className = "card3d";
-  $("rcard").innerHTML = `<div class="face front"></div><div class="face back">⚽</div>`;
+  $("rcard").innerHTML = cardFront(rivalCardIdx, false);
   $("mcard").innerHTML = `<div class="face front"></div><div class="face back">⚽</div>`;
   $("mcard").className = "card3d mine";
+  const late = sudden ? `<b class="late">⚡ GOLDEN GOAL — winner takes it all.</b> `
+             : round === REGULATION ? `<b class="late">LAST ROUND${score[0]===score[1] ? " — all level" : ""}!</b> ` : `Round ${round} of ${REGULATION} — `;
   if (youPick) {
-    $("prompt").innerHTML = `<span>Round ${round} — <b>you pick the stat.</b> Choose a card.</span>`;
+    $("prompt").innerHTML = `<span>${late}You face <b>${N[rivalCardIdx][0]}</b>. <b>You pick the stat</b> — choose a card.</span>`;
   } else {
     rivalStat = pct[rivalCardIdx].indexOf(Math.max(...pct[rivalCardIdx]));
-    $("prompt").innerHTML = `<span>Round ${round} — rival challenges: <b class="rivalcall">${STATS[rivalStat][0]} ${STATS[rivalStat][1].toUpperCase()}</b>. Choose your card.</span>`;
+    $("prompt").innerHTML = `<span>${late}<b>${N[rivalCardIdx][0]}</b> challenges: <b class="rivalcall">${STATS[rivalStat][0]} ${STATS[rivalStat][1].toUpperCase()}</b>. Choose your card.</span>`;
   }
   $("hand").classList.add("active");
 }
@@ -267,10 +315,10 @@ function playCard(i) {
   $("hand").classList.remove("active");
   $("hand").querySelector(`[data-i="${i}"]`).disabled = true;
   myCardIdx = i;
-  const youPick = round % 2 === 1;
+  const youPick = sudden || round % 2 === 1;
   $("mcard").innerHTML = cardFront(i, youPick);
   if (youPick) {
-    $("prompt").innerHTML = `<span><b>Pick the stat to fight with.</b></span>`;
+    $("prompt").innerHTML = `<span><b>Pick the stat to beat ${N[rivalCardIdx][0]} with.</b></span>`;
     for (const b of $("mcard").querySelectorAll(".stat"))
       b.addEventListener("click", () => { if (b.classList.contains("pickable")) fight(+b.dataset.s); });
     busy = false;
@@ -281,45 +329,103 @@ function playCard(i) {
 
 function fight(s) {
   busy = true;
+  $("prompt").innerHTML = `<span>${STATS[s][0]} <b>${STATS[s][1].toUpperCase()}</b> it is…</span>`;
   for (const b of $("mcard").querySelectorAll(".stat")) {
     b.classList.remove("pickable");
     if (+b.dataset.s === s) b.classList.add("chosen");
   }
-  $("rcard").innerHTML = cardFront(rivalCardIdx, false);
   setTimeout(() => {
     $("rcard").classList.add("flipped");
-    setTimeout(() => resolve(s), 700);
+    setTimeout(() => duel(s), 650);
   }, 350);
+}
+
+function duel(s) {
+  // choreography: dim everything but the contested stat, count both values up, then verdict
+  for (const card of [$("mcard"), $("rcard")]) {
+    card.querySelector(".stats").classList.add("duel");
+    const row = card.querySelector(`[data-s="${s}"]`);
+    row.classList.remove("chosen"); row.classList.add("contest");
+    countUp(row.querySelector(".val"), STATS[s][2]);
+  }
+  setTimeout(() => {
+    for (const card of [$("mcard"), $("rcard")]) {
+      const chip = card.querySelector(`[data-s="${s}"] .rank`);
+      if (+chip.dataset.r <= 3) chip.classList.add("top");
+      chip.classList.add("show");
+    }
+    setTimeout(() => resolve(s), 500);
+  }, 750);
+}
+
+function countUp(el, fmt) {
+  const target = +el.dataset.v, t0 = performance.now(), DUR = 650;
+  (function tick(t) {
+    const k = Math.min(1, (t - t0) / DUR), ease = 1 - Math.pow(1 - k, 3);
+    el.textContent = fmt(target * ease);
+    if (k < 1) requestAnimationFrame(tick); else el.textContent = fmt(target);
+  })(t0);
 }
 
 function resolve(s) {
   const mv = N[myCardIdx][2+s], rv = N[rivalCardIdx][2+s];
   const res = mv > rv ? "w" : mv < rv ? "l" : "t";
-  const cls = res === "w" ? "win" : res === "l" ? "lose" : "chosen";
-  $("mcard").querySelector(`[data-s="${s}"]`).className = "stat " + cls;
-  $("rcard").querySelector(`[data-s="${s}"]`).className = "stat " + (res === "w" ? "lose" : res === "l" ? "win" : "chosen");
+  $("mcard").querySelector(`[data-s="${s}"]`).classList.add(res === "w" ? "win" : res === "l" ? "lose" : "chosen");
+  $("rcard").querySelector(`[data-s="${s}"]`).classList.add(res === "w" ? "lose" : res === "l" ? "win" : "chosen");
   results.push(res);
   score[res === "w" ? 0 : res === "l" ? 1 : 2]++;
-  renderTally();
-  flash(res === "w" ? "ROUND WON! 🎉" : res === "l" ? "ROUND LOST 😖" : "DEAD HEAT 😬");
+  renderDots();
+  if (res === "w") {
+    bump("sw", score[0]); flash("GOAL! ⚽", "goal"); confetti();
+  } else if (res === "l") {
+    bump("sl", score[1]); flash(`${N[rivalCardIdx][0].toUpperCase()} SCORES`, "bad");
+    document.body.classList.add("shake"); setTimeout(() => document.body.classList.remove("shake"), 450);
+  } else {
+    flash("OFF THE POST! 🥅", "meh");
+  }
   rivalHand = rivalHand.filter(x => x !== rivalCardIdx);
   myHand = myHand.filter(x => x !== myCardIdx);
-  round++;
-  setTimeout(() => { busy = false; startRound(); }, 1500);
+  if (sudden && res !== "t") { setTimeout(endDuel, 1500); return; }
+  if (sudden) { round = REGULATION + 1; } // golden-goal tie: redraw fresh cards
+  else round++;
+  setTimeout(() => { busy = false; startRound(); }, 1600);
 }
 
-function flash(txt) {
+function bump(id, v) {
+  const el = $(id); el.textContent = v;
+  el.classList.add("bump"); setTimeout(() => el.classList.remove("bump"), 350);
+}
+
+function flash(txt, cls) {
   $("flashtxt").textContent = txt;
+  $("flashtxt").className = cls;
   $("flash").classList.add("show");
-  setTimeout(() => $("flash").classList.remove("show"), 1100);
+  setTimeout(() => $("flash").classList.remove("show"), 1150);
+}
+
+function confetti() {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const EMO = ["⚽","🎉","⭐","🟡","🟢"];
+  for (let i = 0; i < 16; i++) {
+    const el = document.createElement("span");
+    el.className = "conf";
+    el.textContent = EMO[i % EMO.length];
+    el.style.left = (5 + Math.random()*90) + "vw";
+    document.body.appendChild(el);
+    el.animate(
+      [{ transform: "translateY(0) rotate(0)" },
+       { transform: `translateY(105vh) rotate(${(Math.random()*2-1)*540}deg)` }],
+      { duration: 900 + Math.random()*800, delay: Math.random()*250, easing: "cubic-bezier(.3,.4,.6,1)" }
+    ).onfinish = () => el.remove();
+  }
 }
 
 function endDuel() {
-  const [w, l] = score;
-  const win = w > l, draw = w === l;
-  $("endemoji").textContent = win ? "🏆" : draw ? "🤝" : "😭";
-  $("endtitle").textContent = win ? "YOU WIN THE DUEL" : draw ? "ALL SQUARE" : "DUEL LOST";
-  $("endsub").textContent = `${w}–${l}` + (score[2] ? ` (${score[2]} tied)` : "");
+  const [w, l] = score, win = w > l;
+  $("endemoji").textContent = win ? "🏆" : "😭";
+  $("endtitle").textContent = win ? "YOU WIN THE DUEL" : "DUEL LOST";
+  $("endline").textContent = `${w} – ${l}`;
+  $("endsub").textContent = (sudden ? "Decided by a golden goal. " : "") + (score[2] ? `${score[2]} hit the post. ` : "") + (win ? "Run it back?" : "Revenge?");
   $("end").classList.add("show");
 }
 
