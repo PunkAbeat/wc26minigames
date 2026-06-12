@@ -27,7 +27,7 @@ Statuses: `todo` · `in_progress` · `blocked` · `done`. One line per item; dur
 | Mid-game UTC-midnight rollover edge | done | fixed 12 Jun — daily game pins its day at start (save/streak/global-stats all use it) |
 | Uncap free play (drop practice 2/day cap) | done | owner decision 12 Jun — practice rebranded "Free play — every anthem" in all 11 langs, offered after every finished game; daily match stays the headline (streaks/shares unchanged) — [ADR-0007](../adr/0007-uncapped-free-play.md) |
 | GROUPS prototype (game #2) | scrapped | owner picked GROUPS 12 Jun, prototype built same day, owner played it on the tailnet preview and **scrapped it the same evening** ("feels really boring") — never deployed; code reverted (recoverable from history). Lesson + round-3 slate in the [game-2 brainstorm](../research/game2-brainstorm.md) |
-| **Game #2 selection, round 3** | in_progress | new criterion after the scrap: the core ten seconds must feel good. Slate: KEEPER ⭐ / FREE KICK / FLAG DRAW / BRACKET — owner pick pending ([questions.md](../research/questions.md) item 6); next build starts with a one-screen feel mock, not a full prototype |
+| **Game #2 selection, round 4** | in_progress | post-scrap criterion: the core ten seconds must feel good; owner widened the brief to any genre (12 Jun). Slate: SQUAD ⭐ (nations card duel) / SHOOTOUT ⭐ (daily penalty shootout) / THREAD / BICYCLE KICK, + held FREE KICK / BRACKET / FLAG DRAW — owner pick pending ([questions.md](../research/questions.md) item 6); next step = parallel one-screen feel mocks of SQUAD + SHOOTOUT, not a full prototype |
 
 ## Backlog (not scheduled)
 

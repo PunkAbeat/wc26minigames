@@ -263,3 +263,100 @@ full prototype this time, a one-screen feel mock (the run-up + dive moment, or
 the swipe + ball flight) for an on-device gut check — judge the ten seconds
 first, build the daily shell only after it survives.
 
+## Round 4 (12 Jun 2026) — genre-wide, owner asked to drop the self-imposed restrictions
+
+Owner: open to *any* kind of game (physics, cards, …) as long as it is unique
+and football/World-Cup linked. So this round deliberately ranges across genres
+instead of iterating on the daily-puzzle formula. Still binding: licensing
+(no players/footage/kits/marks), iOS Safari, no crowd mechanics yet, prefer
+no backend. No longer assumed: that it must be a *puzzle*, or even strictly
+once-per-day.
+
+Incumbent checks done 12 Jun: player-based daily trumps exists
+(playfootball.games "Pack 11"); Crossbar Challenge exists as an arcade game on
+every portal; referee/VAR judgment is taken (offsideornot.com, multiple
+Referee Simulator apps) — **THE CALL idea is dropped**. Nation-based stat
+duels and pass-drawing games: nothing found.
+
+### Round-4 slate
+
+**D1. SQUAD ⭐ — the nations card duel** *(card game, new)*
+
+All 48 qualified nations as cards with licensing-clean stats (WC titles, WC
+appearances, all-time WC goals, FIFA-ranking points, population, land area —
+public facts). Daily seeded deal: you and the rival each get 5 cards; you see
+your hand, **order it**, and each round **pick which stat to fight with**
+before the rival's card flips. Best of 5, share grid `🃏 W-W-L-W-L 3-2` +
+streak.
+
+- The skill is *distribution intuition*, not trivia: holding Iceland, you
+  don't pick population — and that reasoning is available to a non-fan within
+  two rounds. Card-flip reveal = drama every ~8 seconds; "I won the day with
+  Curaçao" is a story.
+- Cheapest build on the slate by far: no physics, one stats table (one-time,
+  fact-checkable), reuses flags/share/streak infra; perfectly i18n-able;
+  evergreen. A "draft your squad" roguelite variant is an obvious v2.
+- Uniqueness: official Top Trumps and the playfootball.games daily are
+  *player*-based guessing; a nations duel with open-hand stat selection has no
+  incumbent found. (Never use the trademark "Top Trumps" anywhere.)
+- Risk: vs. a seeded AI hand, luck share is real — hand-ordering + stat choice
+  must carry enough agency that losing feels like your fault. Mock answers this.
+
+**D2. SHOOTOUT — the full penalty shootout, daily** *(action/drama; subsumes round-3 KEEPER)*
+
+Best-of-5 vs a seeded daily rival nation: you alternate **taking** penalties
+(pick placement; the AI keeper has a readable lean) and **saving** them (read
+the run-up tell, commit a dive). Sudden death on a tie. Share
+`⚽🧤❌⚽🧤 4-3` + streak.
+
+- The penalty shootout is *the* World Cup drama artifact — finals are decided
+  by exactly this. Both fantasies (score the winner, make the save) in one
+  loop; tension is structural, not decorative.
+- Same iOS-fair choice-under-tension base as KEEPER; daily content = two
+  parameter sets (shooter tells, keeper lean). Arcade penalty games are
+  legion, but none daily-seeded with learnable tells — the ritual + the
+  read-the-tell meta is the unique claim.
+- Risk: tell/lean design is the game (KEEPER's risk, doubled — both halves
+  must feel readable, not random).
+
+**D3. THREAD — draw the killer pass** *(skill/judgment, new; lane confirmed open)*
+
+A frozen attack: your playmaker, moving defenders sweeping seeded patrol
+paths, a striker making a run. **Draw the through-ball line with your finger
+and choose the moment to release.** The ball follows your line at real speed;
+intercepted or completed. 3 phases per day, touches-style share.
+
+- The playmaker fantasy is unserved (every football game is shooting);
+  "threading the needle" is inherently satisfying — your finger drew the
+  assist. Searched: nothing comparable exists.
+- Risk: needs careful tuning so interceptions read as fair; mid build cost
+  (path animation, line capture, collision).
+
+**D4. BICYCLE KICK — ragdoll glory** *(physics/comedy, new)*
+
+A cross floats in (seeded daily). Two taps: jump, kick. Ragdoll physics does
+the rest — sometimes a screamer, usually a faceplant. Score = goal or comedy;
+best-of-3; share is the outcome emoji plus a canvas still of your ragdoll's
+finest moment.
+
+- The QWOP/failure-comedy lane from round 2, but *football-native* (everyone
+  understands attempting an overhead kick and why it goes wrong). Instant
+  retry compulsion + daily comparable attempt.
+- Risk: physics comedy is hard to make funny *reliably*; ragdoll on matter.js
+  needs tuning; weakest "score" story of the four.
+
+### Held from earlier rounds
+FREE KICK (max juice, crowded genre — a crossbar-target variant would borrow
+Soccer AM's beloved challenge), BRACKET (cheap, but board-puzzle risk class),
+FLAG DRAW (comedy but weakest football link). Parked for traffic: TOP BINS,
+RARE PICK. Dropped: THE CALL (incumbents).
+
+### Agent recommendation (round 4)
+
+Mock **SQUAD and SHOOTOUT in parallel** — both feel mocks are one screen and
+together they cost about a day: SQUAD's mock is two cards, a stat pick and a
+flip; SHOOTOUT's is the run-up + dive moment. They sit on opposite ends of the
+genre range (cool-headed cards vs. heart-rate action), so the owner's gut
+reaction to the pair will say more about direction than any ranking on paper.
+THREAD is the dark horse if neither lands.
+

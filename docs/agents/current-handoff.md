@@ -10,12 +10,15 @@ Production is **LIVE at https://wc26minigames.com** (ANTHEM + hub). `master`, cl
 
 **GROUPS is dead.** Built 12 Jun, owner played it on the tailnet preview the same evening and scrapped it ("feels really boring"). Reverted in `e10ce51`/`93631bc`/`43af8fb` — `/groups` is 404 again, hub card and `gr_*` i18n keys removed, suite 12 gone (suites are 1–11 again). The prototype, including the fact-checked 10-grid puzzle bank, is recoverable from history just before those reverts. It was never deployed; no user ever saw it.
 
-**Game #2 selection is open again — round 3** ([game2-brainstorm.md](../research/game2-brainstorm.md)). The scrap added criterion #5: *the core ten seconds must feel good* (motion/tension/comedy), which knowledge/board puzzles fail. Slate awaiting owner pick:
+**Game #2 selection — round 4** ([game2-brainstorm.md](../research/game2-brainstorm.md)). The scrap added criterion #5: *the core ten seconds must feel good* (motion/tension/comedy). The owner then widened the brief (12 Jun, after round 3): any genre — cards, physics, anything — as long as it's unique and football/WC-linked. Round-4 slate awaiting owner pick:
 
-- **KEEPER** ⭐ (agent rec) — be the goalkeeper; 5 daily seeded penalties, read the shooter's tell, one-tap dive; `🧤🧤❌🧤❌ 3/5` share. No daily-ritual incumbent found.
-- **FREE KICK** — same seeded set piece worldwide, swipe to curve; max juice, crowded arcade genre, physics-tuning risk.
-- **FLAG DRAW** — draw today's flag from memory, pixel-scored; failure-comedy wildcard, partial incumbents.
-- **BRACKET** — held from round 2; cheap and tactile but still a board puzzle (same risk class GROUPS died of).
+- **SQUAD** ⭐ — nations card duel: daily seeded 5-card hands, order your hand, pick the stat each round, card-flip reveals. Cheapest build (no physics, one stats table); no nations-duel incumbent (avoid the "Top Trumps" trademark).
+- **SHOOTOUT** ⭐ — the full daily penalty shootout vs a seeded rival: alternate *taking* (beat the keeper's lean) and *saving* (read the run-up tell), best-of-5 + sudden death. Subsumes round-3 KEEPER.
+- **THREAD** — draw the killer through-ball past moving defenders; lane confirmed open.
+- **BICYCLE KICK** — two-tap ragdoll glory/comedy.
+- Held: FREE KICK / BRACKET / FLAG DRAW. Dropped: THE CALL (offsideornot.com + referee sims are incumbents).
+
+Agent rec: feel-mock **SQUAD + SHOOTOUT in parallel** (~a day total, one screen each) and let the owner's gut pick the direction.
 
 ## Process change for the next pick
 
