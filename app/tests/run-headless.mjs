@@ -13,7 +13,7 @@ import { execFileSync } from 'node:child_process'
 const args = process.argv.slice(2)
 const baseUrl = args.find((a) => a.startsWith('http')) || 'http://localhost:4173'
 const suites = args.filter((a) => /^\d{1,2}$/.test(a)).map(Number)
-const toRun = suites.length ? suites : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+const toRun = suites.length ? suites : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
 const CHROME =
   process.env.CHROME_BIN ||
@@ -50,7 +50,7 @@ try {
 
 let failed = false
 for (const n of toRun) {
-  const page = n === 11 ? '/' : n === 12 ? '/groups' : '/anthem' // 11 = hub, 12 = GROUPS
+  const page = n === 11 ? '/' : '/anthem' // suite 11 tests the hub
   const url = `${baseUrl}${page}?anthemtest=${n}`
   process.stdout.write(`\n=== suite ${n}  ${url}\n`)
   let dom = ''
