@@ -18,7 +18,7 @@ Production is **LIVE at https://wc26minigames.com** (ANTHEM + hub). `master`, cl
 - **BICYCLE KICK** — two-tap ragdoll glory/comedy.
 - Held: FREE KICK / BRACKET / FLAG DRAW. Dropped: THE CALL (offsideornot.com + referee sims are incumbents).
 
-Agent rec: feel-mock **SQUAD + SHOOTOUT in parallel** (~a day total, one screen each) and let the owner's gut pick the direction.
+Owner chose to try **SQUAD first** (12 Jun). Feel mock built as a disposable static page — `app/public/mock/squad.html`, served at **`/mock/squad`** on the tailnet preview (the asset server drops `.html`). Full duel loop: deal 5v5 from all 48 nations, alternating stat-picks (odd rounds you pick; even rounds the rival announces its strongest-percentile stat and you choose which card to spend), 3D flip reveal, tally, deal-again. **Stats are agent-approximate mock values** (flagged on-page) — if SQUAD graduates, the stats table must be properly sourced. No route/i18n/suite on purpose; gut check verdict pending. SHOOTOUT mock is next if SQUAD doesn't land.
 
 ## Process change for the next pick
 

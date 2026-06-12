@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>SQUAD — feel mock</title>
+<style>
+  /* Feel mock only — disposable. Stats are approximate placeholders. */
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font: 16px/1.35 "Nunito", -apple-system, "Segoe UI", sans-serif;
+    background: linear-gradient(180deg, #87ceeb 0%, #b8e6f5 55%, #7ec850 55.5%, #5cb83c 100%);
+    color: #1d2733;
+    display: flex; flex-direction: column; align-items: center;
+    min-height: 100dvh; overflow-x: hidden;
+    padding: env(safe-area-inset-top) 10px calc(10px + env(safe-area-inset-bottom));
+    user-select: none; -webkit-user-select: none;
+  }
+  header { text-align: center; padding: 8px 0 2px; }
+  .kicker { font-size: 11px; letter-spacing: 2px; font-weight: 800; color: #2c5e1a; text-transform: uppercase; }
+  h1 { margin: 0; font-size: 30px; font-weight: 900; letter-spacing: 1px; color: #14324f; }
+  h1 .ball { font-size: 24px; }
+  .mockTag { font-size: 11px; font-weight: 700; color: #14324fb0; }
+
+  .tally { display: flex; gap: 7px; justify-content: center; margin: 8px 0 4px; }
+  .tally i {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #ffffff80; border: 2px solid #14324f40; font-style: normal;
+  }
+  .tally i.w { background: #ffd34d; border-color: #c79a00; }
+  .tally i.l { background: #14324f; border-color: #14324f; }
+  .tally i.t { background: #b9c4cf; border-color: #8795a3; }
+
+  .prompt {
+    min-height: 42px; display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 15px; color: #14324f; text-align: center; padding: 0 8px;
+  }
+  .prompt .rivalcall { color: #a8233d; }
+
+  .table { display: flex; gap: 12px; justify-content: center; align-items: flex-start; min-height: 252px; perspective: 900px; }
+  .slot { width: min(44vw, 175px); }
+  .slotlabel { text-align: center; font-size: 11px; font-weight: 800; letter-spacing: 1px; color: #ffffffd9; text-shadow: 0 1px 2px #0003; margin-bottom: 4px; }
+
+  .card3d { position: relative; width: 100%; aspect-ratio: 5/7; transform-style: preserve-3d; transition: transform .55s cubic-bezier(.2,.7,.3,1.1); }
+  .card3d.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    border-radius: 14px; box-shadow: 0 6px 16px #0003; overflow: hidden;
+  }
+  .face.front { background: #fff; transform: rotateY(180deg); display: flex; flex-direction: column; }
+  .face.back {
+    background: repeating-linear-gradient(45deg, #14324f 0 14px, #1c4067 14px 28px);
+    display: flex; align-items: center; justify-content: center; font-size: 44px; color: #ffd34d;
+    border: 3px solid #fff;
+  }
+  .mine .face.front { transform: none; }
+  .mine .face.back { transform: rotateY(180deg); }
+
+  .cardhead { display: flex; align-items: center; gap: 6px; padding: 8px 9px 5px; background: #f2f6fa; }
+  .cardhead img { width: 30px; height: 21px; object-fit: cover; border-radius: 3px; box-shadow: 0 1px 2px #0003; }
+  .cardhead .nm { font-weight: 900; font-size: 13.5px; line-height: 1.1; }
+  .stats { flex: 1; display: flex; flex-direction: column; padding: 4px 5px 7px; gap: 2px; }
+  .stat {
+    flex: 1; display: flex; align-items: center; justify-content: space-between;
+    border: 0; background: none; font: inherit; text-align: left;
+    border-radius: 8px; padding: 2px 7px; font-size: 12.5px; color: #1d2733;
+  }
+  .stat .lab { font-weight: 700; color: #5a6b7d; }
+  .stat .val { font-weight: 900; }
+  .stat.pickable { background: #eef4fb; box-shadow: inset 0 0 0 1.5px #b9d4ef; cursor: pointer; }
+  .stat.pickable:active { background: #dcebfa; }
+  .stat.chosen { background: #ffd34d; box-shadow: inset 0 0 0 2px #c79a00; }
+  .stat.chosen .lab { color: #6b5200; }
+  .stat.win  { background: #c9efbe; box-shadow: inset 0 0 0 2px #4f9b38; }
+  .stat.lose { background: #f6cfd6; box-shadow: inset 0 0 0 2px #b04a5e; }
+
+  .flash {
+    position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+    pointer-events: none; z-index: 50;
+  }
+  .flash span {
+    font-size: 34px; font-weight: 900; color: #fff; text-shadow: 0 3px 10px #0006;
+    background: #14324fe0; padding: 14px 26px; border-radius: 18px;
+    transform: scale(.6); opacity: 0; transition: transform .3s cubic-bezier(.2,.8,.3,1.4), opacity .25s;
+  }
+  .flash.show span { transform: scale(1); opacity: 1; }
+
+  .handwrap { margin-top: auto; width: 100%; max-width: 460px; }
+  .handlabel { text-align: center; font-size: 11px; font-weight: 800; letter-spacing: 1px; color: #ffffffd9; text-shadow: 0 1px 2px #0003; margin-bottom: 5px; }
+  .hand { display: flex; gap: 7px; justify-content: center; padding-bottom: 4px; }
+  .hcard {
+    width: 64px; aspect-ratio: 5/7; border-radius: 10px; background: #fff; border: 0;
+    box-shadow: 0 4px 10px #0003; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 5px; font: inherit; cursor: pointer; transition: transform .18s, opacity .3s; padding: 4px;
+  }
+  .hcard img { width: 36px; height: 25px; object-fit: cover; border-radius: 3px; box-shadow: 0 1px 2px #0003; }
+  .hcard .nm { font-size: 9.5px; font-weight: 800; text-align: center; line-height: 1.1; }
+  .hcard:disabled { opacity: 0; pointer-events: none; }
+  .hand.active .hcard:not(:disabled) { animation: bounce 1.2s ease-in-out infinite; }
+  .hand.active .hcard:active { transform: translateY(-6px) scale(1.06); }
+  .hand:not(.active) .hcard { filter: saturate(.55); }
+  @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+  @media (prefers-reduced-motion: reduce) {
+    .hand.active .hcard { animation: none; }
+    .card3d { transition: none; }
+  }
+
+  .end {
+    position: fixed; inset: 0; background: #14324fcc; z-index: 60;
+    display: none; align-items: center; justify-content: center; padding: 20px;
+  }
+  .end.show { display: flex; }
+  .endcard { background: #fff; border-radius: 18px; padding: 26px 30px; text-align: center; max-width: 320px; box-shadow: 0 10px 30px #0006; }
+  .endcard .big { font-size: 44px; }
+  .endcard h2 { margin: 6px 0 2px; font-size: 24px; font-weight: 900; color: #14324f; }
+  .endcard p { margin: 4px 0 16px; color: #5a6b7d; font-weight: 700; }
+  .btn {
+    font: inherit; font-weight: 900; font-size: 17px; border: 0; cursor: pointer;
+    background: #ffd34d; color: #6b5200; border-radius: 999px; padding: 12px 28px;
+    box-shadow: 0 4px 0 #c79a00;
+  }
+  .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #c79a00; }
+  footer { font-size: 10.5px; color: #ffffffc4; text-shadow: 0 1px 2px #0003; padding: 8px 0 2px; text-align: center; font-weight: 700; }
+</style>
+</head>
+<body>
+  <header>
+    <div class="kicker">Matchday · feel mock</div>
+    <h1><span class="ball">🃏</span> SQUAD</h1>
+    <div class="mockTag">nations card duel — mock data, mock visuals</div>
+  </header>
+
+  <div class="tally" id="tally"></div>
+  <div class="prompt" id="prompt"></div>
+
+  <div class="table">
+    <div class="slot">
+      <div class="slotlabel">RIVAL</div>
+      <div class="card3d" id="rcard"></div>
+    </div>
+    <div class="slot">
+      <div class="slotlabel">YOU</div>
+      <div class="card3d mine" id="mcard"></div>
+    </div>
+  </div>
+
+  <div class="handwrap">
+    <div class="handlabel">YOUR HAND</div>
+    <div class="hand" id="hand"></div>
+  </div>
+  <footer>stats are approximate mock values — not the real game's data</footer>
+
+  <div class="flash" id="flash"><span id="flashtxt"></span></div>
+  <div class="end" id="end"><div class="endcard">
+    <div class="big" id="endemoji"></div>
+    <h2 id="endtitle"></h2>
+    <p id="endsub"></p>
+    <button class="btn" id="again">DEAL AGAIN</button>
+  </div></div>
+
+<script>
+'use strict';
+/* name, cc, titles, WC appearances (incl 2026), all-time WC goals, ranking pts, population (M), area (1000 km²)
+   — quick agent-authored approximations, good enough to judge feel. */
+const N = [
+  ["Mexico","mx",0,18,62,1650,130,1964],["South Africa","za",0,4,11,1450,62,1221],
+  ["South Korea","kr",0,12,39,1590,52,100],["Czechia","cz",0,9,47,1610,10.9,79],
+  ["Canada","ca",0,3,2,1560,40,9985],["Bosnia and Herzegovina","ba",0,2,4,1480,3.2,51],
+  ["Qatar","qa",0,2,1,1440,2.7,12],["Switzerland","ch",0,13,50,1640,8.8,41],
+  ["Brazil","br",5,23,237,1840,216,8516],["Morocco","ma",0,7,24,1690,37,447],
+  ["Haiti","ht",0,2,2,1280,11.7,28],["Scotland","gb-sct",0,9,25,1500,5.5,78],
+  ["United States","us",0,12,41,1670,335,9834],["Paraguay","py",0,9,31,1520,6.9,407],
+  ["Australia","au",0,7,17,1540,26,7692],["Türkiye","tr",0,3,20,1560,85,784],
+  ["Germany","de",4,21,232,1700,84,358],["Curaçao","cw",0,1,0,1300,0.15,0.4],
+  ["Ivory Coast","ci",0,4,13,1500,28,322],["Ecuador","ec",0,5,14,1590,18,256],
+  ["Netherlands","nl",0,12,96,1740,17.8,42],["Japan","jp",0,8,27,1620,124,378],
+  ["Sweden","se",0,13,80,1560,10.5,450],["Tunisia","tn",0,7,14,1500,12.4,164],
+  ["Belgium","be",0,15,69,1730,11.7,31],["Egypt","eg",0,4,5,1510,112,1002],
+  ["Iran","ir",0,7,13,1610,89,1648],["New Zealand","nz",0,3,2,1300,5.2,268],
+  ["Spain","es",1,17,108,1850,48,506],["Cape Verde","cv",0,1,0,1370,0.6,4],
+  ["Saudi Arabia","sa",0,7,14,1420,36,2150],["Uruguay","uy",2,15,89,1670,3.4,176],
+  ["France","fr",2,17,136,1840,68,552],["Senegal","sn",0,4,12,1620,18,197],
+  ["Iraq","iq",0,2,1,1440,45,438],["Norway","no",0,4,7,1620,5.5,385],
+  ["Argentina","ar",3,19,152,1860,46,2780],["Algeria","dz",0,5,13,1520,45,2382],
+  ["Austria","at",0,8,43,1580,9.1,84],["Jordan","jo",0,1,0,1390,11.3,89],
+  ["Portugal","pt",0,9,61,1750,10.5,92],["DR Congo","cd",0,2,0,1440,102,2345],
+  ["Uzbekistan","uz",0,1,0,1470,36,449],["Colombia","co",0,7,32,1680,52,1142],
+  ["England","gb-eng",1,17,104,1800,56,130],["Croatia","hr",0,7,36,1700,3.9,57],
+  ["Ghana","gh",0,5,18,1450,34,239],["Panama","pa",0,2,2,1430,4.4,75],
+];
+const STATS = [
+  ["🏆","World Cup titles", v=>v],
+  ["📅","WC appearances", v=>v],
+  ["⚽","All-time WC goals", v=>v],
+  ["📈","Ranking points", v=>v.toLocaleString("en-US")],
+  ["👥","Population", v=>v>=1 ? v+"M" : (v*1000)+"k"],
+  ["🗺️","Area", v=>v>=1 ? v.toLocaleString("en-US")+"k km²" : (v*1000)+" km²"],
+];
+const flagUrl = cc => "https://flagcdn.com/w80/"+cc+".png";
+
+// percentile rank of each nation per stat — the rival uses this to pick its strongest stat
+const pct = N.map(row => STATS.map((_,s) => {
+  const v = row[2+s];
+  return N.filter(o => o[2+s] < v).length / N.length;
+}));
+
+const $ = id => document.getElementById(id);
+let myHand, rivalHand, round, score, busy; // score: [wins, losses, ties]
+let results = []; // 'w' | 'l' | 't'
+
+function deal() {
+  const idx = [...N.keys()];
+  for (let i = idx.length-1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [idx[i],idx[j]] = [idx[j],idx[i]]; }
+  myHand = idx.slice(0,5); rivalHand = idx.slice(5,10);
+  round = 1; score = [0,0,0]; results = []; busy = false;
+  $("end").classList.remove("show");
+  renderTally(); renderHand(); startRound();
+}
+
+function renderTally() {
+  $("tally").innerHTML = Array.from({length:5}, (_,i) =>
+    `<i class="${results[i]||""}"></i>`).join("");
+}
+
+function renderHand() {
+  $("hand").innerHTML = myHand.map(i =>
+    `<button class="hcard" data-i="${i}"><img src="${flagUrl(N[i][1])}" alt=""><span class="nm">${N[i][0]}</span></button>`
+  ).join("");
+  for (const b of $("hand").querySelectorAll(".hcard"))
+    b.addEventListener("click", () => { if (!busy && $("hand").classList.contains("active")) playCard(+b.dataset.i); });
+}
+
+function cardFront(i, picker) {
+  const rows = STATS.map(([em, lab, fmt], s) =>
+    `<button class="stat ${picker ? "pickable" : ""}" data-s="${s}">
+       <span class="lab">${em} ${lab}</span><span class="val">${fmt(N[i][2+s])}</span>
+     </button>`).join("");
+  return `<div class="face front"><div class="cardhead"><img src="${flagUrl(N[i][1])}" alt=""><span class="nm">${N[i][0]}</span></div>
+    <div class="stats">${rows}</div></div><div class="face back">⚽</div>`;
+}
+
+let rivalCardIdx, rivalStat, myCardIdx;
+
+function startRound() {
+  if (round > 5) return endDuel();
+  myCardIdx = null;
+  rivalCardIdx = rivalHand[Math.floor(Math.random()*rivalHand.length)];
+  const youPick = round % 2 === 1;
+  rivalStat = null;
+  $("rcard").className = "card3d";
+  $("rcard").innerHTML = `<div class="face front"></div><div class="face back">⚽</div>`;
+  $("mcard").innerHTML = `<div class="face front"></div><div class="face back">⚽</div>`;
+  $("mcard").className = "card3d mine";
+  if (youPick) {
+    $("prompt").innerHTML = `<span>Round ${round} — <b>you pick the stat.</b> Choose a card.</span>`;
+  } else {
+    rivalStat = pct[rivalCardIdx].indexOf(Math.max(...pct[rivalCardIdx]));
+    $("prompt").innerHTML = `<span>Round ${round} — rival challenges: <b class="rivalcall">${STATS[rivalStat][0]} ${STATS[rivalStat][1].toUpperCase()}</b>. Choose your card.</span>`;
+  }
+  $("hand").classList.add("active");
+}
+
+function playCard(i) {
+  busy = true;
+  $("hand").classList.remove("active");
+  $("hand").querySelector(`[data-i="${i}"]`).disabled = true;
+  myCardIdx = i;
+  const youPick = round % 2 === 1;
+  $("mcard").innerHTML = cardFront(i, youPick);
+  if (youPick) {
+    $("prompt").innerHTML = `<span><b>Pick the stat to fight with.</b></span>`;
+    for (const b of $("mcard").querySelectorAll(".stat"))
+      b.addEventListener("click", () => { if (b.classList.contains("pickable")) fight(+b.dataset.s); });
+    busy = false;
+  } else {
+    setTimeout(() => fight(rivalStat), 450);
+  }
+}
+
+function fight(s) {
+  busy = true;
+  for (const b of $("mcard").querySelectorAll(".stat")) {
+    b.classList.remove("pickable");
+    if (+b.dataset.s === s) b.classList.add("chosen");
+  }
+  $("rcard").innerHTML = cardFront(rivalCardIdx, false);
+  setTimeout(() => {
+    $("rcard").classList.add("flipped");
+    setTimeout(() => resolve(s), 700);
+  }, 350);
+}
+
+function resolve(s) {
+  const mv = N[myCardIdx][2+s], rv = N[rivalCardIdx][2+s];
+  const res = mv > rv ? "w" : mv < rv ? "l" : "t";
+  const cls = res === "w" ? "win" : res === "l" ? "lose" : "chosen";
+  $("mcard").querySelector(`[data-s="${s}"]`).className = "stat " + cls;
+  $("rcard").querySelector(`[data-s="${s}"]`).className = "stat " + (res === "w" ? "lose" : res === "l" ? "win" : "chosen");
+  results.push(res);
+  score[res === "w" ? 0 : res === "l" ? 1 : 2]++;
+  renderTally();
+  flash(res === "w" ? "ROUND WON! 🎉" : res === "l" ? "ROUND LOST 😖" : "DEAD HEAT 😬");
+  rivalHand = rivalHand.filter(x => x !== rivalCardIdx);
+  myHand = myHand.filter(x => x !== myCardIdx);
+  round++;
+  setTimeout(() => { busy = false; startRound(); }, 1500);
+}
+
+function flash(txt) {
+  $("flashtxt").textContent = txt;
+  $("flash").classList.add("show");
+  setTimeout(() => $("flash").classList.remove("show"), 1100);
+}
+
+function endDuel() {
+  const [w, l] = score;
+  const win = w > l, draw = w === l;
+  $("endemoji").textContent = win ? "🏆" : draw ? "🤝" : "😭";
+  $("endtitle").textContent = win ? "YOU WIN THE DUEL" : draw ? "ALL SQUARE" : "DUEL LOST";
+  $("endsub").textContent = `${w}–${l}` + (score[2] ? ` (${score[2]} tied)` : "");
+  $("end").classList.add("show");
+}
+
+$("again").addEventListener("click", deal);
+deal();
+</script>
+</body>
+</html>
