@@ -103,4 +103,26 @@ export const nl: Record<StringKey, string> = {
   share_record_head: 'ANTHEM ⚽ Mijn record',
   share_record_line: 'Gespeeld {p} · Winst {w}% · Reeks {s}',
   share_record_best: ' (beste {b})',
+
+  /* ---- groups ---- */
+  groups_tagline: 'Sorteer 16 landen in vier verborgen groepen — elke dag een nieuw raster.',
+  gr_sub: 'Vind de vier verborgen groepen van vier',
+  gr_grid_label: 'RASTER #{n}',
+  gr_mistakes: 'Resterende fouten',
+  gr_shuffle: 'Schudden',
+  gr_deselect: 'Deselecteren',
+  gr_submit: 'INDIENEN',
+  gr_pick4: 'Kies eerst 4 landen',
+  gr_one_away: 'Eén ernaast! 😅',
+  gr_dup: 'Die vier heb je al geprobeerd',
+  gr_win: 'GROEPSWINNAAR! 🏆',
+  gr_lose: 'AFGEFLOTEN — geen fouten meer over',
+  gr_next_in: '⏱ Volgend raster over {t}',
+  gr_howto_1:
+    'Kies **4 landen** die iets delen: vlaggen, geografie, bijnamen of WK-geschiedenis.',
+  gr_howto_2:
+    'Druk op **INDIENEN**. Los alle vier de groepen op, van makkelijk 🟨 tot gemeen 🟪. Drie goed en één fout? **“Eén ernaast!”**',
+  gr_howto_3:
+    'Je mag **4 fouten** maken. Om **middernacht UTC** valt een nieuw raster — houd je reeks vast en deel je spoilervrije kleuren.',
+  gr_share_tail: 'Sorteer 16 landen in 4 verborgen groepen',
 }

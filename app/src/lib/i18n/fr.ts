@@ -103,4 +103,26 @@ export const fr: Record<StringKey, string> = {
   share_record_head: 'ANTHEM ⚽ Mon bilan',
   share_record_line: 'Joués {p} · Victoires {w}% · Série {s}',
   share_record_best: ' (record {b})',
+
+  /* ---- groups ---- */
+  groups_tagline: 'Classez 16 nations en quatre groupes cachés — une nouvelle grille chaque jour.',
+  gr_sub: 'Trouvez les quatre groupes cachés de quatre',
+  gr_grid_label: 'GRILLE #{n}',
+  gr_mistakes: 'Erreurs restantes',
+  gr_shuffle: 'Mélanger',
+  gr_deselect: 'Tout désélectionner',
+  gr_submit: 'VALIDER',
+  gr_pick4: 'Choisissez d’abord 4 nations',
+  gr_one_away: 'Plus qu’un ! 😅',
+  gr_dup: 'Déjà essayé ces quatre-là',
+  gr_win: 'PREMIER DU GROUPE ! 🏆',
+  gr_lose: 'FIN DU MATCH — plus d’erreurs possibles',
+  gr_next_in: '⏱ Prochaine grille dans {t}',
+  gr_howto_1:
+    'Choisissez **4 nations** qui partagent quelque chose : drapeaux, géographie, surnoms ou histoire de la Coupe.',
+  gr_howto_2:
+    'Appuyez sur **VALIDER**. Résolvez les quatre groupes, du facile 🟨 au piégeux 🟪. Trois bons et un faux ? **« Plus qu’un ! »**',
+  gr_howto_3:
+    'Vous avez droit à **4 erreurs**. Une nouvelle grille à **minuit UTC** — gardez votre série et partagez vos couleurs sans spoiler.',
+  gr_share_tail: 'Classez 16 nations en 4 groupes cachés',
 }

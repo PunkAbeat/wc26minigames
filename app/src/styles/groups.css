@@ -1,0 +1,99 @@
+/* GROUPS styles — shares the MATCHDAY look (variables in styles.css). Header,
+   card, modal and toast rules are copied from anthem.css with the .page-groups
+   prefix per the README add-a-game checklist; board/tile/banner rules are new. */
+  .page-groups .bunting{width:100%;max-width:520px;display:flex;justify-content:center;margin-top:4px;filter:drop-shadow(0 4px 3px rgba(0,0,0,.25))}
+  .page-groups .bunting i{width:30px;height:0;border-left:15px solid transparent;border-right:15px solid transparent;border-top:24px solid;
+    transform-origin:top center;animation:sway 3.2s ease-in-out infinite}
+  .page-groups .bunting i:nth-child(even){animation-delay:.4s}
+  .page-groups header{width:100%;max-width:460px;text-align:center;margin-top:14px;position:relative;padding-top:44px}
+  .page-groups .kicker{font-size:11px;font-weight:800;letter-spacing:.3em;color:var(--gold);text-transform:uppercase}
+  .page-groups .wordmark{font-size:46px;font-weight:800;line-height:1;margin:6px 0 0;display:inline-flex;align-items:center;gap:12px;color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.18)}
+  .page-groups .wordmark .emblem{font-size:34px;animation:bob 2.6s ease-in-out infinite}
+  .page-groups .sub{color:var(--mut);font-size:14px;font-weight:700;margin-top:8px}
+  .page-groups .scoreboard{display:inline-flex;align-items:center;gap:9px;margin-top:13px;background:var(--ink);border:2px solid rgba(255,255,255,.14);
+    border-radius:var(--pill);padding:7px 16px;font-family:'Baloo 2';font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--gold);box-shadow:0 6px 16px -8px rgba(0,0,0,.6)}
+  .page-groups .scoreboard .live{width:8px;height:8px;border-radius:50%;background:var(--coral);box-shadow:0 0 8px var(--coral);animation:blink 1.4s infinite}
+  .page-groups .help{position:absolute;top:0;right:0;width:34px;height:34px;border-radius:50%;border:2px solid rgba(255,255,255,.25);
+    background:rgba(0,0,0,.2);color:#fff;font-family:'Baloo 2';font-weight:700;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .page-groups .back{position:absolute;top:0;left:0;height:34px;display:inline-flex;align-items:center;gap:6px;padding:0 13px;border-radius:var(--pill);
+    border:2px solid rgba(255,255,255,.25);background:rgba(0,0,0,.2);color:#fff;font-family:'Baloo 2';font-weight:700;font-size:12.5px;text-decoration:none}
+
+  .page-groups .card{position:relative;width:100%;max-width:460px;margin-top:18px;border-radius:var(--r-lg);
+    background:linear-gradient(168deg,var(--pitch1),var(--pitch2));border:1px solid rgba(255,255,255,.18);
+    box-shadow:0 24px 50px -20px rgba(0,0,0,.7), inset 0 2px 0 rgba(255,255,255,.25);overflow:hidden}
+  .page-groups .card::before{content:"";position:absolute;inset:0;border-radius:var(--r-lg);pointer-events:none;opacity:.5;background:repeating-linear-gradient(115deg, rgba(255,255,255,.05) 0 40px, transparent 40px 80px)}
+  .page-groups .markings{position:absolute;inset:12px;border:2.5px solid rgba(255,255,255,.18);border-radius:14px;pointer-events:none}
+  .page-groups .pad{position:relative;z-index:2;padding:20px 16px}
+
+  /* solved / revealed group banners */
+  .page-groups .banner{border-radius:12px;padding:10px 12px;text-align:center;margin-bottom:8px;animation:pop .3s ease}
+  .page-groups .banner .bt{font-family:'Baloo 2';font-weight:800;font-size:13px;letter-spacing:.04em;text-transform:uppercase}
+  .page-groups .banner .bn{font-size:12px;font-weight:700;opacity:.9;margin-top:2px}
+  .page-groups .banner.t0{background:#f3d56a;color:#4a3500}
+  .page-groups .banner.t1{background:#a3c861;color:#1d3a08}
+  .page-groups .banner.t2{background:#a3bbe8;color:#10254d}
+  .page-groups .banner.t3{background:#bd92cf;color:#33124a}
+  /* groups the player failed to find (revealed after full time) */
+  .page-groups .banner.missed{opacity:.82;outline:2px dashed rgba(0,0,0,.3);outline-offset:-4px}
+
+  /* the 4×4 board */
+  .page-groups .board{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px}
+  .page-groups .tile{position:relative;border:none;border-radius:12px;padding:9px 3px 8px;min-height:78px;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+    background:linear-gradient(180deg,#ffffff,#e9f1e9);color:#0b3520;
+    font-family:'Baloo 2';font-weight:700;font-size:11.5px;line-height:1.12;text-align:center;
+    box-shadow:0 4px 0 rgba(0,0,0,.28), inset 0 1px 0 #fff;transition:transform .08s ease, box-shadow .08s ease}
+  .page-groups .tile img{width:32px;height:auto;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.35);pointer-events:none}
+  .page-groups .tile .tn{padding:0 2px;word-break:normal;overflow-wrap:anywhere}
+  .page-groups .tile:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.28), inset 0 1px 0 #fff}
+  .page-groups .tile.sel{background:linear-gradient(180deg,#ffedb0,var(--gold));box-shadow:0 4px 0 var(--gold-d), inset 0 1px 0 #fff;transform:translateY(1px)}
+  .page-groups .tile.shake{animation:gr-shake .45s ease}
+  @keyframes gr-shake{20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+
+  /* mistake balls */
+  .page-groups .mist{display:flex;align-items:center;justify-content:center;gap:8px;margin:14px 0 2px;
+    font-size:12px;font-weight:700;color:var(--mut)}
+  .page-groups .mist i{width:13px;height:13px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#dfe8df 70%);
+    box-shadow:inset 0 -2px 3px rgba(0,0,0,.3), 0 1px 2px rgba(0,0,0,.4);transition:opacity .25s, transform .25s}
+  .page-groups .mist i.off{opacity:.18;transform:scale(.8)}
+
+  /* controls */
+  .page-groups .ctrls{display:flex;gap:8px;justify-content:center;margin-top:12px}
+  .page-groups .cbtn{height:40px;padding:0 16px;border-radius:var(--pill);border:2px solid rgba(255,255,255,.3);background:rgba(0,0,0,.18);
+    color:#fff;font-family:'Baloo 2';font-weight:700;font-size:13px;cursor:pointer}
+  .page-groups .cbtn:disabled{opacity:.4;cursor:default}
+  .page-groups .submit{height:40px;padding:0 22px;border-radius:var(--pill);border:none;cursor:pointer;
+    font-family:'Baloo 2';font-weight:800;font-size:14px;letter-spacing:.06em;color:var(--goldink);
+    background:linear-gradient(180deg,#ffe9a0,var(--gold));box-shadow:0 5px 0 var(--gold-d);transition:transform .08s, box-shadow .08s}
+  .page-groups .submit:active{transform:translateY(4px);box-shadow:0 1px 0 var(--gold-d)}
+  .page-groups .submit:disabled{opacity:.45;cursor:default;box-shadow:0 5px 0 var(--gold-d)}
+
+  /* end panel */
+  .page-groups .end{text-align:center;margin-top:14px;padding:18px 14px 6px;animation:pop .3s ease}
+  .page-groups .end .headline{font-family:'Baloo 2';font-weight:800;font-size:26px}
+  .page-groups .end .streak{margin-top:6px;font-weight:800;font-size:14px;color:var(--soft)}
+  .page-groups .sharebtn{margin-top:14px;border:none;border-radius:var(--r);padding:13px 22px;font-family:'Baloo 2';font-weight:800;font-size:15px;cursor:pointer;color:#fff;
+    background:linear-gradient(180deg,var(--coral),var(--coral-d));box-shadow:0 5px 0 #a32f10;transition:transform .08s, box-shadow .08s}
+  .page-groups .sharebtn:active{transform:translateY(4px);box-shadow:0 1px 0 #a32f10}
+  .page-groups .nextin{font-family:'Baloo 2';font-weight:700;font-size:13px;color:var(--soft);letter-spacing:.06em;margin-top:14px;min-height:16px}
+
+  .page-groups .foot{max-width:460px;color:var(--mut);font-size:11px;font-weight:700;text-align:center;margin-top:18px;line-height:1.6;opacity:.85}
+
+  /* toast + modal (same as anthem) */
+  .page-groups .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:var(--ink);border:2px solid rgba(255,255,255,.18);color:#fff;font-family:'Baloo 2';font-weight:600;padding:11px 18px;border-radius:14px;font-size:13px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:50}
+  .page-groups .toast.show{opacity:1}
+  .page-groups .modal{position:fixed;inset:0;background:rgba(3,25,15,.72);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:60;padding:20px}
+  .page-groups .modal.show{display:flex}
+  .page-groups .modal-card{width:100%;max-width:380px;background:linear-gradient(168deg,var(--pitch1),var(--pitch2));border:1px solid rgba(255,255,255,.2);
+    border-radius:var(--r-lg);padding:24px 22px;box-shadow:0 30px 60px -20px rgba(0,0,0,.8)}
+  .page-groups .modal-card h3{font-family:'Baloo 2';font-weight:800;font-size:24px;margin:0 0 14px;text-align:center}
+  .page-groups .step{display:flex;gap:12px;align-items:flex-start;margin-bottom:13px;font-weight:700;font-size:14px;color:var(--soft);line-height:1.45}
+  .page-groups .step .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--gold);color:var(--goldink);font-family:'Baloo 2';font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px}
+  .page-groups .modal-card .go{width:100%;margin-top:8px;border:none;border-radius:var(--r);padding:14px;font-family:'Baloo 2';font-weight:800;font-size:16px;cursor:pointer;color:#fff;
+    background:linear-gradient(180deg,var(--coral),var(--coral-d));box-shadow:0 5px 0 #a32f10}
+
+  /* tiny screens: the 4-col board needs every pixel */
+  @media (max-width:380px){
+    .page-groups .tile{font-size:10.5px;min-height:72px}
+    .page-groups .tile img{width:28px}
+  }

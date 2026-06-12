@@ -103,4 +103,26 @@ export const ja: Record<StringKey, string> = {
   share_record_head: 'ANTHEM ⚽ マイ成績',
   share_record_line: 'プレイ {p} · 勝率 {w}% · 連続 {s}',
   share_record_best: ' (最高 {b})',
+
+  /* ---- groups (machine-written, needs native review like the rest of ja) ---- */
+  groups_tagline: '16の国を4つの隠れたグループに分けよう — 毎日新しいグリッド。',
+  gr_sub: '4か国ずつの隠れたグループを4つ見つけよう',
+  gr_grid_label: 'グリッド #{n}',
+  gr_mistakes: '残りミス回数',
+  gr_shuffle: 'シャッフル',
+  gr_deselect: '選択解除',
+  gr_submit: '判定',
+  gr_pick4: 'まず4か国選んでください',
+  gr_one_away: 'あと1つ! 😅',
+  gr_dup: 'その4か国はもう試しました',
+  gr_win: 'グループ首位! 🏆',
+  gr_lose: '試合終了 — ミスを使い切りました',
+  gr_next_in: '⏱ 次のグリッドまで {t}',
+  gr_howto_1:
+    '共通点のある**4か国**を選ぼう — 国旗、地理、愛称、ワールドカップの歴史。',
+  gr_howto_2:
+    '**判定**を押そう。やさしい🟨から手ごわい🟪まで4グループ全部を解こう。3つ正解で1つ違うと**「あと1つ!」**',
+  gr_howto_3:
+    'ミスは**4回**まで。新しいグリッドは**UTC深夜0時**に登場 — 連続記録を伸ばして、ネタバレなしの色を共有しよう。',
+  gr_share_tail: '16の国を4つの隠れたグループに分けよう',
 }
