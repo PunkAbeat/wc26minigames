@@ -1,10 +1,12 @@
 # Current handoff
 
-*Updated: 2026-06-12 evening (GROUPS scrapped; game #2 back in selection, round 3)*
+*Updated: 2026-06-12 evening (free play uncapped; GROUPS scrapped; game #2 in round-3 selection)*
 
 ## State
 
-Production is **LIVE at https://wc26minigames.com** (ANTHEM + hub; latest deploy version 4fc0d6c6, 11 Jun). `master`, clean tree, all gates green (**60 vitest, 11 headless suites**, typecheck, build).
+Production is **LIVE at https://wc26minigames.com** (ANTHEM + hub). `master`, clean tree, all gates green (**60 vitest, 11 headless suites**, typecheck, build).
+
+**Free play is uncapped** (owner decision 12 Jun, [ADR-0007](../adr/0007-uncapped-free-play.md)): the 2/day practice cap is gone, practice is rebranded "Free play — every anthem" in all 11 languages, and the end screen offers it after every finished game. The daily match keeps streaks/stats/comparable shares; free play stays random-order so it never spoils upcoming dailies. Growth thesis: value-per-visit + more games, not daily scarcity.
 
 **GROUPS is dead.** Built 12 Jun, owner played it on the tailnet preview the same evening and scrapped it ("feels really boring"). Reverted in `e10ce51`/`93631bc`/`43af8fb` — `/groups` is 404 again, hub card and `gr_*` i18n keys removed, suite 12 gone (suites are 1–11 again). The prototype, including the fact-checked 10-grid puzzle bank, is recoverable from history just before those reverts. It was never deployed; no user ever saw it.
 

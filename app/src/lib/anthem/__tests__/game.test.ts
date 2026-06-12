@@ -73,7 +73,7 @@ describe('share text', () => {
     let s = freshState()
     for (let i = 0; i < 6; i++) s = applySkip(s)
     expect(shareText(s, 'practice', 7)).toBe(
-      'ANTHEM ⚽ Practice  X/6\n⬛⬛⬛⬛⬛⬛\nName the nation from its anthem',
+      'ANTHEM ⚽ Free play  X/6\n⬛⬛⬛⬛⬛⬛\nName the nation from its anthem',
     )
   })
   it('lifetime record format', () => {

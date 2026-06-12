@@ -45,14 +45,12 @@ import {
 } from '../lib/anthem/game'
 import type { GameState, Mode, Stats } from '../lib/anthem/game'
 import {
-  bumpPracticePlays,
   hasSeenHowto,
   loadArchive,
   loadSavedDaily,
   loadStats,
   loadStreak,
   markHowtoSeen,
-  practicePlaysToday,
   saveArchiveResult,
   saveDaily,
   saveStats,
@@ -290,16 +288,13 @@ function AnthemPage() {
     }
   }, [commit, loadPuzzleImpl, trackView])
 
-  const PRACTICE_CAP = 2 // per UTC day — scarcity is the engine of the format
+  /* uncapped (owner decision 12 Jun): value-per-visit beats daily scarcity
+     at this traffic level — the daily match stays the headline for streaks
+     and comparable shares, free play is the binge path */
   const startPractice = useCallback(() => {
-    if (practicePlaysToday(dayNumber()) >= PRACTICE_CAP) {
-      setToast(t(langRef.current, 'toast_practice_cap'))
-      return
-    }
-    bumpPracticePlays(dayNumber())
     track('practice_started')
     loadPuzzleImpl(randomPracticeIndex(puzzleIndexRef.current ?? -1), 'practice')
-  }, [loadPuzzleImpl, setToast])
+  }, [loadPuzzleImpl])
 
   const playClip = useCallback(() => {
     pbRef.current?.toggle()
@@ -1147,13 +1142,10 @@ function AnthemPage() {
               <button className="stats-btn" id="endStatsBtn" onClick={openStats}>
                 {t(lang, 'stats_btn')}
               </button>
-              <button
-                className="again-btn"
-                id="againBtn"
-                style={{ display: mode === 'practice' ? 'inline-block' : 'none' }}
-                onClick={startPractice}
-              >
-                {t(lang, 'another_anthem')}
+              {/* the binge path: free play is offered after every finished
+                  game, not just between practice rounds */}
+              <button className="again-btn" id="againBtn" onClick={startPractice}>
+                {mode === 'practice' ? t(lang, 'another_anthem') : t(lang, 'practice_chip')}
               </button>
             </div>
             <div className="nextin" id="nextIn">

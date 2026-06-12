@@ -26,7 +26,7 @@ export const de: Record<StringKey, string> = {
   an_kicker: 'Sommer 2026 · Täglich',
   an_sub: 'Errate das Land an seiner Hymne',
   an_games_link: '⚽ Spiele',
-  practice_label: '🎯 TRAINING',
+  practice_label: '🎯 FREIES SPIEL',
   clip_unlocked_1: '1 Sekunde freigeschaltet',
   clip_unlocked_n: '{n} Sekunden freigeschaltet',
   clip_solved: 'Gelöst! 🎉',
@@ -44,7 +44,6 @@ export const de: Record<StringKey, string> = {
   tag_skip: 'SKIP',
   toast_type_first: 'Tipp zuerst ein Land ein',
   toast_pick_list: 'Wähle ein Land aus der Liste',
-  toast_practice_cap: 'Trainingslimit erreicht — nächste Hymne um Mitternacht UTC ⏱',
   toast_copied: 'Kopiert — füg es überall ein ✓',
 
   goal_excl: 'TOR! ⚽',
@@ -52,14 +51,14 @@ export const de: Record<StringKey, string> = {
   about_anthem: 'Über diese Hymne ↗',
   streak_n: '🔥 Serie {n}',
   archive_chip: '📅 Archiv',
-  practice_chip: '🎯 Training',
+  practice_chip: '🎯 Freies Spiel',
   share_result: '📋 Teilen',
   stats_btn: '📊 Statistik',
   another_anthem: '▶ Noch eine Hymne',
   next_anthem_in: '⏱ Nächste Hymne in {t}',
   global_solved: '📊 {p}% der heutigen Spieler haben es gelöst',
   global_in_n: ' · {p}% in {n} oder weniger',
-  practice_mode: '🎯 Trainingsmodus',
+  practice_mode: '🎯 Freies Spiel — alle Hymnen',
   back_to_today: '⚽ Zurück zum heutigen Match',
   prev_matches: '📅 Frühere Matches',
   an_foot:
@@ -72,7 +71,7 @@ export const de: Record<StringKey, string> = {
   howto_2:
     'Errate das Land. Jeder **Fehlschuss oder Skip** gibt mehr vom Clip frei und schaltet einen Hinweis frei.',
   howto_3:
-    'Du hast **6 Versuche**. Um **Mitternacht UTC** kommt eine neue Hymne — lös sie, halte deine Serie und teile dein spoilerfreies Ergebnis. Mehr? Wärm dich im **Trainingsmodus** auf.',
+    'Du hast **6 Versuche**. Um **Mitternacht UTC** kommt eine neue Hymne — lös sie, halte deine Serie und teile dein spoilerfreies Ergebnis. Mehr? Im **freien Spiel** gibt’s alle Hymnen — ohne Tageslimit.',
   howto_close: 'Los geht’s',
   archive_title: 'Frühere Matches 📅',
   archive_play: '▶ Spielen',
@@ -86,7 +85,7 @@ export const de: Record<StringKey, string> = {
   stats_share: 'Meine Bilanz teilen 📣',
   back_to_match: 'Zurück zum Match',
 
-  card_practice: 'TRAINING',
+  card_practice: 'FREIES SPIEL',
   card_goal: 'TOR!',
   card_fulltime: 'ABPFIFF',
   card_streak_n: 'SERIE {n}',
@@ -98,7 +97,7 @@ export const de: Record<StringKey, string> = {
   card_best: 'BESTE',
 
   share_tail: 'Errate das Land an seiner Hymne',
-  share_practice: 'ANTHEM ⚽ Training',
+  share_practice: 'ANTHEM ⚽ Freies Spiel',
   share_match: 'ANTHEM ⚽ Match #{n}',
   share_record_head: 'ANTHEM ⚽ Meine Bilanz',
   share_record_line: 'Gespielt {p} · Siege {w}% · Serie {s}',

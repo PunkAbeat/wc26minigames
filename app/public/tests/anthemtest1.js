@@ -45,9 +45,9 @@
     ok(A.mode === 'practice' && !A.state.finished, 'again loads fresh practice anthem (' + A.current.name + ')');
     A.startDaily(); await sleep(80);
     ok(A.mode === 'daily' && A.state.finished && A.state.won, 'back to finished daily');
+    ok(document.getElementById('againBtn').style.display !== 'none', 'free-play button offered on finished daily');
     A.startPractice(); await sleep(60);
-    ok(A.mode === 'daily', 'third practice of the day blocked by the cap');
-    ok(JSON.parse(localStorage.getItem('anthem_practice')).count === 2, 'practice plays counted');
+    ok(A.mode === 'practice' && !A.state.finished, 'free play is uncapped (third round starts)');
     ok(A.POOL.length === 46, 'pool=46 (' + A.POOL.length + ')');
     ok(new Set(A.DAILY_ORDER).size === 46, 'daily order covers pool once');
     R.push('DONE'); pre.textContent = R.join('\n');

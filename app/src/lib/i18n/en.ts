@@ -30,7 +30,7 @@ export const en = {
   an_kicker: 'Summer 2026 · Daily',
   an_sub: 'Guess the nation from its anthem',
   an_games_link: '⚽ Games',
-  practice_label: '🎯 PRACTICE',
+  practice_label: '🎯 FREE PLAY',
   clip_unlocked_1: '1 second unlocked',
   clip_unlocked_n: '{n} seconds unlocked',
   clip_solved: 'Solved! 🎉',
@@ -49,7 +49,6 @@ export const en = {
   tag_skip: 'SKIP',
   toast_type_first: 'Type a country first',
   toast_pick_list: 'Pick a country from the list',
-  toast_practice_cap: 'Practice limit reached — next anthem at midnight UTC ⏱',
   toast_copied: 'Copied — paste it anywhere ✓',
 
   /* ---- anthem: end screen ---- */
@@ -58,14 +57,14 @@ export const en = {
   about_anthem: 'About this anthem ↗',
   streak_n: '🔥 Streak {n}',
   archive_chip: '📅 Archive',
-  practice_chip: '🎯 Practice',
+  practice_chip: '🎯 Free play',
   share_result: '📋 Share result',
   stats_btn: '📊 Stats',
   another_anthem: '▶ Another anthem',
   next_anthem_in: '⏱ Next anthem in {t}',
   global_solved: '📊 {p}% of today’s players solved it',
   global_in_n: ' · {p}% in {n} or fewer',
-  practice_mode: '🎯 Practice mode',
+  practice_mode: '🎯 Free play — every anthem',
   back_to_today: '⚽ Back to today’s match',
   prev_matches: '📅 Previous matches',
   an_foot:
@@ -80,7 +79,7 @@ export const en = {
   howto_2:
     'Guess the nation. Each **miss or skip** reveals more of the clip and unlocks a hint card.',
   howto_3:
-    'You get **6 tries**. A new anthem drops at **midnight UTC** — solve it, keep your streak, and share your spoiler-free score. Want more? Warm up in **practice mode**.',
+    'You get **6 tries**. A new anthem drops at **midnight UTC** — solve it, keep your streak, and share your spoiler-free score. Want more? **Free play** has every anthem — no daily limit.',
   howto_close: 'Let’s play',
   archive_title: 'Previous matches 📅',
   archive_play: '▶ Play',
@@ -95,7 +94,7 @@ export const en = {
   back_to_match: 'Back to the match',
 
   /* ---- canvas share cards (drawn labels — no emoji glyphs) ---- */
-  card_practice: 'PRACTICE',
+  card_practice: 'FREE PLAY',
   card_goal: 'GOAL!',
   card_fulltime: 'FULL TIME',
   card_streak_n: 'STREAK {n}',
@@ -108,7 +107,7 @@ export const en = {
 
   /* ---- share text (travels with the card) ---- */
   share_tail: 'Name the nation from its anthem',
-  share_practice: 'ANTHEM ⚽ Practice',
+  share_practice: 'ANTHEM ⚽ Free play',
   share_match: 'ANTHEM ⚽ Match #{n}',
   share_record_head: 'ANTHEM ⚽ My record',
   share_record_line: 'Played {p} · Win {w}% · Streak {s}',
