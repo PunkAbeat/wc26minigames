@@ -24,13 +24,24 @@ describe('i18n nation names', () => {
   it('covers all 48 nations', () => {
     expect(Object.keys(NATION_NAMES_I18N).sort()).toEqual(PUZZLES.map((p) => p.name).sort())
   })
-  it('ES/FR names are correct guesses', () => {
+  it('localized names are correct guesses', () => {
     const spain = PUZZLES.find((p) => p.name === 'Spain')!
     const germany = PUZZLES.find((p) => p.name === 'Germany')!
     expect(isCorrect('España', spain)).toBe(true)
     expect(isCorrect('espana', spain)).toBe(true) // accent-folded
     expect(isCorrect('Allemagne', germany)).toBe(true)
     expect(isCorrect('Alemania', germany)).toBe(true)
+    expect(isCorrect('Alemanha', germany)).toBe(true) // pt
+    expect(isCorrect('Deutschland', germany)).toBe(true) // de
+    expect(isCorrect('Duitsland', germany)).toBe(true) // nl
+    expect(isCorrect('Almanya', germany)).toBe(true) // tr
+  })
+  it('every shipped language has a name for every nation', () => {
+    for (const [nation, n] of Object.entries(NATION_NAMES_I18N)) {
+      for (const lang of ['es', 'fr', 'pt', 'de', 'nl', 'tr'] as const) {
+        expect(n.names[lang], nation + ' missing ' + lang).toBeTruthy()
+      }
+    }
   })
   it('alt long forms are accepted', () => {
     const cz = PUZZLES.find((p) => p.name === 'Czechia')!

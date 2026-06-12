@@ -47,9 +47,12 @@ body{
   *{animation:none!important;transition:none!important}
 }
 
-/* language switcher (top-right pills, shared by hub + game pages) */
-.langswitch{position:absolute;top:14px;right:14px;display:flex;gap:4px;z-index:5}
-.langswitch .lang{border:2px solid rgba(255,255,255,.22);background:rgba(0,0,0,.22);color:var(--txt);
-  border-radius:999px;padding:4px 9px;font-family:'Baloo 2',cursive;font-weight:800;font-size:11px;cursor:pointer;opacity:.75}
-.langswitch .lang.on{background:var(--gold,#ffd23f);color:#4a3500;border-color:transparent;opacity:1}
-.langswitch.inline{position:static;justify-content:center;margin-top:14px}
+/* language picker (top-right pill, shared by hub + game pages) */
+.langswitch{position:absolute;top:14px;right:14px;display:flex;align-items:center;gap:6px;z-index:5;
+  border:2px solid rgba(255,255,255,.22);background:rgba(0,0,0,.22);border-radius:999px;padding:4px 10px}
+.langswitch .globe{font-size:13px;line-height:1}
+.langswitch .langsel{appearance:none;-webkit-appearance:none;border:none;background:transparent;color:var(--txt);
+  font-family:'Baloo 2',cursive;font-weight:800;font-size:12px;cursor:pointer;padding-right:2px}
+.langswitch .langsel:focus{outline:none}
+.langswitch .langsel option{color:#0a2a1a;background:#fff}
+.langswitch.inline{position:static;margin-top:14px}

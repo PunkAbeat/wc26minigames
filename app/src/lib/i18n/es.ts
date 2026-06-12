@@ -66,7 +66,7 @@ export const es: Record<StringKey, string> = {
   an_foot:
     'Un himno nuevo cada día a medianoche UTC · parte de los minijuegos MATCHDAY. Grabaciones de la U.S. Navy Band (dominio público, vía archive.org).',
 
-  match_label: 'PARTIDO #{n}',
+  match_label: 'PARTIDO #{n}',
 
   howto_title: '¿Cómo se juega? ⚽',
   howto_1: 'Pulsa play para escuchar el himno — empieza con solo **1 segundo**.',

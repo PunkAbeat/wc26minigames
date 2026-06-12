@@ -1,4 +1,6 @@
-/* EN/ES/FR pills — phase-1 language switcher, shared by hub and game pages. */
+/* Language picker — native <select> (best behavior on iOS), shown as a small
+   pill. Native names only: nobody should need a foreign word to find their
+   own language. */
 import { LANGS } from '../lib/i18n'
 import type { Lang } from '../lib/i18n'
 
@@ -12,17 +14,22 @@ export function LangSwitch({
   inline?: boolean
 }) {
   return (
-    <div className={'langswitch' + (inline ? ' inline' : '')} role="group" aria-label="Language">
-      {LANGS.map((l) => (
-        <button
-          key={l.code}
-          className={'lang' + (l.code === lang ? ' on' : '')}
-          aria-pressed={l.code === lang}
-          onClick={() => onChange(l.code)}
-        >
-          {l.label}
-        </button>
-      ))}
+    <div className={'langswitch' + (inline ? ' inline' : '')}>
+      <span className="globe" aria-hidden="true">
+        🌐
+      </span>
+      <select
+        className="langsel"
+        aria-label="Language"
+        value={lang}
+        onChange={(e) => onChange(e.target.value as Lang)}
+      >
+        {LANGS.map((l) => (
+          <option key={l.code} value={l.code}>
+            {l.native}
+          </option>
+        ))}
+      </select>
     </div>
   )
 }

@@ -1,7 +1,8 @@
 /* Guess normalisation + the autocomplete picker's matching/ranking, ported
-   from games/anthem/index.html. Post-launch divergence: ES/FR nation names
-   (nation-names.ts) join each nation's alias set, so "Alemania"/"Allemagne"
-   are accepted and ranked no matter what language the UI is in. */
+   from games/anthem/index.html. Post-launch divergence: localized nation
+   names (nation-names.ts) join each nation's alias set, so "Alemania",
+   "Allemagne", "Almanya"… are accepted and ranked no matter what language
+   the UI is in. */
 
 import { ALL_NATIONS, PUZZLES } from './puzzles'
 import type { Puzzle } from './puzzles'
@@ -18,11 +19,13 @@ export function fold(s: string): string {
     .replace(/[\u0300-\u036f]/g, '')
 }
 
-/* per-nation alias set = original aliases + ES/FR names (normalized) */
+/* per-nation alias set = original aliases + every localized name (normalized) */
 function i18nAliases(name: string): string[] {
   const n = NATION_NAMES_I18N[name]
   if (!n) return []
-  return [n.es, n.fr, ...(n.alt || [])].map(normalize).filter((a) => a !== normalize(name))
+  return [...Object.values(n.names), ...(n.alt || [])]
+    .map(normalize)
+    .filter((a) => a !== normalize(name))
 }
 
 export function isCorrect(guess: string, puzzle: Puzzle): boolean {
