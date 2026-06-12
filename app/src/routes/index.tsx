@@ -2,6 +2,9 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
 import { track, trackPageView } from '../lib/analytics'
+import { t, useLang } from '../lib/i18n'
+import type { Lang } from '../lib/i18n'
+import { LangSwitch } from '../components/LangSwitch'
 import '../styles/hub.css'
 
 const ORIGIN = (import.meta.env.VITE_SITE_ORIGIN as string | undefined) || ''
@@ -38,14 +41,14 @@ export const Route = createFileRoute('/')({
 
 /* ===================== GAMES MANIFEST =====================
    Add a game: create its route under src/routes/, then add an entry here.
-   status: "live" | "soon".  */
+   status: "live" | "soon". tagline/badge are i18n keys. */
 interface GameEntry {
   id: string
   name: string
   icon: string
-  tagline: string
+  tagline: 'anthem_tagline' | 'tba_tagline'
   status: 'live' | 'soon'
-  badge: string
+  badge: 'badge_live' | 'badge_soon'
   to?: string
 }
 
@@ -54,13 +57,13 @@ const GAMES: GameEntry[] = [
     id: 'anthem',
     name: 'ANTHEM',
     icon: '🎺',
-    tagline: 'Hear a snippet of a national anthem, guess the nation in six tries.',
+    tagline: 'anthem_tagline',
     status: 'live',
-    badge: 'Daily · Play now',
+    badge: 'badge_live',
     to: '/anthem',
   },
-  { id: 'tba-1', name: '???', icon: '🥅', tagline: 'Next fixture being scheduled…', status: 'soon', badge: 'Coming soon' },
-  { id: 'tba-2', name: '???', icon: '🏆', tagline: 'Next fixture being scheduled…', status: 'soon', badge: 'Coming soon' },
+  { id: 'tba-1', name: '???', icon: '🥅', tagline: 'tba_tagline', status: 'soon', badge: 'badge_soon' },
+  { id: 'tba-2', name: '???', icon: '🏆', tagline: 'tba_tagline', status: 'soon', badge: 'badge_soon' },
 ]
 
 const BUNTING_COLS = ['#ffd23f', '#ff6b3d', '#ffffff', '#2fb955']
@@ -69,30 +72,33 @@ const BUNTING_COLS = ['#ffd23f', '#ff6b3d', '#ffffff', '#2fb955']
 const KICKOFF = new Date('2026-06-11T00:00:00')
 const FULLTIME = new Date('2026-07-20T00:00:00')
 
-function countdownText(now: Date): string {
-  if (now >= FULLTIME) return 'FULL TIME · SEE YOU IN 2030'
+function countdownText(now: Date, lang: Lang): string {
+  if (now >= FULLTIME) return t(lang, 'full_time_2030')
   if (now >= KICKOFF) {
     const day = Math.floor((now.getTime() - KICKOFF.getTime()) / 86400000) + 1
-    return 'TOURNAMENT LIVE · DAY ' + day
+    return t(lang, 'tournament_live', { n: day })
   }
   const ms = KICKOFF.getTime() - now.getTime()
   const d = Math.floor(ms / 86400000),
     h = Math.floor(ms / 3600000) % 24,
     m = Math.floor(ms / 60000) % 60
-  return 'KICKOFF IN ' + (d > 0 ? d + 'D ' : '') + h + 'H ' + m + 'M'
+  return t(lang, 'kickoff_in', { t: (d > 0 ? d + 'D ' : '') + h + 'H ' + m + 'M' })
 }
 
 function Hub() {
-  // client-only: the text depends on local time, so SSR renders the neutral
-  // placeholder and the first effect tick fills it in (no hydration mismatch)
-  const [countdown, setCountdown] = useState('KICKOFF SOON')
+  const [lang, setLang] = useLang()
+  // client-only: the text depends on local time (and detected language), so
+  // SSR renders the neutral placeholder and the first effect tick fills it in
+  const [countdown, setCountdown] = useState('')
   useEffect(() => {
     trackPageView('/')
-    const tick = () => setCountdown(countdownText(new Date()))
-    tick()
-    const t = setInterval(tick, 30000)
-    return () => clearInterval(t)
   }, [])
+  useEffect(() => {
+    const tick = () => setCountdown(countdownText(new Date(), lang))
+    tick()
+    const tmr = setInterval(tick, 30000)
+    return () => clearInterval(tmr)
+  }, [lang])
 
   return (
     <div className="page page-hub">
@@ -102,20 +108,22 @@ function Hub() {
         ))}
       </div>
 
+      <LangSwitch lang={lang} onChange={setLang} />
+
       <header>
-        <div className="kicker">Summer 2026 · Mini Games</div>
+        <div className="kicker">{t(lang, 'hub_kicker')}</div>
         <div className="wordmark disp">
           <span className="ball" />
           MATCHDAY
         </div>
         <div className="sub">
-          Mini games for the 2026 tournament.
+          {t(lang, 'hub_sub1')}
           <br />
-          One stadium, many games.
+          {t(lang, 'hub_sub2')}
         </div>
         <div className="scoreboard">
           <span className="live" />
-          <span id="countdown">{countdown}</span>
+          <span id="countdown">{countdown || t(lang, 'kickoff_soon')}</span>
         </div>
       </header>
 
@@ -129,13 +137,17 @@ function Hub() {
                 <div className="gc-icon">{g.icon}</div>
                 <div className="gc-body">
                   <div className="gc-name disp">{g.name}</div>
-                  <div className="gc-tag">{g.tagline}</div>
+                  <div className="gc-tag">{t(lang, g.tagline)}</div>
                   <div className="gc-badge">
                     <span className="dot" />
-                    {g.badge}
+                    {t(lang, g.badge)}
                   </div>
                 </div>
-                {live ? <div className="gc-cta disp">PLAY</div> : <div className="gc-lock">🔒</div>}
+                {live ? (
+                  <div className="gc-cta disp">{t(lang, 'play_cta')}</div>
+                ) : (
+                  <div className="gc-lock">🔒</div>
+                )}
               </div>
             </>
           )
@@ -158,18 +170,18 @@ function Hub() {
         })}
       </main>
 
-      <NewsletterCard />
+      <NewsletterCard lang={lang} />
 
       <div className="foot">
-        Unofficial fan project · not affiliated with FIFA.
+        {t(lang, 'hub_foot1')}
         <br />
-        Anthem audio: public-domain recordings by the U.S. Navy Band via archive.org.
+        {t(lang, 'hub_foot2')}
       </div>
     </div>
   )
 }
 
-function NewsletterCard() {
+function NewsletterCard({ lang }: { lang: Lang }) {
   const [state, setState] = useState<'idle' | 'sending' | 'done' | 'error'>('idle')
   const inputRef = useRef<HTMLInputElement>(null)
   const hpRef = useRef<HTMLInputElement>(null)
@@ -203,14 +215,12 @@ function NewsletterCard() {
     <div className="signup" id="signup">
       {state === 'done' ? (
         <div className="su-done" id="signupDone">
-          ✅ You’re on the team sheet — we’ll email you when a new game drops.
+          {t(lang, 'nl_done')}
         </div>
       ) : (
         <>
-          <div className="su-title disp">🔔 More games are coming</div>
-          <div className="su-sub">
-            Want a heads-up when the next one drops? No spam — only new games.
-          </div>
+          <div className="su-title disp">{t(lang, 'nl_title')}</div>
+          <div className="su-sub">{t(lang, 'nl_sub')}</div>
           <form className="su-form" onSubmit={submit}>
             {/* honeypot: invisible to humans, irresistible to form bots */}
             <input
@@ -228,16 +238,16 @@ function NewsletterCard() {
               id="signupEmail"
               type="email"
               required
-              placeholder="you@example.com"
+              placeholder={t(lang, 'nl_placeholder')}
               autoComplete="email"
               aria-label="Email address"
             />
             <button className="disp" id="signupBtn" disabled={state === 'sending'}>
-              {state === 'sending' ? '…' : 'Keep me posted'}
+              {state === 'sending' ? '…' : t(lang, 'nl_button')}
             </button>
           </form>
           <div className="su-msg" id="signupMsg">
-            {state === 'error' ? 'That didn’t go in — check the address and shoot again.' : ''}
+            {state === 'error' ? t(lang, 'nl_error') : ''}
           </div>
         </>
       )}

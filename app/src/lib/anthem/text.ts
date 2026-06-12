@@ -1,8 +1,11 @@
 /* Guess normalisation + the autocomplete picker's matching/ranking, ported
-   verbatim from games/anthem/index.html. */
+   from games/anthem/index.html. Post-launch divergence: ES/FR nation names
+   (nation-names.ts) join each nation's alias set, so "Alemania"/"Allemagne"
+   are accepted and ranked no matter what language the UI is in. */
 
 import { ALL_NATIONS, PUZZLES } from './puzzles'
 import type { Puzzle } from './puzzles'
+import { NATION_NAMES_I18N } from './nation-names'
 
 export function normalize(s: string): string {
   return s.toLowerCase().trim().replace(/\./g, '').replace(/\s+/g, ' ')
@@ -15,16 +18,28 @@ export function fold(s: string): string {
     .replace(/[\u0300-\u036f]/g, '')
 }
 
+/* per-nation alias set = original aliases + ES/FR names (normalized) */
+function i18nAliases(name: string): string[] {
+  const n = NATION_NAMES_I18N[name]
+  if (!n) return []
+  return [n.es, n.fr, ...(n.alt || [])].map(normalize).filter((a) => a !== normalize(name))
+}
+
 export function isCorrect(guess: string, puzzle: Puzzle): boolean {
   const n = normalize(guess)
-  return n === normalize(puzzle.name) || puzzle.aliases.includes(n)
+  return (
+    n === normalize(puzzle.name) ||
+    puzzle.aliases.includes(n) ||
+    i18nAliases(puzzle.name).some((a) => fold(a) === fold(n))
+  )
 }
 
 export function isKnownNation(guess: string): boolean {
   const n = normalize(guess)
   return (
     ALL_NATIONS.some((x) => normalize(x) === n) ||
-    PUZZLES.some((p) => p.aliases.includes(n))
+    PUZZLES.some((p) => p.aliases.includes(n)) ||
+    PUZZLES.some((p) => i18nAliases(p.name).some((a) => fold(a) === fold(n)))
   )
 }
 
@@ -39,7 +54,7 @@ export const NATIONS: NationEntry[] = PUZZLES.map((p) => ({
   name: p.name,
   cc: p.cc,
   flag: p.flag,
-  aliases: p.aliases,
+  aliases: [...p.aliases, ...i18nAliases(p.name)],
 })).sort((a, b) => a.name.localeCompare(b.name))
 
 export function isSelectedName(q: string): boolean {

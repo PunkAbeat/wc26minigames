@@ -61,6 +61,9 @@ import {
 import { LOCAL_AUDIO } from '../lib/anthem/audio-local'
 import { START_OFFSETS } from '../lib/anthem/offsets'
 import { track, trackPageView } from '../lib/analytics'
+import { t, tb, useLang } from '../lib/i18n'
+import type { Lang } from '../lib/i18n'
+import { LangSwitch } from '../components/LangSwitch'
 import {
   drawShareCard,
   drawStatsCard,
@@ -128,6 +131,7 @@ function hexA(h: string, a: number): string {
 
 function AnthemPage() {
   /* ---------- React state ---------- */
+  const [lang, setLang] = useLang()
   const [puzzleIndex, setPuzzleIndex] = useState<number | null>(null)
   const [mode, setMode] = useState<Mode>('daily')
   const [game, setGame] = useState<GameState>(freshState())
@@ -164,6 +168,9 @@ function AnthemPage() {
      keeps saving/scoring against its own day, not the new one */
   const dailyDayRef = useRef<number | null>(null)
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  /* latest language for engine hooks / event-time callbacks */
+  const langRef = useRef<Lang>('en')
+  langRef.current = lang
 
   const playBtnRef = useRef<HTMLButtonElement>(null)
   const playheadRef = useRef<HTMLDivElement>(null)
@@ -205,11 +212,14 @@ function AnthemPage() {
   const clipIdleLabel = useCallback((): string => {
     const s = stateRef.current
     const secs = STAGES[Math.min(s.attempt, 5)]
+    const L = langRef.current
     return s.finished
       ? s.won
-        ? 'Solved! 🎉'
-        : 'Out of guesses'
-      : secs + (secs === 1 ? ' second' : ' seconds') + ' unlocked'
+        ? t(L, 'clip_solved')
+        : t(L, 'clip_out')
+      : secs === 1
+        ? t(L, 'clip_unlocked_1')
+        : t(L, 'clip_unlocked_n', { n: secs })
   }, [])
 
   /* ---------- core actions (mirroring the original WIRE UP section) ---------- */
@@ -283,7 +293,7 @@ function AnthemPage() {
   const PRACTICE_CAP = 2 // per UTC day — scarcity is the engine of the format
   const startPractice = useCallback(() => {
     if (practicePlaysToday(dayNumber()) >= PRACTICE_CAP) {
-      setToast('Practice limit reached — next anthem at midnight UTC ⏱')
+      setToast(t(langRef.current, 'toast_practice_cap'))
       return
     }
     bumpPracticePlays(dayNumber())
@@ -376,11 +386,11 @@ function AnthemPage() {
     const inp = inputRef.current
     const val = inp ? inp.value : ''
     if (!val.trim()) {
-      setToast('Type a country first')
+      setToast(t(langRef.current, 'toast_type_first'))
       return
     }
     if (!isKnownNation(val)) {
-      setToast('Pick a country from the list')
+      setToast(t(langRef.current, 'toast_pick_list'))
       missFeedback()
       return
     }
@@ -445,11 +455,11 @@ function AnthemPage() {
     /* ?ref=share closes the measurement loop: page_view{ref=share} over
        share_clicked is the viral coefficient */
     const txt =
-      shareText(s, modeRef.current, currentMatchNo()) +
+      shareText(s, modeRef.current, currentMatchNo(), langRef.current) +
       '\n' +
       location.origin +
       '/anthem?ref=share'
-    const done = () => setCopied('Copied — paste it anywhere ✓')
+    const done = () => setCopied(t(langRef.current, 'toast_copied'))
     /* best path: share sheet with the rendered card attached (iOS 15+, Android) */
     if (navigator.share) {
       let files: File[] | undefined
@@ -499,7 +509,10 @@ function AnthemPage() {
     track('share_clicked', { mode: 'stats' })
     const st = loadStats()
     const txt =
-      statsShareText(st, loadStreak().count || 0) + '\n' + location.origin + '/anthem?ref=share'
+      statsShareText(st, loadStreak().count || 0, langRef.current) +
+      '\n' +
+      location.origin +
+      '/anthem?ref=share'
     if (navigator.share) {
       let files: File[] | undefined
       try {
@@ -514,7 +527,7 @@ function AnthemPage() {
       navigator.share(files ? { files, text: txt } : { text: txt }).catch(() => {})
       return
     }
-    const done = () => setToast('Copied — paste it anywhere ✓')
+    const done = () => setToast(t(langRef.current, 'toast_copied'))
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard
         .writeText(txt)
@@ -615,12 +628,12 @@ function AnthemPage() {
       const h = String(Math.floor(ms / 3600000)).padStart(2, '0')
       const m = String(Math.floor(ms / 60000) % 60).padStart(2, '0')
       const s = String(Math.floor(ms / 1000) % 60).padStart(2, '0')
-      setNextIn('⏱ Next anthem in ' + h + ':' + m + ':' + s)
+      setNextIn(t(lang, 'next_anthem_in', { t: h + ':' + m + ':' + s }))
     }
     tick()
-    const t = setInterval(tick, 1000)
-    return () => clearInterval(t)
-  }, [game.finished, mode])
+    const tmr = setInterval(tick, 1000)
+    return () => clearInterval(tmr)
+  }, [game.finished, mode, lang])
 
   /* global "X% solved it" line for the end screen (daily only; silent when the
      backend is missing or empty) */
@@ -638,12 +651,12 @@ function AnthemPage() {
         if (dead || !d.total) return
         const pct = (n: number) => Math.round((n / d.total) * 100)
         const solved = d.total - (d.dist.X || 0)
-        let line = '📊 ' + pct(solved) + '% of today’s players solved it'
+        let line = t(lang, 'global_solved', { p: pct(solved) })
         const s = stateRef.current
         if (s.won && s.attempt > 1) {
           let leN = 0
           for (let i = 1; i <= s.attempt; i++) leN += d.dist[String(i)] || 0
-          line += ' · ' + pct(leN) + '% in ' + s.attempt + ' or fewer'
+          line += t(lang, 'global_in_n', { p: pct(leN), n: s.attempt })
         }
         setGlobalLine(line)
       } catch {
@@ -653,7 +666,7 @@ function AnthemPage() {
     return () => {
       dead = true
     }
-  }, [game.finished, mode, globalTick])
+  }, [game.finished, mode, globalTick, lang])
 
   /* make sure the result is actually on screen (player may be scrolled deep into
      hints/rows) — once per game only, so it never fights the user's own scrolling */
@@ -818,12 +831,12 @@ function AnthemPage() {
   /* ---------- derived render bits ---------- */
   const matchLabel =
     puzzleIndex === null
-      ? 'MATCH #…'
+      ? t(lang, 'match_label', { n: '…' })
       : mode === 'daily'
-        ? 'MATCH #' + (dailyDay() + 1)
+        ? t(lang, 'match_label', { n: dailyDay() + 1 })
         : mode === 'archive'
-          ? '📅 MATCH #' + ((archiveDay ?? 0) + 1)
-          : '🎯 PRACTICE'
+          ? '📅 ' + t(lang, 'match_label', { n: (archiveDay ?? 0) + 1 })
+          : t(lang, 'practice_label')
   const hintsToShow =
     current && !game.finished
       ? Array.from(
@@ -853,7 +866,7 @@ function AnthemPage() {
 
       <header>
         <Link className="back" to="/" aria-label="All games">
-          ⚽ Games
+          {t(lang, 'an_games_link')}
         </Link>
         <button className="help" id="helpBtn" aria-label="How to play" onClick={() => setHowtoOpen(true)}>
           ?
@@ -863,12 +876,12 @@ function AnthemPage() {
             <path d="M5 12h3v8H5zM10.5 4h3v16h-3zM16 9h3v11h-3z" />
           </svg>
         </button>
-        <div className="kicker">Summer 2026 · Daily</div>
+        <div className="kicker">{t(lang, 'an_kicker')}</div>
         <div className="wordmark disp">
           <span className="emblem" aria-hidden="true">🎺</span>
           ANTHEM
         </div>
-        <div className="sub">Guess the nation from its anthem</div>
+        <div className="sub">{t(lang, 'an_sub')}</div>
         <div className="scoreboard">
           <span className="live" />
           <span id="matchLabel">{matchLabel}</span>
@@ -931,7 +944,7 @@ function AnthemPage() {
                 type="search"
                 id="guessInput"
                 ref={inputRef}
-                placeholder="Your guess…"
+                placeholder={t(lang, 'guess_placeholder')}
                 enterKeyHint="go"
                 autoComplete="off"
                 autoCapitalize="off"
@@ -1002,16 +1015,16 @@ function AnthemPage() {
                       />
                       <span className="se">{v.n.flag}</span>
                       <span className="sname">{v.n.name}</span>
-                      {v.used && <span className="stag">tried</span>}
+                      {v.used && <span className="stag">{t(lang, 'tried_tag')}</span>}
                     </div>
                   ))
                 ) : (
-                  <div className="snone">No qualified nation matches</div>
+                  <div className="snone">{t(lang, 'no_match')}</div>
                 )}
               </div>
             </div>
             <button className="shoot" id="guessBtn" onClick={submitGuess}>
-              SHOOT
+              {t(lang, 'shoot')}
             </button>
           </div>
           <div
@@ -1023,10 +1036,10 @@ function AnthemPage() {
               <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
                 <path d="M4 5v14l8-7zM13 5v14l8-7z" />
               </svg>
-              Skip
+              {t(lang, 'skip')}
             </button>
             <span className="attempts" id="attempts">
-              {game.finished ? '' : 'Guess ' + (game.attempt + 1) + ' / 6'}
+              {game.finished ? '' : t(lang, 'guess_n_of_6', { n: game.attempt + 1 })}
             </span>
           </div>
 
@@ -1038,7 +1051,7 @@ function AnthemPage() {
               </div>
             ))}
             {current && !game.finished && game.attempt === 0 && (
-              <div className="hintlock">🟨 A hint card unlocks with each miss</div>
+              <div className="hintlock">{t(lang, 'hint_lock')}</div>
             )}
           </div>
           <div className="rows" id="rows">
@@ -1050,7 +1063,11 @@ function AnthemPage() {
                   <span className="dot" />
                   <span className="gtext">{res.label}</span>
                   <span className="tag">
-                    {res.type === 'correct' ? '✓ GOAL' : res.type === 'wrong' ? '✗ MISS' : 'SKIP'}
+                    {res.type === 'correct'
+                      ? t(lang, 'tag_goal')
+                      : res.type === 'wrong'
+                        ? t(lang, 'tag_miss')
+                        : t(lang, 'tag_skip')}
                   </span>
                 </div>
               ))}
@@ -1062,7 +1079,7 @@ function AnthemPage() {
             style={{ display: game.finished ? 'block' : 'none', background: endBg }}
           >
             <div className={'bigresult disp' + (game.won ? '' : ' lose')} id="bigResult">
-              {game.won ? 'GOAL! ⚽' : 'OFF TARGET'}
+              {game.won ? t(lang, 'goal_excl') : t(lang, 'off_target')}
             </div>
             <div className="flagwrap">
               <img
@@ -1101,7 +1118,7 @@ function AnthemPage() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                About this anthem ↗
+                {t(lang, 'about_anthem')}
               </a>
             )}
             <div className="grid-share" id="gridShare">
@@ -1115,19 +1132,19 @@ function AnthemPage() {
             <div className="streak" id="streakLine">
               <span>{game.won ? '🎺 ' + tries + '/6' : '😵 X/6'}</span>
               {mode === 'daily' ? (
-                <span className="g">🔥 Streak {game.streak || 0}</span>
+                <span className="g">{t(lang, 'streak_n', { n: game.streak || 0 })}</span>
               ) : mode === 'archive' ? (
-                <span className="g">📅 Archive</span>
+                <span className="g">{t(lang, 'archive_chip')}</span>
               ) : (
-                <span className="g">🎯 Practice</span>
+                <span className="g">{t(lang, 'practice_chip')}</span>
               )}
             </div>
             <div className="endbtns">
               <button className="share-btn" id="shareBtn" onClick={share}>
-                📋 Share result
+                {t(lang, 'share_result')}
               </button>
               <button className="stats-btn" id="endStatsBtn" onClick={openStats}>
-                📊 Stats
+                {t(lang, 'stats_btn')}
               </button>
               <button
                 className="again-btn"
@@ -1135,7 +1152,7 @@ function AnthemPage() {
                 style={{ display: mode === 'practice' ? 'inline-block' : 'none' }}
                 onClick={startPractice}
               >
-                ▶ Another anthem
+                {t(lang, 'another_anthem')}
               </button>
             </div>
             <div className="nextin" id="nextIn">
@@ -1153,21 +1170,22 @@ function AnthemPage() {
           id="practiceBtn"
           onClick={() => (mode === 'daily' ? startPractice() : startDaily())}
         >
-          {mode === 'daily' ? '🎯 Practice mode' : '⚽ Back to today’s match'}
+          {mode === 'daily' ? t(lang, 'practice_mode') : t(lang, 'back_to_today')}
         </button>
         {dayNumber() > 0 && mode === 'daily' && (
           <button id="archiveBtn" onClick={() => setArchiveOpen(true)}>
-            📅 Previous matches
+            {t(lang, 'prev_matches')}
           </button>
         )}
       </div>
 
       <div className="foot">
-        A new anthem every day at midnight UTC · part of the MATCHDAY mini games. Anthem
-        recordings by the U.S. Navy Band (public domain, via archive.org).
+        {t(lang, 'an_foot')}
         <br />
-        Unofficial fan project · not affiliated with FIFA.
+        {t(lang, 'hub_foot1')}
       </div>
+
+      <LangSwitch lang={lang} onChange={setLang} inline />
 
       <div className={'toast' + (toast.on ? ' show' : '')} id="toast">
         {toast.msg}
@@ -1181,30 +1199,21 @@ function AnthemPage() {
         }}
       >
         <div className="modal-card">
-          <h3 className="disp">How to play ⚽</h3>
+          <h3 className="disp">{t(lang, 'howto_title')}</h3>
           <div className="step">
             <span className="n">1</span>
-            <span>
-              Tap play to hear the anthem — it starts at just <b>1 second</b>.
-            </span>
+            <span>{tb(lang, 'howto_1')}</span>
           </div>
           <div className="step">
             <span className="n">2</span>
-            <span>
-              Guess the nation. Each <b>miss or skip</b> reveals more of the clip and unlocks a
-              hint card.
-            </span>
+            <span>{tb(lang, 'howto_2')}</span>
           </div>
           <div className="step">
             <span className="n">3</span>
-            <span>
-              You get <b>6 tries</b>. A new anthem drops at <b>midnight UTC</b> — solve it, keep
-              your streak, and share your spoiler-free score. Want more? Warm up in{' '}
-              <b>practice mode</b>.
-            </span>
+            <span>{tb(lang, 'howto_3')}</span>
           </div>
           <button className="go disp" id="howtoClose" onClick={hideHowto}>
-            Let&apos;s play
+            {t(lang, 'howto_close')}
           </button>
         </div>
       </div>
@@ -1218,29 +1227,32 @@ function AnthemPage() {
       >
         {archiveOpen && (
           <div className="modal-card">
-            <h3 className="disp">Previous matches 📅</h3>
+            <h3 className="disp">{t(lang, 'archive_title')}</h3>
             <div className="archlist">
               {Array.from({ length: dayNumber() }, (_, k) => dayNumber() - 1 - k).map((day) => {
                 const d = new Date((LAUNCH_DAY + day) * 86400000)
-                const label = d.toLocaleDateString('en-GB', {
-                  day: 'numeric',
-                  month: 'short',
-                  timeZone: 'UTC',
-                })
+                const label = d.toLocaleDateString(
+                  lang === 'es' ? 'es-ES' : lang === 'fr' ? 'fr-FR' : 'en-GB',
+                  {
+                    day: 'numeric',
+                    month: 'short',
+                    timeZone: 'UTC',
+                  },
+                )
                 const res = archiveResults[day]
                 return (
                   <button key={day} className="archrow" onClick={() => startArchive(day)}>
                     <span className="archname disp">Match #{day + 1}</span>
                     <span className="archdate">{label}</span>
                     <span className={'archres' + (res ? (res === 'X' ? ' lost' : ' won') : '')}>
-                      {res ? (res === 'X' ? '✗' : '✓ ' + res + '/6') : '▶ Play'}
+                      {res ? (res === 'X' ? '✗' : '✓ ' + res + '/6') : t(lang, 'archive_play')}
                     </span>
                   </button>
                 )
               })}
             </div>
             <button className="go disp" onClick={() => setArchiveOpen(false)}>
-              Close
+              {t(lang, 'archive_close')}
             </button>
           </div>
         )}
@@ -1255,27 +1267,27 @@ function AnthemPage() {
       >
         {statsOpen && (
           <div className="modal-card">
-            <h3 className="disp">Your stats 📊</h3>
+            <h3 className="disp">{t(lang, 'stats_title')}</h3>
             <div className="statnums">
               <div className="statnum">
                 <b>{stats.played}</b>
-                <span>Played</span>
+                <span>{t(lang, 'stats_played')}</span>
               </div>
               <div className="statnum">
                 <b>{winPct(stats)}</b>
-                <span>Win %</span>
+                <span>{t(lang, 'stats_winpct')}</span>
               </div>
               <div className="statnum">
                 <b>{game.streak ?? loadStreakCount()}</b>
-                <span>Streak</span>
+                <span>{t(lang, 'stats_streak')}</span>
               </div>
               <div className="statnum">
                 <b>{stats.maxStreak}</b>
-                <span>Best streak</span>
+                <span>{t(lang, 'stats_best')}</span>
               </div>
             </div>
             <div className="distwrap">
-              <div className="disttitle disp">Guess distribution</div>
+              <div className="disttitle disp">{t(lang, 'stats_dist')}</div>
               {stats.dist.map((count, i) => {
                 const max = Math.max(1, ...stats.dist)
                 const today = game.finished && game.won && game.attempt === i + 1
@@ -1296,7 +1308,7 @@ function AnthemPage() {
             </div>
             {stats.played > 0 && (
               <button className="go disp" id="statsShare" onClick={shareStats}>
-                Share my record 📣
+                {t(lang, 'stats_share')}
               </button>
             )}
             <button
@@ -1304,7 +1316,7 @@ function AnthemPage() {
               id="statsClose"
               onClick={() => setStatsOpen(false)}
             >
-              Back to the match
+              {t(lang, 'back_to_match')}
             </button>
           </div>
         )}

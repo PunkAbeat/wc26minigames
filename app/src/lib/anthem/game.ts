@@ -5,6 +5,8 @@
 
 import type { Puzzle } from './puzzles'
 import { isCorrect } from './text'
+import { t } from '../i18n'
+import type { Lang } from '../i18n'
 
 export type ResultType = 'correct' | 'wrong' | 'skip'
 
@@ -53,11 +55,17 @@ export function gridString(state: GameState): string {
     .join('')
 }
 
-export function shareText(state: GameState, mode: Mode, matchNo: number): string {
+export function shareText(
+  state: GameState,
+  mode: Mode,
+  matchNo: number,
+  lang: Lang = 'en',
+): string {
   const tries = state.won ? state.attempt : 'X'
   // archive shares read like the daily they were: "Match #3"
-  const head = mode === 'practice' ? 'ANTHEM ⚽ Practice' : 'ANTHEM ⚽ Match #' + matchNo
-  return head + '  ' + tries + '/6\n' + gridString(state) + '\nName the nation from its anthem'
+  const head =
+    mode === 'practice' ? t(lang, 'share_practice') : t(lang, 'share_match', { n: matchNo })
+  return head + '  ' + tries + '/6\n' + gridString(state) + '\n' + t(lang, 'share_tail')
 }
 
 export interface Streak {
@@ -100,17 +108,14 @@ export function winPct(st: Stats): number {
 }
 
 /* the text that travels with the lifetime-stats card */
-export function statsShareText(st: Stats, streak: number): string {
+export function statsShareText(st: Stats, streak: number, lang: Lang = 'en'): string {
   return (
-    'ANTHEM ⚽ My record\n' +
-    'Played ' +
-    st.played +
-    ' · Win ' +
-    winPct(st) +
-    '% · Streak ' +
-    streak +
-    (st.maxStreak > streak ? ' (best ' + st.maxStreak + ')' : '') +
-    '\nName the nation from its anthem'
+    t(lang, 'share_record_head') +
+    '\n' +
+    t(lang, 'share_record_line', { p: st.played, w: winPct(st), s: streak }) +
+    (st.maxStreak > streak ? t(lang, 'share_record_best', { b: st.maxStreak }) : '') +
+    '\n' +
+    t(lang, 'share_tail')
   )
 }
 
