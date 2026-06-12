@@ -1,32 +1,36 @@
 # Current handoff
 
-*Updated: 2026-06-12 (GROUPS prototype built; site live; QA-listen closed)*
+*Updated: 2026-06-12 evening (GROUPS scrapped; game #2 back in selection, round 3)*
 
 ## State
 
-Production is **LIVE at https://wc26minigames.com** (ANTHEM + hub; latest deploy version 4fc0d6c6, 11 Jun). Work happens on `master`; clean tree, all gates green (**88 vitest, 12 headless suites**, typecheck, build, CI).
+Production is **LIVE at https://wc26minigames.com** (ANTHEM + hub; latest deploy version 4fc0d6c6, 11 Jun). `master`, clean tree, all gates green (**60 vitest, 11 headless suites**, typecheck, build).
 
-**New since last handoff: GROUPS (game #2) prototype** — owner picked it from the [game-2 brainstorm](../research/game2-brainstorm.md) on 12 Jun, built same day:
+**GROUPS is dead.** Built 12 Jun, owner played it on the tailnet preview the same evening and scrapped it ("feels really boring"). Reverted in `e10ce51`/`93631bc`/`43af8fb` — `/groups` is 404 again, hub card and `gr_*` i18n keys removed, suite 12 gone (suites are 1–11 again). The prototype, including the fact-checked 10-grid puzzle bank, is recoverable from history just before those reverts. It was never deployed; no user ever saw it.
 
-- `/groups` route (`app/src/routes/groups.tsx`), Connections-style daily: 16 nations → 4 hidden groups, 4 mistakes, tier banners (NYT colours), streak, spoiler-free emoji share, UTC-midnight countdown.
-- Pure logic in `app/src/lib/groups/` (`puzzles` 10-grid bank · `daily` seeded schedule, launch day 12 Jun · `game` state machine · `storage` keys `groups_daily`/`groups_streak`/`groups_seen`); bank shape + nation names validated against anthem data by unit tests.
-- All 11 languages have the new `gr_*`/`groups_tagline` keys (ar/fa/ja/ko machine-written, flagged); hub card added; headless **suite 12** (runner maps it to /groups).
-- **Tailnet preview only (`https://mini-lubuntu.tail4e976f.ts.net:8443/groups`) — deliberately NOT deployed.** Owner wants to test on-device first.
+**Game #2 selection is open again — round 3** ([game2-brainstorm.md](../research/game2-brainstorm.md)). The scrap added criterion #5: *the core ten seconds must feel good* (motion/tension/comedy), which knowledge/board puzzles fail. Slate awaiting owner pick:
+
+- **KEEPER** ⭐ (agent rec) — be the goalkeeper; 5 daily seeded penalties, read the shooter's tell, one-tap dive; `🧤🧤❌🧤❌ 3/5` share. No daily-ritual incumbent found.
+- **FREE KICK** — same seeded set piece worldwide, swipe to curve; max juice, crowded arcade genre, physics-tuning risk.
+- **FLAG DRAW** — draw today's flag from memory, pixel-scored; failure-comedy wildcard, partial incumbents.
+- **BRACKET** — held from round 2; cheap and tactile but still a board puzzle (same risk class GROUPS died of).
+
+## Process change for the next pick
+
+**One-screen feel mock before any full prototype.** GROUPS burned a day on a complete build (route, i18n ×11, test suite) before the owner ever felt the core loop. Next time: build only the central interaction (run-up + dive, or swipe + ball flight), put it on the tailnet for an on-device gut check, and add the daily shell/i18n/suites only after the ten seconds survive.
 
 ## Unresolved risks
 
-- **GROUPS has had zero on-device/iOS verification** — built and gated headlessly only this session. Tile tap feel, 4-col board on small phones, RTL board layout need eyes.
-- **Puzzle bank facts are agent-authored.** Each grid's categories were fact-checked during authoring (traps documented in `puzzles.ts` comments), but a human sweep is prudent before any public exposure; difficulty is untested with real players.
-- Bank = 10 grids → repeats after 10 days; fine for a prototype, not for launch (~40 needed for the tournament window).
-- iOS verification gap on the ANTHEM polish pass (SFX, GOAL flash, flag reveal, PWA, England offset) still open from before.
-- Global stats honest-but-spoofable ([ADR-0004](../adr/0004-anonymous-global-stats-on-d1.md)); seek-before-canplay iOS fallback unverified (watch England).
+- iOS verification gap on the ANTHEM polish pass (SFX, GOAL flash, flag reveal, PWA, England seek-before-canplay offset) still open from before.
+- Global stats honest-but-spoofable ([ADR-0004](../adr/0004-anonymous-global-stats-on-d1.md)).
+- AR/FA/JA/KO locales are machine-written — native review before promoting them.
 
 ## Intentionally not done
 
-- **No deploy of GROUPS** — owner gate. `npm run deploy` would ship it; don't run it.
-- No GROUPS-specific share card image, global stats, archive or practice mode — prototype scope; add only if the game graduates.
-- Original `index.html` files untouched. Open questions in [research/questions.md](../research/questions.md) (game-#2 launch decision is item 6) left open.
+- Nothing deployed this session; the deploy gate (owner says so) stands.
+- GROUPS revert kept as reverts, not a history rewrite — salvageable on purpose.
+- Original `index.html` files untouched.
 
 ## Recommended next task
 
-Wait for the owner's on-device verdict on GROUPS (URL above; hard-refresh if the old bundle is cached). If it graduates: expand the bank to ≥40 grids (the editorial pipeline is the real work — keep the trap/uniqueness comments per grid), then a GROUPS share-card canvas + og image, then deploy. If the verdict is mixed, the brainstorm doc holds the runner-up (BRACKET) and the parked crowd-powered candidates. Otherwise: ANTHEM polish on-device pass and the distribution push remain the open launch items.
+Wait for the owner's round-3 pick ([questions.md](../research/questions.md) item 6). Then build the feel mock only (see process change above). If no pick: ANTHEM polish on-device pass and the distribution push remain the open launch items.

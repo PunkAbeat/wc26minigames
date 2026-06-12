@@ -4,6 +4,12 @@ Append-only archive. When [current-handoff.md](current-handoff.md) is rewritten,
 
 ---
 
+## 2026-06-12 (evening) — GROUPS built and scrapped same day (summary)
+
+Owner picked GROUPS from the two-round brainstorm; full prototype built same day (route, 10-grid bank, pure logic, all 11 languages, headless suite 12, 4 commits, all gates green; tailnet only — never deployed). Owner played it that evening: *"I don't like it at all, it feels really boring"* → scrapped. Code reverted in `e10ce51`/`93631bc`/`43af8fb`; the prototype (incl. the fact-checked puzzle bank and board CSS) survives in history just before those. Process verdict: cheap-prototype-then-judge worked — one day, honest answer, nothing shipped. Lesson recorded as brainstorm criterion #5 ("the core ten seconds must feel good"); round-3 slate (KEEPER ⭐ / FREE KICK / FLAG DRAW / BRACKET) in game2-brainstorm.md.
+
+---
+
 ## 2026-06-11/12 — go-live + i18n + QA-listen (summary, from the pre-GROUPS handoff)
 
 Merged to `master`, pushed to github.com/PunkAbeat/wc26minigames, CI green (two runner-only flakes fixed: rAF while paused, createImageBitmap under virtual time). **Deployed to https://wc26minigames.com 11 Jun** (D1 migrated, AE enabled; latest version 4fc0d6c6 incl. the FIFA de-brand, ADR-0006). Audio self-hosted (ADR-0005; `npm run audio:prepare` after fresh clone or the tailnet preview falls back to archive.org streaming). QA-listen fully closed 11-12 Jun (Iran/Paraguay verified, DR Congo wired as 46th nation, Qatar/Jordan ear-floor offsets). i18n phases 1-2 shipped (11 languages; ar/fa/ja/ko machine-written). Still open then and now: owner on-device pass of the polish round (incl. England seek-before-canplay watch item), distribution push.

@@ -1,11 +1,13 @@
 # Game #2 brainstorm
 
-> **DECIDED 12 Jun 2026: the owner picked GROUPS.** Prototype built the same day
-> (`app/src/routes/groups.tsx`, `app/src/lib/groups/`, headless suite 12) and
-> serving on the tailnet preview — not deployed. Remaining open items live in
-> [questions.md](questions.md) item 6. Rounds below kept as the record, and as
-> the candidate pool for game #3 (TOP BINS and RARE PICK unlock once there is
-> real traffic).
+> **12 Jun 2026: owner picked GROUPS → prototyped same day → SCRAPPED same day**
+> after the owner's first play: *"I don't like it at all, it feels really boring."*
+> Code reverted (revert commits `e10ce51`/`93631bc`/`43af8fb`; the full prototype
+> survives in history just before them if anything — puzzle bank, board CSS — is
+> ever worth salvaging). Never deployed, so no user ever saw it. The lesson and
+> the new candidate slate are in **round 3** below; selection is open again
+> ([questions.md](questions.md) item 6). TOP BINS and RARE PICK still unlock
+> only once there is real traffic.
 
 Working document for choosing the second MATCHDAY game. Owner decision in the end —
 see [questions.md](questions.md). Criteria set by the owner (12 Jun 2026):
@@ -176,4 +178,88 @@ candidates), the same way ANTHEM's global stats were layered on later.
 
 Game #2 should be **GROUPS or BRACKET**. Owner call — see
 [questions.md](questions.md) item 6.
+
+## Round 3 (12 Jun 2026) — after the GROUPS scrap: fun is a criterion
+
+### What the scrap taught us
+
+GROUPS scored top marks on all four round-1 criteria (unique-ish, WC-themed,
+simple, wide appeal) and the owner found it boring on first contact anyway.
+The criteria missed a dimension. GROUPS plays as: read 16 names → think → tap
+four → submit. A static deduction board — no motion, no tension, no payoff
+beyond "correct". ANTHEM works because every guess has *drama* (the audio
+reveal, the aha). Connections works for NYT because that audience comes to
+think; ours comes from football.
+
+**Criterion #5, now explicit: the core ten seconds must feel good** — motion,
+tension, or comedy; something you'd happily do once more even after the puzzle
+value is spent. This rules out the remaining knowledge/board candidates
+(LINE-UP, RARE PICK even post-traffic as designed) and re-centres the
+action/judgment quadrant of round 2, which had been rated down for build cost
+rather than appeal. Cheap-prototype-then-judge worked exactly as intended:
+one day spent, honest verdict, nothing shipped.
+
+### Round-3 slate (all crowd-free, backend-free, daily-seeded, silent-friendly)
+
+**C1. KEEPER ⭐ — you are the goalkeeper** *(new)*
+
+Five penalties per day, same seeded sequence worldwide. The shooter's run-up
+carries readable tells (approach angle, open hips, eyes, plant foot — a daily
+"shooter personality"); you commit your dive with one tap or swipe
+(left/centre/right, optionally ×high/low). Saves out of five = the score;
+share grid `🧤🧤❌🧤❌ 3/5` + streak.
+
+- Nobody plays *as* the keeper in daily-ritual form — searched 12 Jun: arcade
+  keeper games exist (CrazyGames etc.), zero Wordle-form incumbents. Inverting
+  the obvious penalty-taker fantasy is the hook.
+- Choice-under-tension, not millisecond reflex → iOS-fair (generous commit
+  window; reading the tell is the skill). Failure is funny; 5/5 is rare and
+  braggable. Drama is *in* the loop, not painted on.
+- Content cost is parameter sets, not prose: each day = 5 shot definitions
+  (tell strength, direction, fake-or-honest). Cheap to bank 40+ days.
+- Risk: tell design **is** the game — too readable = trivial, too subtle =
+  coin flip. Needs real animation craft on the run-up. Prototype question #1:
+  can a 2D run-up communicate a tell at all?
+
+**C2. FREE KICK — the same daily set piece for everyone** *(round-2 R5 cousin)*
+
+Swipe to curve the ball over the wall; wall/keeper/wind seeded daily,
+identical worldwide; score = attempts until it goes in, golf-style share
+("⚽ in 2").
+
+- The most pure *juice* on the slate; one gesture; zero knowledge floor.
+- Risks: the flick-football arcade genre is crowded (a "Free Kicks World Cup
+  2026" browser game already exists) — only the daily-seed ritual
+  differentiates; swipe-physics tuning and cross-device determinism are the
+  heaviest build risk of the four.
+
+**C3. FLAG DRAW — draw today's flag from memory** *(wildcard, comedy axis)*
+
+One qualified nation per day; draw its flag from memory with a finger;
+client-side pixel/colour-region match scores you a %. Share = score (and the
+share card could show your atrocity next to the real flag).
+
+- The QWOP / Password-game lesson: failure-comedy spreads. Flags are universal
+  (zero football floor); casuals do better than they expect, experts get
+  humbled by Ecuador's coat of arms.
+- Incumbents exist (a neal.fun-style "Draw Flags from Memory", a
+  pick-the-components draw-the-flag.web.app) but none daily/WC-scoped —
+  weakest "truly unique" claim on the slate. Generous, fair-feeling scoring is
+  make-or-break; drawing UX on iOS is real work.
+
+**C4. BRACKET — held from round 2** *(the safe option)*
+
+Still the cheapest to run (zero daily content) and merging is tactile in a way
+GROUPS never was. But it inherits the GROUPS risk: it is still a board puzzle,
+*themed* football rather than *feeling* football. If the scrap verdict means
+"give me football, not puzzles", BRACKET is the wrong lesson to draw.
+
+### Agent recommendation
+
+**KEEPER.** Most open lane, most football, drama native to the loop, content
+cost manageable, iOS-fair by construction. FREE KICK if the owner wants
+maximum juice and accepts the physics-tuning risk. Either way: before any
+full prototype this time, a one-screen feel mock (the run-up + dive moment, or
+the swipe + ball flight) for an on-device gut check — judge the ten seconds
+first, build the daily shell only after it survives.
 

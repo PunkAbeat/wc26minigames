@@ -9,8 +9,7 @@ A series of daily, shareable browser mini games built around the **2026 FIFA Wor
 | Game | Status | What it is |
 |---|---|---|
 | **ANTHEM** 🎺 | Live (daily + practice) | Hear a growing snippet of a national anthem, guess the nation in six tries — a "Heardle" for World Cup anthems. One official anthem per UTC day across all 48 qualified nations, with streaks, lifetime + global stats, and a shareable result card. Design brief: [games/anthem/HANDOFF.md](games/anthem/HANDOFF.md). |
-| **GROUPS** 🧩 | Prototype (tailnet only) | Sort 16 qualified nations into four hidden groups of four — a Connections-style daily with flags, geography, nicknames and World Cup history. 4 mistakes allowed, tier-coloured spoiler-free share grid, streaks. Selection rationale: [docs/research/game2-brainstorm.md](docs/research/game2-brainstorm.md). |
-| ??? | Planned | More daily fixtures to come. |
+| ??? | Planned | Game #2 in selection (round 3) — candidates and rationale in [docs/research/game2-brainstorm.md](docs/research/game2-brainstorm.md). A GROUPS (Connections-style) prototype was built and scrapped 12 Jun 2026. |
 
 ## Repository layout
 

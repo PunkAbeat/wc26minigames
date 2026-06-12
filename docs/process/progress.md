@@ -25,7 +25,8 @@ Statuses: `todo` · `in_progress` · `blocked` · `done`. One line per item; dur
 | i18n phase 2: 11 languages (+PT/DE/NL/TR, +AR/FA RTL, +JA/KO) + localized share cards + MATCHDAY hub og:image | done | **live 12 Jun** — owner picked top world languages ∩ WC26 participants; per-lang string files (typed completeness); native-name dropdown; <html dir> RTL with the audio player pinned LTR; 48 nations named in all 11 langs as guess aliases. **AR/FA/JA/KO are machine-written — need native-speaker review before promoting those locales** |
 | Stats share card ("Share my record" in stats modal) | done | live 12 Jun; tracked as share_clicked{mode:stats} |
 | Mid-game UTC-midnight rollover edge | done | fixed 12 Jun — daily game pins its day at start (save/streak/global-stats all use it) |
-| **GROUPS prototype (game #2)** | in_progress | owner picked GROUPS from the [game-2 brainstorm](../research/game2-brainstorm.md) 12 Jun; built same day — /groups route, 10-grid bank, all 11 langs, headless suite 12; all gates green. **Tailnet preview only — NOT deployed.** Awaiting owner on-device pass + difficulty read on the puzzle bank |
+| GROUPS prototype (game #2) | scrapped | owner picked GROUPS 12 Jun, prototype built same day, owner played it on the tailnet preview and **scrapped it the same evening** ("feels really boring") — never deployed; code reverted (recoverable from history). Lesson + round-3 slate in the [game-2 brainstorm](../research/game2-brainstorm.md) |
+| **Game #2 selection, round 3** | in_progress | new criterion after the scrap: the core ten seconds must feel good. Slate: KEEPER ⭐ / FREE KICK / FLAG DRAW / BRACKET — owner pick pending ([questions.md](../research/questions.md) item 6); next build starts with a one-screen feel mock, not a full prototype |
 
 ## Backlog (not scheduled)
 
@@ -33,8 +34,7 @@ Statuses: `todo` · `in_progress` · `blocked` · `done`. One line per item; dur
 |---|---|
 | i18n phase 3 | per-nation hints/verdicts (48 × 10 of editorial content), og/meta per locale, native review of ar/fa/ja/ko |
 | Per-user leaderboards / "friends" comparison | needs auth — deliberately out of scope ([product.md](../product.md)) |
-| GROUPS launch decision | prototype on tailnet (see milestone row); needs owner verdict + a bigger puzzle bank (10 grids ≈ 10 days) before any deploy |
-| Third game for the hub | parked round-2 candidates (TOP BINS, BRACKET…) in [research/game2-brainstorm.md](../research/game2-brainstorm.md); add-a-game checklist in root README |
+| Third game for the hub | crowd-powered candidates (TOP BINS, RARE PICK) parked until real traffic — [research/game2-brainstorm.md](../research/game2-brainstorm.md); add-a-game checklist in root README |
 | Abuse hardening on global stats | only if visibly gamed — [ADR-0004](../adr/0004-anonymous-global-stats-on-d1.md) |
 | PostHog upgrade if 2 KPIs stop being enough | [ADR-0003](../adr/0003-first-party-cookieless-analytics.md) |
 
