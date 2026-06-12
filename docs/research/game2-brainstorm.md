@@ -1,5 +1,12 @@
 # Game #2 brainstorm
 
+> **DECIDED 12 Jun 2026: the owner picked GROUPS.** Prototype built the same day
+> (`app/src/routes/groups.tsx`, `app/src/lib/groups/`, headless suite 12) and
+> serving on the tailnet preview — not deployed. Remaining open items live in
+> [questions.md](questions.md) item 6. Rounds below kept as the record, and as
+> the candidate pool for game #3 (TOP BINS and RARE PICK unlock once there is
+> real traffic).
+
 Working document for choosing the second MATCHDAY game. Owner decision in the end —
 see [questions.md](questions.md). Criteria set by the owner (12 Jun 2026):
 
