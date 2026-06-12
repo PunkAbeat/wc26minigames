@@ -1,0 +1,406 @@
+<!doctype html>
+<!-- FLAG SORT feel mock — DISPOSABLE. Not the real game: no route, no i18n, no
+     daily seed. Target-pattern water sort: pour colours so the frame's layers
+     match the flag's stripes, bottom stripe first. Flag colours simplified. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>FLAG SORT — feel mock</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(#6fbdee, #b9e0f6 46%, #2e8b46 46.3%, #1c6332);
+    color: #10243a; touch-action: manipulation; overflow: hidden;
+  }
+  .top {
+    display: flex; justify-content: space-between; align-items: center;
+    background: #14324f; color: #fff; padding: 10px 14px;
+  }
+  .brand { font-weight: 800; letter-spacing: 1.5px; }
+  .tag { background: #ffd34d; color: #14324f; font-size: 10px; font-weight: 800;
+         border-radius: 999px; padding: 2px 8px; margin-left: 6px; vertical-align: 2px; }
+  .lvl { font-weight: 700; font-size: 13px; opacity: .9; }
+  main { max-width: 430px; margin: 0 auto; padding: 10px 14px; text-align: center; }
+  .flagname { font-weight: 800; letter-spacing: 1px; margin: 4px 0 8px; color: #fff;
+              text-shadow: 0 1px 3px rgba(0,0,0,.4); font-size: 17px; }
+  .frame {
+    position: relative; width: 76%; max-width: 290px; aspect-ratio: 3 / 2;
+    margin: 0 auto; border: 3px solid #fff; border-radius: 8px; overflow: hidden;
+    background: rgba(255,255,255,.10); display: flex; flex-direction: column;
+    box-shadow: 0 6px 18px rgba(0,0,0,.28);
+  }
+  .stripe { flex: 1; position: relative; }
+  .stripe .ghost { position: absolute; inset: 0; opacity: .15; }
+  .stripe .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0%;
+                  transition: width .16s ease-out; }
+  .stripe.need::after {
+    content: ''; position: absolute; inset: 3px; border-radius: 4px;
+    border: 2px dashed rgba(255,255,255,.6); animation: pulse 1.3s infinite;
+  }
+  @keyframes pulse { 50% { opacity: .35; } }
+  .stamp { position: absolute; inset: 0; display: flex; align-items: center;
+           justify-content: center; font-size: 52px; pointer-events: none; }
+  .stamp.ghost { opacity: .18; }
+  .frame.done { border-color: #ffd34d; box-shadow: 0 0 24px rgba(255,211,77,.8); }
+  .frame.wave { animation: wave .5s ease-in-out 4; }
+  @keyframes wave {
+    25% { transform: rotate(-1.6deg) skewY(-.8deg); }
+    75% { transform: rotate(1.6deg) skewY(.8deg); }
+  }
+  @keyframes shake {
+    20%, 60% { transform: translateX(-7px); }
+    40%, 80% { transform: translateX(7px); }
+  }
+  .hint {
+    margin: 10px auto 0; display: inline-flex; gap: 8px; align-items: center;
+    background: #14324f; color: #fff; border-radius: 999px; padding: 6px 14px;
+    font-weight: 700; font-size: 12px; letter-spacing: .6px; min-height: 28px;
+  }
+  .hint .sw { width: 14px; height: 14px; border-radius: 4px;
+              border: 1.5px solid rgba(255,255,255,.65); }
+  .row { display: flex; justify-content: center; align-items: flex-end;
+         gap: 18px; margin: 24px 0 12px; min-height: 162px; }
+  .tube {
+    position: relative; width: 46px; height: 150px;
+    border: 2.5px solid rgba(255,255,255,.8); border-top-color: rgba(255,255,255,.35);
+    background: rgba(255,255,255,.16); border-radius: 10px 10px 22px 22px;
+    box-shadow: inset 0 0 12px rgba(255,255,255,.2), 0 4px 10px rgba(0,0,0,.2);
+    transition: transform .15s ease-out;
+  }
+  .tube.sel { transform: translateY(-10px); border-color: #ffd34d;
+              box-shadow: inset 0 0 12px rgba(255,255,255,.2), 0 0 14px rgba(255,211,77,.7); }
+  .tube .liq { position: absolute; left: 4px; right: 4px; top: 4px; bottom: 4px;
+               display: flex; flex-direction: column-reverse;
+               border-radius: 5px 5px 17px 17px; overflow: hidden; }
+  .u { width: 100%; height: 0%; transition: height .14s ease-out; flex: none; }
+  .pouring { z-index: 40; }
+  .stream { position: fixed; width: 7px; border-radius: 4px; z-index: 50; height: 0;
+            box-shadow: 0 0 8px rgba(255,255,255,.45); }
+  .controls { display: flex; justify-content: center; gap: 12px; }
+  .controls button {
+    background: #14324f; color: #fff; border: 0; border-radius: 999px;
+    padding: 10px 18px; font-weight: 800; font-size: 13px; letter-spacing: .5px;
+  }
+  .controls button:disabled { opacity: .4; }
+  .note { color: rgba(255,255,255,.85); font-size: 11px; margin-top: 12px;
+          text-shadow: 0 1px 2px rgba(0,0,0,.3); }
+  .banner { position: fixed; inset: 0; z-index: 80; display: flex; align-items: center;
+            justify-content: center; background: rgba(8,20,35,.55); }
+  .banner .card { background: #fff; border-radius: 18px; padding: 22px 26px;
+                  text-align: center; width: 78%; max-width: 320px;
+                  box-shadow: 0 12px 30px rgba(0,0,0,.35); animation: pop .35s ease-out; }
+  @keyframes pop { from { transform: scale(.7); opacity: 0; } }
+  .banner .big { font-size: 56px; line-height: 1; }
+  .banner h2 { margin: 8px 0 4px; color: #14324f; letter-spacing: 1px; }
+  .banner p { margin: 4px 0 14px; color: #4a647e; font-size: 13px; }
+  .banner button { background: #ffd34d; color: #14324f; border: 0; border-radius: 999px;
+                   padding: 12px 24px; font-weight: 800; font-size: 14px; letter-spacing: .5px; }
+  .confetti { position: fixed; z-index: 90; top: -40px; font-size: 22px; pointer-events: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .frame.wave, .stripe.need::after { animation: none; }
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">FLAG SORT<span class="tag">FEEL MOCK</span></div>
+  <div class="lvl" id="lvl"></div>
+</header>
+<main>
+  <div class="flagname" id="flagname"></div>
+  <div class="frame" id="frame"></div>
+  <div><span class="hint" id="hint"></span></div>
+  <div class="row" id="row"></div>
+  <div class="controls">
+    <button id="undo">↩ UNDO</button>
+    <button id="restart">↻ RESTART</button>
+  </div>
+  <p class="note">Disposable feel mock — tap a tube, then tap another tube or the flag.<br>
+  The flag fills its <b>bottom stripe first</b>. Colours simplified.</p>
+</main>
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const LEVELS = [
+    { name: "GERMANY",   emo: "🇩🇪", stripes: [["#2b2b2b","BLACK"], ["#d40e14","RED"],   ["#ffce00","GOLD"]] },
+    { name: "SPAIN",     emo: "🇪🇸", stripes: [["#aa151b","RED"],   ["#f1bf00","GOLD"],  ["#aa151b","RED"]] },
+    { name: "ARGENTINA", emo: "🇦🇷", stripes: [["#74acdf","SKY"],   ["#ffffff","WHITE"], ["#74acdf","SKY"]], stamp: "☀️" },
+  ];
+  const CAP = 4, PER = 3;
+  const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let li = 0, L, seq, label, tubes, f, hist, sel = -1, busy = false, deal0;
+
+  const shuffle = a => { for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+  // Solvability check: tiny DFS over canonical states. Tubes are bottom→top arrays.
+  function solvable(t0, sq) {
+    const seen = new Set();
+    const key = (t, g) => t.map(x => x.join(",")).sort().join("|") + "#" + g;
+    function dfs(t, g) {
+      if (g === sq.length) return true;
+      const k = key(t, g);
+      if (seen.has(k) || seen.size > 30000) return false;
+      seen.add(k);
+      for (let i = 0; i < t.length; i++) {                // tube -> frame
+        const a = t[i]; if (!a.length) continue;
+        const c = a[a.length - 1];
+        if (c !== sq[g]) continue;
+        let run = 0; for (let j = a.length - 1; j >= 0 && a[j] === c; j--) run++;
+        let acc = 0; while (acc < run && sq[g + acc] === c) acc++;
+        const nt = t.map(x => x.slice()); nt[i] = a.slice(0, a.length - acc);
+        if (dfs(nt, g + acc)) return true;
+      }
+      for (let i = 0; i < t.length; i++) {                // tube -> tube
+        const a = t[i]; if (!a.length) continue;
+        const c = a[a.length - 1];
+        let run = 0; for (let j = a.length - 1; j >= 0 && a[j] === c; j--) run++;
+        for (let d = 0; d < t.length; d++) {
+          if (d === i) continue;
+          const b = t[d];
+          if (b.length && b[b.length - 1] !== c) continue;
+          if (!b.length && run === a.length) continue;   // monochrome tube -> empty is a no-op
+          const space = CAP - b.length; if (!space) continue;
+          const m = Math.min(run, space);
+          const nt = t.map(x => x.slice());
+          nt[d] = b.concat(Array(m).fill(c)); nt[i] = a.slice(0, a.length - m);
+          if (dfs(nt, g)) return true;
+        }
+      }
+      return false;
+    }
+    return dfs(t0.map(x => x.slice()), 0);
+  }
+
+  function freshDeal() {
+    for (let n = 0; n < 400; n++) {
+      const pool = shuffle(seq.slice());
+      const T = [pool.slice(0, 3), pool.slice(3, 6), pool.slice(6, 9), []];
+      if (solvable(T, seq)) return T;
+    }
+    return [seq.slice(0, 3), seq.slice(3, 6), seq.slice(6, 9), []];
+  }
+
+  function newLevel(i) {
+    li = i; L = LEVELS[i];
+    seq = []; label = {};
+    for (let s = L.stripes.length - 1; s >= 0; s--) {     // bottom stripe pours first
+      const [c, lb] = L.stripes[s]; label[c] = lb;
+      for (let k = 0; k < PER; k++) seq.push(c);
+    }
+    tubes = freshDeal();
+    deal0 = tubes.map(x => x.slice());
+    f = 0; hist = []; sel = -1; busy = false;
+    render();
+  }
+
+  function stripeFill(si) { return Math.max(0, Math.min(PER, f - (2 - si) * PER)); }
+
+  function render() {
+    $("#lvl").textContent = `FLAG ${li + 1} / ${LEVELS.length}`;
+    $("#flagname").textContent = `${L.emo} ${L.name}`;
+    const fr = $("#frame");
+    fr.classList.remove("done", "wave");
+    fr.innerHTML = L.stripes.map((s, si) => {
+      const need = f < 9 && si === 2 - Math.floor(f / PER);
+      return `<div class="stripe${need ? " need" : ""}" data-si="${si}">
+        <div class="ghost" style="background:${s[0]}"></div>
+        <div class="fill" style="background:${s[0]};width:${stripeFill(si) / PER * 100}%"></div>
+      </div>`;
+    }).join("") + (L.stamp ? `<div class="stamp ghost" id="stamp">${L.stamp}</div>` : "");
+    const hint = $("#hint");
+    if (f < 9) {
+      hint.style.visibility = "visible";
+      hint.innerHTML = `POUR NEXT <span class="sw" style="background:${seq[f]}"></span> ${label[seq[f]]}`;
+    } else hint.style.visibility = "hidden";
+    const row = $("#row");
+    row.innerHTML = tubes.map((t, i) =>
+      `<div class="tube${i === sel ? " sel" : ""}" data-i="${i}"><div class="liq">${
+        t.map(c => `<div class="u" style="background:${c};height:${100 / CAP}%"></div>`).join("")
+      }</div></div>`).join("");
+    $("#undo").disabled = !hist.length;
+  }
+
+  const snapshot = () => hist.push({ t: tubes.map(x => x.slice()), f });
+
+  // --- pour choreography: lift + tilt the tube, stream, units glug across ---
+  function tilt(srcEl, dr, color, n, onUnit, done) {
+    if (RM) { for (let k = 0; k < n; k++) onUnit(k); setTimeout(done, 120); return; }
+    const sr = srcEl.getBoundingClientRect();
+    const dir = (sr.left + sr.width / 2) <= (dr.left + dr.width / 2) ? 1 : -1;
+    const tx = dr.left + dr.width / 2 - dir * sr.height * .40 - (sr.left + sr.width / 2);
+    const ty = dr.top - sr.width * .85 - (sr.top + sr.height / 2);
+    srcEl.classList.add("pouring");
+    const pose = `translate(${tx}px,${ty}px) rotate(${dir * 100}deg)`;
+    const a1 = srcEl.animate([{ transform: "none" }, { transform: pose }],
+      { duration: 280, easing: "cubic-bezier(.5,0,.6,1)", fill: "forwards" });
+    a1.onfinish = () => {
+      const st = document.createElement("div");
+      st.className = "stream"; st.style.background = color;
+      st.style.left = (dr.left + dr.width / 2 - 3.5) + "px";
+      st.style.top = (dr.top - 16) + "px";
+      document.body.appendChild(st);
+      st.animate([{ height: "0px" }, { height: dr.height * .7 + 16 + "px" }],
+        { duration: 110, fill: "forwards" });
+      let k = 0;
+      const iv = setInterval(() => {
+        onUnit(k); k++;
+        if (k < n) return;
+        clearInterval(iv);
+        st.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 130, fill: "forwards" })
+          .onfinish = () => st.remove();
+        const a2 = srcEl.animate([{ transform: pose }, { transform: "none" }],
+          { duration: 260, easing: "ease-in-out", fill: "forwards" });
+        a2.onfinish = () => { a1.cancel(); a2.cancel(); srcEl.classList.remove("pouring"); done(); };
+      }, 150);
+    };
+  }
+
+  function addUnitEl(di, color) {
+    const liq = document.querySelectorAll(".tube")[di].querySelector(".liq");
+    const u = document.createElement("div");
+    u.className = "u"; u.style.background = color; u.style.height = "0%";
+    liq.appendChild(u);
+    requestAnimationFrame(() => { u.style.height = 100 / CAP + "%"; });
+  }
+  function dropTopEl(si) {
+    const liq = document.querySelectorAll(".tube")[si].querySelector(".liq");
+    const u = liq.lastElementChild;
+    if (u) { u.style.height = "0%"; setTimeout(() => u.remove(), 150); }
+  }
+
+  function pourTube(si, di) {
+    const a = tubes[si], b = tubes[di], c = a[a.length - 1];
+    let run = 0; for (let j = a.length - 1; j >= 0 && a[j] === c; j--) run++;
+    const m = Math.min(run, CAP - b.length);
+    snapshot(); busy = true; sel = -1;
+    const els = document.querySelectorAll(".tube");
+    els[si].classList.remove("sel");
+    tilt(els[si], els[di].getBoundingClientRect(), c, m,
+      () => { dropTopEl(si); addUnitEl(di, c); },
+      () => {
+        for (let k = 0; k < m; k++) { a.pop(); b.push(c); }
+        busy = false; render();
+      });
+  }
+
+  function pourFrame(si) {
+    const a = tubes[si], c = a[a.length - 1];
+    let run = 0; for (let j = a.length - 1; j >= 0 && a[j] === c; j--) run++;
+    let acc = 0; while (acc < run && seq[f + acc] === c) acc++;
+    snapshot(); busy = true; sel = -1;
+    const els = document.querySelectorAll(".tube");
+    els[si].classList.remove("sel");
+    const stripeEl = $("#frame").children[2 - Math.floor(f / PER)];
+    let g = f;
+    tilt(els[si], stripeEl.getBoundingClientRect(), c, acc,
+      () => {
+        dropTopEl(si); g++;
+        const sIdx = 2 - Math.floor((g - 1) / PER);
+        const el = $("#frame").children[sIdx];
+        if (el) el.querySelector(".fill").style.width =
+          ((g - (2 - sIdx) * PER) / PER * 100) + "%";
+      },
+      () => {
+        for (let k = 0; k < acc; k++) a.pop();
+        f += acc; busy = false; render();
+        if (f === seq.length) win();
+      });
+  }
+
+  function reject() {
+    const fr = $("#frame");
+    fr.animate([
+      { transform: "translateX(0)" }, { transform: "translateX(-7px)" },
+      { transform: "translateX(7px)" }, { transform: "translateX(-5px)" },
+      { transform: "translateX(0)" }], { duration: 320 });
+    sel = -1; render();
+  }
+
+  function confetti() {
+    const set = [L.emo, "🎉", "⚽", "✨"];
+    for (let i = 0; i < 22; i++) {
+      const s = document.createElement("span");
+      s.className = "confetti";
+      s.textContent = set[i % set.length];
+      s.style.left = Math.random() * 100 + "vw";
+      document.body.appendChild(s);
+      s.animate([
+        { transform: "translateY(0) rotate(0)", opacity: 1 },
+        { transform: `translateY(105vh) rotate(${(Math.random() - .5) * 720}deg)`, opacity: .8 }
+      ], { duration: 1400 + Math.random() * 1200, easing: "ease-in", delay: Math.random() * 350 })
+        .onfinish && setTimeout(() => s.remove(), 3200);
+    }
+  }
+
+  function win() {
+    busy = true;
+    $("#hint").style.visibility = "hidden";
+    const fr = $("#frame");
+    fr.querySelectorAll(".stripe").forEach(s => s.classList.remove("need"));
+    fr.classList.add("done");
+    const stamp = $("#stamp");
+    if (stamp) {
+      stamp.classList.remove("ghost");
+      stamp.animate([
+        { transform: "scale(3) rotate(-20deg)", opacity: 0 },
+        { transform: "scale(1) rotate(0)", opacity: 1 }
+      ], { duration: 420, easing: "cubic-bezier(.2,1.6,.4,1)" });
+    }
+    if (!RM) fr.classList.add("wave");
+    confetti();
+    setTimeout(() => {
+      const last = li === LEVELS.length - 1;
+      const b = document.createElement("div");
+      b.className = "banner";
+      b.innerHTML = `<div class="card"><div class="big">${L.emo}</div>
+        <h2>${L.name}!</h2>
+        <p>${last ? "That's the mock — the real thing would ladder through all 48 qualified nations."
+                  : "Flag complete. Next one's trickier…"}</p>
+        <button>${last ? "PLAY AGAIN" : "NEXT FLAG →"}</button></div>`;
+      document.body.appendChild(b);
+      b.querySelector("button").onclick = () => { b.remove(); newLevel(last ? 0 : li + 1); };
+    }, 1100);
+  }
+
+  document.addEventListener("click", e => {
+    if (busy) return;
+    const tube = e.target.closest(".tube");
+    if (tube) {
+      const i = +tube.dataset.i;
+      if (sel < 0) { if (tubes[i].length) { sel = i; render(); } return; }
+      if (sel === i) { sel = -1; render(); return; }
+      const a = tubes[sel], b = tubes[i];
+      const ok = b.length < CAP && (!b.length || b[b.length - 1] === a[a.length - 1]);
+      if (ok) pourTube(sel, i);
+      else { sel = tubes[i].length ? i : -1; render(); }
+      return;
+    }
+    if (e.target.closest("#frame")) {
+      if (sel < 0 || f >= seq.length) return;
+      const a = tubes[sel];
+      if (a[a.length - 1] === seq[f]) pourFrame(sel);
+      else reject();
+      return;
+    }
+    if (sel >= 0) { sel = -1; render(); }
+  });
+
+  $("#undo").onclick = () => {
+    if (busy || !hist.length) return;
+    const h = hist.pop(); tubes = h.t; f = h.f; sel = -1; render();
+  };
+  $("#restart").onclick = () => {
+    if (busy) return;
+    tubes = deal0.map(x => x.slice()); f = 0; hist = []; sel = -1; render();
+  };
+
+  newLevel(0);
+})();
+</script>
+</body>
+</html>
