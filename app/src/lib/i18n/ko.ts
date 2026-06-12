@@ -103,26 +103,4 @@ export const ko: Record<StringKey, string> = {
   share_record_head: 'ANTHEM ⚽ 내 기록',
   share_record_line: '플레이 {p} · 승률 {w}% · 연속 {s}',
   share_record_best: ' (최고 {b})',
-
-  /* ---- groups (machine-written, needs native review like the rest of ko) ---- */
-  groups_tagline: '16개국을 4개의 숨은 그룹으로 나누세요 — 매일 새로운 그리드.',
-  gr_sub: '4개국씩 숨은 그룹 4개를 찾으세요',
-  gr_grid_label: '그리드 #{n}',
-  gr_mistakes: '남은 실수 횟수',
-  gr_shuffle: '섞기',
-  gr_deselect: '선택 해제',
-  gr_submit: '제출',
-  gr_pick4: '먼저 4개국을 선택하세요',
-  gr_one_away: '하나 남았어요! 😅',
-  gr_dup: '이미 시도한 조합이에요',
-  gr_win: '조 1위! 🏆',
-  gr_lose: '경기 종료 — 실수 기회를 다 썼어요',
-  gr_next_in: '⏱ 다음 그리드까지 {t}',
-  gr_howto_1:
-    '공통점이 있는 **4개국**을 고르세요 — 국기, 지리, 별명, 월드컵 역사.',
-  gr_howto_2:
-    '**제출**을 누르세요. 쉬운 🟨부터 교묘한 🟪까지 네 그룹을 모두 풀어보세요. 셋은 맞고 하나가 틀리면? **“하나 남았어요!”**',
-  gr_howto_3:
-    '실수는 **4번**까지. 새 그리드는 **UTC 자정**에 — 연속 기록을 지키고 스포일러 없는 색을 공유하세요.',
-  gr_share_tail: '16개국을 4개의 숨은 그룹으로 나누세요',
 }

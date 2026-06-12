@@ -102,26 +102,4 @@ export const pt: Record<StringKey, string> = {
   share_record_head: 'ANTHEM ⚽ Meu recorde',
   share_record_line: 'Jogados {p} · Vitórias {w}% · Sequência {s}',
   share_record_best: ' (melhor {b})',
-
-  /* ---- groups ---- */
-  groups_tagline: 'Agrupe 16 seleções em quatro grupos ocultos — uma grade nova todo dia.',
-  gr_sub: 'Encontre os quatro grupos ocultos de quatro',
-  gr_grid_label: 'GRADE #{n}',
-  gr_mistakes: 'Erros restantes',
-  gr_shuffle: 'Embaralhar',
-  gr_deselect: 'Desmarcar',
-  gr_submit: 'ENVIAR',
-  gr_pick4: 'Escolha 4 seleções primeiro',
-  gr_one_away: 'Faltou um! 😅',
-  gr_dup: 'Você já tentou esses quatro',
-  gr_win: 'LÍDER DO GRUPO! 🏆',
-  gr_lose: 'FIM DE JOGO — acabaram os erros',
-  gr_next_in: '⏱ Próxima grade em {t}',
-  gr_howto_1:
-    'Escolha **4 seleções** que compartilham algo: bandeiras, geografia, apelidos ou história de Copa.',
-  gr_howto_2:
-    'Aperte **ENVIAR**. Resolva os quatro grupos, do fácil 🟨 ao traiçoeiro 🟪. Três certos e um errado? **“Faltou um!”**',
-  gr_howto_3:
-    'Você pode cometer **4 erros**. Uma grade nova à **meia-noite UTC** — mantenha sua sequência e compartilhe suas cores sem spoiler.',
-  gr_share_tail: 'Agrupe 16 seleções em 4 grupos ocultos',
 }

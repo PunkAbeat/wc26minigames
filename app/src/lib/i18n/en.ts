@@ -113,28 +113,6 @@ export const en = {
   share_record_head: 'ANTHEM ⚽ My record',
   share_record_line: 'Played {p} · Win {w}% · Streak {s}',
   share_record_best: ' (best {b})',
-
-  /* ---- groups (game #2) ---- */
-  groups_tagline: 'Sort 16 nations into four hidden groups — a new grid every day.',
-  gr_sub: 'Find the four hidden groups of four',
-  gr_grid_label: 'GRID #{n}',
-  gr_mistakes: 'Mistakes remaining',
-  gr_shuffle: 'Shuffle',
-  gr_deselect: 'Deselect',
-  gr_submit: 'SUBMIT',
-  gr_pick4: 'Pick 4 nations first',
-  gr_one_away: 'One away! 😅',
-  gr_dup: 'Already tried those four',
-  gr_win: 'TOP OF THE GROUP! 🏆',
-  gr_lose: 'FULL TIME — out of mistakes',
-  gr_next_in: '⏱ Next grid in {t}',
-  gr_howto_1:
-    'Pick **4 nations** that share something — flags, geography, nicknames or World Cup history.',
-  gr_howto_2:
-    'Hit **SUBMIT**. Solve all four groups, easy 🟨 to sneaky 🟪. Three right and one wrong? **“One away!”**',
-  gr_howto_3:
-    'You can afford **4 mistakes**. A new grid drops at **midnight UTC** — keep your streak and share your spoiler-free colours.',
-  gr_share_tail: 'Sort 16 nations into 4 hidden groups',
 }
 
 export type StringKey = keyof typeof en

@@ -103,26 +103,4 @@ export const es: Record<StringKey, string> = {
   share_record_head: 'ANTHEM ⚽ Mi récord',
   share_record_line: 'Jugados {p} · Victorias {w}% · Racha {s}',
   share_record_best: ' (mejor {b})',
-
-  /* ---- groups ---- */
-  groups_tagline: 'Agrupa 16 países en cuatro grupos ocultos — una cuadrícula nueva cada día.',
-  gr_sub: 'Encuentra los cuatro grupos ocultos de cuatro',
-  gr_grid_label: 'CUADRÍCULA #{n}',
-  gr_mistakes: 'Errores restantes',
-  gr_shuffle: 'Mezclar',
-  gr_deselect: 'Deseleccionar',
-  gr_submit: 'ENVIAR',
-  gr_pick4: 'Elige 4 países primero',
-  gr_one_away: '¡Te falta uno! 😅',
-  gr_dup: 'Ya probaste esos cuatro',
-  gr_win: '¡LÍDER DEL GRUPO! 🏆',
-  gr_lose: 'FINAL DEL PARTIDO — sin más errores',
-  gr_next_in: '⏱ Próxima cuadrícula en {t}',
-  gr_howto_1:
-    'Elige **4 países** que compartan algo: banderas, geografía, apodos o historia mundialista.',
-  gr_howto_2:
-    'Pulsa **ENVIAR**. Resuelve los cuatro grupos, del fácil 🟨 al retorcido 🟪. ¿Tres bien y uno mal? **«¡Te falta uno!»**',
-  gr_howto_3:
-    'Puedes permitirte **4 errores**. Una cuadrícula nueva a **medianoche UTC** — mantén tu racha y comparte tus colores sin spoilers.',
-  gr_share_tail: 'Agrupa 16 países en 4 grupos ocultos',
 }

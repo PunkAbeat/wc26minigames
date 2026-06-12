@@ -102,26 +102,4 @@ export const tr: Record<StringKey, string> = {
   share_record_head: 'ANTHEM ⚽ Karnem',
   share_record_line: 'Oynanan {p} · Kazanma %{w} · Seri {s}',
   share_record_best: ' (en iyi {b})',
-
-  /* ---- groups ---- */
-  groups_tagline: '16 ülkeyi dört gizli gruba ayır — her gün yeni bir tablo.',
-  gr_sub: 'Dörderli dört gizli grubu bul',
-  gr_grid_label: 'TABLO #{n}',
-  gr_mistakes: 'Kalan hata hakkı',
-  gr_shuffle: 'Karıştır',
-  gr_deselect: 'Seçimi kaldır',
-  gr_submit: 'GÖNDER',
-  gr_pick4: 'Önce 4 ülke seç',
-  gr_one_away: 'Bir tane kaldı! 😅',
-  gr_dup: 'Bu dörtlüyü zaten denedin',
-  gr_win: 'GRUP LİDERİ! 🏆',
-  gr_lose: 'MAÇ BİTTİ — hata hakkın kalmadı',
-  gr_next_in: '⏱ Sonraki tablo: {t}',
-  gr_howto_1:
-    'Ortak bir yanı olan **4 ülke** seç: bayraklar, coğrafya, takma adlar veya Dünya Kupası tarihi.',
-  gr_howto_2:
-    '**GÖNDER**’e bas. Kolaydan 🟨 sinsiye 🟪 dört grubu da çöz. Üç doğru bir yanlış mı? **“Bir tane kaldı!”**',
-  gr_howto_3:
-    '**4 hata** hakkın var. Yeni tablo **UTC gece yarısı** gelir — serini koru ve spoilersiz renklerini paylaş.',
-  gr_share_tail: '16 ülkeyi 4 gizli gruba ayır',
 }

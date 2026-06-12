@@ -103,26 +103,4 @@ export const de: Record<StringKey, string> = {
   share_record_head: 'ANTHEM ⚽ Meine Bilanz',
   share_record_line: 'Gespielt {p} · Siege {w}% · Serie {s}',
   share_record_best: ' (beste {b})',
-
-  /* ---- groups ---- */
-  groups_tagline: 'Sortiere 16 Nationen in vier versteckte Gruppen — jeden Tag ein neues Raster.',
-  gr_sub: 'Finde die vier versteckten Vierergruppen',
-  gr_grid_label: 'RASTER #{n}',
-  gr_mistakes: 'Verbleibende Fehler',
-  gr_shuffle: 'Mischen',
-  gr_deselect: 'Abwählen',
-  gr_submit: 'PRÜFEN',
-  gr_pick4: 'Wähle zuerst 4 Nationen',
-  gr_one_away: 'Nur eins daneben! 😅',
-  gr_dup: 'Diese vier hast du schon probiert',
-  gr_win: 'GRUPPENSIEGER! 🏆',
-  gr_lose: 'ABPFIFF — keine Fehler mehr übrig',
-  gr_next_in: '⏱ Nächstes Raster in {t}',
-  gr_howto_1:
-    'Wähle **4 Nationen**, die etwas gemeinsam haben: Flaggen, Geografie, Spitznamen oder WM-Geschichte.',
-  gr_howto_2:
-    'Drücke **PRÜFEN**. Löse alle vier Gruppen, von leicht 🟨 bis fies 🟪. Drei richtig, eins falsch? **„Nur eins daneben!“**',
-  gr_howto_3:
-    'Du hast **4 Fehler** frei. Um **Mitternacht UTC** gibt es ein neues Raster — halte deine Serie und teile deine spoilerfreien Farben.',
-  gr_share_tail: 'Sortiere 16 Nationen in 4 versteckte Gruppen',
 }
