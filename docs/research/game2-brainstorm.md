@@ -143,14 +143,30 @@ weaker share story than puzzle grids.
 - **Collective tifo canvas (r/place-like)** — backend + moderation burden.
 - **Higher/Lower flag streak** — fine but thin; direct incumbent.
 
-### Where this leaves the field
+### Owner constraint added (12 Jun 2026): no crowd-powered mechanics for now
 
-Three distinct flagship directions now on the table:
+The site has barely any traffic yet. Anything whose *core loop* needs other
+players' inputs — **TOP BINS** (keeper = crowd heatmap) and **RARE PICK**
+(score = answer rarity) — doesn't work cold: a seeded/bot "crowd" is just RNG
+wearing a mask and loses the entire social magic. Both are **parked, not
+killed**: they are flywheel games for *after* an audience exists (game #3+
+candidates), the same way ANTHEM's global stats were layered on later.
 
-1. **TOP BINS** (round 2) — most novel; crowd-vs-crowd game theory; one tap/day; uses existing counter infra.
-2. **GROUPS** (round 1) — safest bet with the widest proven appeal; editorial pipeline is the cost.
-3. **BRACKET** (round 2) — proven-universal mechanic + daily-seed twist; fully offline-deterministic.
+### Where this leaves the field (re-ranked, crowd-free only)
 
-They're not mutually exclusive long-term (the hub wants a portfolio), but game #2
-should be one of these. Owner call — see [questions.md](questions.md) item 6.
+1. **GROUPS** (round 1) — widest proven appeal (Connections is the current
+   category leader), near-zero knowledge floor, reuses nation/flag/share infra.
+   Cost: editorial pipeline (~4 categories/day; agents draft in bulk, owner QAs).
+2. **BRACKET** (round 2) — proven-universal 2048 mechanic + the daily-seed
+   "everyone plays the identical game" twist + perfect knockout theming.
+   **Zero daily content cost** — fully deterministic and client-side, the
+   cheapest to run of all candidates. Risk: 2048-reskin smell if the daily-race
+   framing isn't front and centre.
+3. **SPOT THE BALL** (round 2) — works crowd-free (scored against ground truth);
+   judgment not trivia; but the heaviest content pipeline (one illustration/day).
+4. **ONE SHOT**, original timing flavour (round 1) — crowd-free but carries the
+   iOS timing-fairness and shallow-mechanic risks noted in round 1.
+
+Game #2 should be **GROUPS or BRACKET**. Owner call — see
+[questions.md](questions.md) item 6.
 
