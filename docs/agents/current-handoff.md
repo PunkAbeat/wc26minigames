@@ -1,6 +1,6 @@
 # Current handoff
 
-*Updated: 2026-06-12 evening (free play uncapped; GROUPS scrapped; game #2 in round-3 selection)*
+*Updated: 2026-06-13 (SQUAD parked after two mock passes; criteria relaxed; FLAG SORT proposed by owner — round 5)*
 
 ## State
 
@@ -10,15 +10,11 @@ Production is **LIVE at https://wc26minigames.com** (ANTHEM + hub). `master`, cl
 
 **GROUPS is dead.** Built 12 Jun, owner played it on the tailnet preview the same evening and scrapped it ("feels really boring"). Reverted in `e10ce51`/`93631bc`/`43af8fb` — `/groups` is 404 again, hub card and `gr_*` i18n keys removed, suite 12 gone (suites are 1–11 again). The prototype, including the fact-checked 10-grid puzzle bank, is recoverable from history just before those reverts. It was never deployed; no user ever saw it.
 
-**Game #2 selection — round 4** ([game2-brainstorm.md](../research/game2-brainstorm.md)). The scrap added criterion #5: *the core ten seconds must feel good* (motion/tension/comedy). The owner then widened the brief (12 Jun, after round 3): any genre — cards, physics, anything — as long as it's unique and football/WC-linked. Round-4 slate awaiting owner pick:
+**Game #2 selection — round 5** ([game2-brainstorm.md](../research/game2-brainstorm.md)). History: GROUPS scrapped 12 Jun (added criterion #5: *the core ten seconds must feel good*); round-4 genre-wide slate; owner tried **SQUAD** first. Two mock passes were built at `app/public/mock/squad.html` (**`/mock/squad`** on the tailnet preview) — v1, then a v2 excitement pass (visible rival pre-flip, GOAL!/scoreline framing, dim-zoom-countup reveal, rank chips, golden-goal sudden death; commit `31206c6`). Owner verdict: "may be a good direction but something feels off" → **SQUAD is parked, 13 Jun** (not scrapped; stats in the mock are agent-approximate). ⚠️ The mock lives in `app/public/` and would ship with `npm run deploy` — remove or gate it before any production deploy.
 
-- **SQUAD** ⭐ — nations card duel: daily seeded 5-card hands, order your hand, pick the stat each round, card-flip reveals. Cheapest build (no physics, one stats table); no nations-duel incumbent (avoid the "Top Trumps" trademark).
-- **SHOOTOUT** ⭐ — the full daily penalty shootout vs a seeded rival: alternate *taking* (beat the keeper's lean) and *saving* (read the run-up tell), best-of-5 + sudden death. Subsumes round-3 KEEPER.
-- **THREAD** — draw the killer through-ball past moving defenders; lane confirmed open.
-- **BICYCLE KICK** — two-tap ragdoll glory/comedy.
-- Held: FREE KICK / BRACKET / FLAG DRAW. Dropped: THE CALL (offsideornot.com + referee sims are incumbents).
+**Criteria relaxed (owner, 13 Jun):** uniqueness is no longer a hard criterion, and game #2 does not have to be daily. Still binding: football/WC link, licensing-clean, iOS Safari first, criterion #5.
 
-Owner chose to try **SQUAD first** (12 Jun). Feel mock built as a disposable static page — `app/public/mock/squad.html`, served at **`/mock/squad`** on the tailnet preview (the asset server drops `.html`). Full duel loop: deal 5v5 from all 48 nations, alternating stat-picks (odd rounds you pick; even rounds the rival announces its strongest-percentile stat and you choose which card to spend), 3D flip reveal, tally, deal-again. **Stats are agent-approximate mock values** (flagged on-page) — if SQUAD graduates, the stats table must be properly sourced. No route/i18n/suite on purpose; gut check verdict pending. SHOOTOUT mock is next if SQUAD doesn't land.
+**Now exploring (owner-proposed): FLAG SORT** — water-sort puzzle mechanics where you build country flags. Round-5 write-up in the brainstorm doc covers the incumbent scan (store clones exist; web lane open) and the key design fork: uniform-tube reskin vs **target-pattern sort** (frame layers must match the flag's stripe order — recommended; no incumbent found). Next step per process: one-screen feel mock (one tricolor flag, 5–6 tubes, real pour animation). SHOOTOUT remains the standing alternative.
 
 ## Process change for the next pick
 

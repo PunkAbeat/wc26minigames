@@ -360,3 +360,67 @@ genre range (cool-headed cards vs. heart-rate action), so the owner's gut
 reaction to the pair will say more about direction than any ranking on paper.
 THREAD is the dark horse if neither lands.
 
+## Round 5 (13 Jun 2026) — SQUAD parked; criteria relaxed; owner proposes FLAG SORT
+
+**SQUAD is parked** (not scrapped). The v1 feel mock got "may be a good
+direction but something feels off"; the v2 excitement pass (visible rival
+before the flip, GOAL!/scoreline framing, dim-zoom-countup reveal, "#k of 48"
+rank chips, golden-goal sudden death — commit `31206c6`) was built, and the
+owner chose to park the direction rather than iterate further. The mock stays
+at `app/public/mock/squad.html` (`/mock/squad` on the preview). ⚠️ `app/public/`
+ships with `npm run deploy` — remove or gate the mock before any production
+deploy.
+
+**Criteria relaxed (owner, 13 Jun):** uniqueness is **no longer a hard
+criterion**, and game #2 **does not have to be a daily game**. Still binding:
+football/WC link, licensing-clean assets, iOS Safari first, fun-in-ten-seconds
+(criterion #5), no crowd mechanics yet. Non-daily aligns with the ADR-0007
+growth thesis: value-per-visit over scarcity.
+
+### E1. FLAG SORT *(owner-proposed: water-sort mechanics, but you build country flags)*
+
+Tubes of layered colors, pour same-onto-same, limited spare capacity — the
+proven water-sort loop — except the win state is a **country flag**, not
+uniform tubes.
+
+Incumbent scan (13 Jun): the genre is saturated on app stores, including flag
+skins — "Flags Color Sort Puzzle" (Google Play), "Flag Sort Game: Sorting
+Puzzle" (App Store), "World Flags: Color Puzzle" (paint-by-color). All are
+ad-stuffed hyper-casual; **no polished web version found**, and the daily/web
+flag space is guessers (Flagle, Flag Pixel), not sorters. Under the relaxed
+criteria this is acceptable — the claim is execution + WC26 framing, not
+mechanical novelty.
+
+Design fork, and it matters:
+
+- **(a) Reskin:** uniform-tube sort where the liquids happen to be flag
+  colors, completed set = "Japan unlocked". Cheapest, but the flag is
+  decoration — exactly what the store clones do.
+- **(b) Target-pattern sort:** the goal is a **frame whose layers must match
+  the flag's stripe order** (Germany: black/red/gold bottom-up). The flag *is*
+  the puzzle; reading the target changes every move. This variant has no
+  incumbent found and is the recommended shape. Solvability by construction:
+  generate levels by reverse-pouring from the solved flag.
+
+Fit: pour-and-glug satisfaction is pre-validated by the genre (criterion #5
+nearly free); zero knowledge floor; silent-friendly; one-finger. Completion
+payoff writes itself: last pour lands → emblem/crest stamps on (Japan's disc,
+Portugal's shield — stylized, licensing-clean state symbols need a per-flag
+check) → flag waves. Non-daily structure: the 48 qualified nations as a level
+ladder (tricolors early, emblem flags late), natural "group stage" packs.
+
+Risks: **the pour animation is the entire game** — a feel mock that doesn't
+nail tilt/stream/settle on iOS Safari under-sells the genre rather than
+testing the idea; emblem-heavy flags (Brazil, Croatia…) need stylization
+rules; football link is flag-level (same strength as ANTHEM — consistent, but
+thin).
+
+### Agent recommendation (round 5)
+
+Feel-mock FLAG SORT as variant (b): one screen, one flag (Germany — three
+clean stripes), 5–6 tubes, real pour animation, completion flourish. The mock
+must answer two things: does the pour feel as good in mobile-Safari CSS/JS as
+it does in the native clones, and does aiming at a flag pattern feel different
+from sorting to uniform tubes. SHOOTOUT remains the standing alternative if
+sorting doesn't land.
+
