@@ -14,7 +14,7 @@ Production is **LIVE at https://wc26minigames.com** (ANTHEM + hub). `master`, cl
 
 **Criteria relaxed (owner, 13 Jun):** uniqueness is no longer a hard criterion, and game #2 does not have to be daily. Still binding: football/WC link, licensing-clean, iOS Safari first, criterion #5.
 
-**Now exploring (owner-proposed): FLAG SORT** — water-sort puzzle mechanics where you build country flags. Round-5 write-up in the brainstorm doc covers the incumbent scan (store clones exist; web lane open) and the key design fork: uniform-tube reskin vs **target-pattern sort** (frame layers must match the flag's stripe order — recommended; no incumbent found). Next step per process: one-screen feel mock (one tricolor flag, 5–6 tubes, real pour animation). SHOOTOUT remains the standing alternative.
+**Now exploring (owner-proposed): FLAG SORT** — water-sort puzzle mechanics where you build country flags. Round-5 write-up in the brainstorm doc covers the incumbent scan (store clones exist; web lane open) and the key design fork: uniform-tube reskin vs **target-pattern sort** (frame layers must match the flag's stripe order — recommended; no incumbent found). Feel mock built 13 Jun (`d188dd8`): `app/public/mock/flagsort.html` at **`/mock/flagsort`** — target-pattern variant, 3 levels (Germany → Spain's repeated-red ordering trap → Argentina with sun-stamp payoff), tilt+stream pour choreography, solver-checked deals (every shuffle winnable), undo/restart, `prefers-reduced-motion` respected. Owner gut check pending. SHOOTOUT remains the standing alternative.
 
 ## Process change for the next pick
 
