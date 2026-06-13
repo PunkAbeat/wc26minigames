@@ -39,74 +39,209 @@ export function mountFlagSort(root, opts = {}) {
   const diamond = [[.5,.08],[.92,.5],[.5,.92],[.08,.5]];
   const diagBand = [[0,1],[.34,1],[1,.34],[1,0],[.66,0],[0,.66]]; // corner-to-corner stripe
 
-  // all 48 qualified nations (groups A–L), sorted into a difficulty ladder below
+  // all 48 qualified nations (groups A–L), sorted into a difficulty ladder below.
+  // emb = [emblemKey, fill, pos?] — a crisp inline-SVG emblem drawn ON the flag
+  // (see EMBLEMS below). pos {x,y} (fractions) places + shrinks it; default is
+  // centred + large. Emblems are deliberate stylisations, not the official arms.
   const FLAGS = [
     /* A */
-    { name:"MEXICO", emo:"🇲🇽", tier:2, stamp:"🦅", regions: V([g,w,r], 4) },
+    { name:"MEXICO", emo:"🇲🇽", tier:2, emb:["eagle","#4f3a1e"], regions: V([g,w,r], 4) },
     { name:"SOUTH AFRICA", emo:"🇿🇦", tier:4, regions: [...H([b,g,r]), TRI(k, triH)] },
-    { name:"SOUTH KOREA", emo:"🇰🇷", tier:2, stamp:"☯️", regions: [FIELD(w, 5)] },
+    { name:"SOUTH KOREA", emo:"🇰🇷", tier:2, emb:["taegeuk"], regions: [FIELD(w, 5)] },
     { name:"CZECHIA", emo:"🇨🇿", tier:3, regions: [...H([r,w]), TRI(b, triH)] },
     /* B */
-    { name:"CANADA", emo:"🇨🇦", tier:2, stamp:"🍁", regions: V([r,w,r], 4) },
-    { name:"BOSNIA & H.", emo:"🇧🇦", tier:3, stamp:"⭐", regions: [FIELD(n), TRI(y, [[.3,0],[.78,0],[.3,1]])] },
+    { name:"CANADA", emo:"🇨🇦", tier:2, emb:["maple","#d52b1e"], regions: V([r,w,r], 4) },
+    { name:"BOSNIA & H.", emo:"🇧🇦", tier:3, emb:["star","#fff",{x:.54,y:.5}], regions: [FIELD(n), TRI(y, [[.3,0],[.78,0],[.3,1]])] },
     { name:"QATAR", emo:"🇶🇦", tier:2, regions: [BOX(w,0,0,.3,1), BOX(m,.3,0,.7,1,4)] },
     { name:"SWITZERLAND", emo:"🇨🇭", tier:2, regions: [FIELD(r), CROSS(w)] },
     /* C */
     { name:"BRAZIL", emo:"🇧🇷", tier:3, regions: [FIELD(g), POLY(y, diamond), DISC(b, U, .5, .5, .17)] },
-    { name:"MOROCCO", emo:"🇲🇦", tier:2, stamp:"⭐", regions: [FIELD(r)] },
-    { name:"HAITI", emo:"🇭🇹", tier:2, stamp:"🛡️", regions: H([r,n]) },
+    { name:"MOROCCO", emo:"🇲🇦", tier:2, emb:["star5o","#0a6b35"], regions: [FIELD(r)] },
+    { name:"HAITI", emo:"🇭🇹", tier:2, emb:["shield","#d21034"], regions: H([r,n]) },
     { name:"SCOTLAND", emo:"🏴󠁧󠁢󠁳󠁣󠁴󠁿", tier:3, regions: [FIELD(b), POLY(w, saltA), POLY(w, saltB)] },
     /* D */
-    { name:"UNITED STATES", emo:"🇺🇸", tier:4, stamp:"⭐", stampPos:{x:.2,y:.25},
+    { name:"UNITED STATES", emo:"🇺🇸", tier:4, emb:["starsGrid","#fff",{x:.2,y:.25}],
       regions: [FIELD(r), BAND(w,.42,.16), BOX(n,0,0,.4,.5)] },
-    { name:"PARAGUAY", emo:"🇵🇾", tier:3, stamp:"⚪", regions: H([n,w,r]) },
-    { name:"AUSTRALIA", emo:"🇦🇺", tier:4, stamp:"⭐", regions: [FIELD(n, 5)] },
-    { name:"TÜRKIYE", emo:"🇹🇷", tier:2, stamp:"☪️", regions: [FIELD(r)] },
+    { name:"PARAGUAY", emo:"🇵🇾", tier:3, emb:["wreathStar","#1d8a3a"], regions: H([n,w,r]) },
+    { name:"AUSTRALIA", emo:"🇦🇺", tier:4, emb:["southernCross","#fff"], regions: [FIELD(n, 5)] },
+    { name:"TÜRKIYE", emo:"🇹🇷", tier:2, emb:["crescent","#fff"], regions: [FIELD(r)] },
     /* E */
     { name:"GERMANY", emo:"🇩🇪", tier:1, regions: H([y,r,k]) },
-    { name:"CURAÇAO", emo:"🇨🇼", tier:3, stamp:"⭐", stampPos:{x:.3,y:.32}, regions: [FIELD(n), BAND(y,.62,.18)] },
+    { name:"CURAÇAO", emo:"🇨🇼", tier:3, emb:["star","#fff",{x:.27,y:.34}], regions: [FIELD(n), BAND(y,.62,.18)] },
     { name:"IVORY COAST", emo:"🇨🇮", tier:1, regions: V([o,w,g], 4) },
-    { name:"ECUADOR", emo:"🇪🇨", tier:3, stamp:"🦅", regions: [BAND(r,.75,.25), BAND(b,.5,.25), BAND(y,0,.5,4)] },
+    { name:"ECUADOR", emo:"🇪🇨", tier:3, emb:["eagle","#6e5320"], regions: [BAND(r,.75,.25), BAND(b,.5,.25), BAND(y,0,.5,4)] },
     /* F */
     { name:"NETHERLANDS", emo:"🇳🇱", tier:1, regions: H([b,w,r], 4) },
     { name:"JAPAN", emo:"🇯🇵", tier:2, regions: [FIELD(w, 6), DISC(r, 4, .5, .5, .3)] },
     { name:"SWEDEN", emo:"🇸🇪", tier:2, regions: [FIELD(b), CROSS(y, .36)] },
-    { name:"TUNISIA", emo:"🇹🇳", tier:3, stamp:"☪️", regions: [FIELD(r), DISC(w, U, .5, .5, .26)] },
+    { name:"TUNISIA", emo:"🇹🇳", tier:3, emb:["crescent","#e70013"], regions: [FIELD(r), DISC(w, U, .5, .5, .26)] },
     /* G */
     { name:"BELGIUM", emo:"🇧🇪", tier:1, regions: V([k,y,r], 4) },
-    { name:"EGYPT", emo:"🇪🇬", tier:2, stamp:"🦅", regions: H([k,w,r]) },
+    { name:"EGYPT", emo:"🇪🇬", tier:2, emb:["eagle","#c8a13a"], regions: H([k,w,r]) },
     { name:"IRAN", emo:"🇮🇷", tier:2, regions: H([r,w,g]) },
-    { name:"NEW ZEALAND", emo:"🇳🇿", tier:4, stamp:"⭐", regions: [FIELD(n, 5)] },
+    { name:"NEW ZEALAND", emo:"🇳🇿", tier:4, emb:["southernCross","#e4002b"], regions: [FIELD(n, 5)] },
     /* H */
-    { name:"SPAIN", emo:"🇪🇸", tier:2, stamp:"🛡️", regions: H([r,y,r], 4) },
-    { name:"CAPE VERDE", emo:"🇨🇻", tier:3, stamp:"⭐", regions: [FIELD(n), BAND(r,.6,.12)] },
-    { name:"SAUDI ARABIA", emo:"🇸🇦", tier:2, stamp:"⚔️", regions: [FIELD(g, 5)] },
-    { name:"URUGUAY", emo:"🇺🇾", tier:4, stamp:"☀️", stampPos:{x:.2,y:.2},
+    { name:"SPAIN", emo:"🇪🇸", tier:2, emb:["shield","#ad1519",{x:.33,y:.5}], regions: H([r,y,r], 4) },
+    { name:"CAPE VERDE", emo:"🇨🇻", tier:3, emb:["ringStars","#fff"], regions: [FIELD(n), BAND(r,.6,.12)] },
+    { name:"SAUDI ARABIA", emo:"🇸🇦", tier:2, emb:["sword","#fff"], regions: [FIELD(g, 5)] },
+    { name:"URUGUAY", emo:"🇺🇾", tier:4, emb:["sun","#d8a93b",{x:.2,y:.2}],
       regions: [FIELD(w, 5), BAND(s,.22,.12), BAND(s,.55,.12), BOX(w,0,0,.4,.4)] },
     /* I */
     { name:"FRANCE", emo:"🇫🇷", tier:1, regions: V([b,w,r], 4) },
-    { name:"SENEGAL", emo:"🇸🇳", tier:2, stamp:"⭐", regions: V([g,y,r], 4) },
+    { name:"SENEGAL", emo:"🇸🇳", tier:2, emb:["star","#0a8a3e"], regions: V([g,y,r], 4) },
     { name:"IRAQ", emo:"🇮🇶", tier:2, regions: H([k,w,r]) },
     { name:"NORWAY", emo:"🇳🇴", tier:3, regions: [FIELD(r), CROSS(w, .36), CROSS(b, .36)] },
     /* J */
-    { name:"ARGENTINA", emo:"🇦🇷", tier:2, stamp:"☀️", regions: H([s,w,s], 4) },
-    { name:"ALGERIA", emo:"🇩🇿", tier:2, stamp:"☪️", regions: V([g,w]) },
+    { name:"ARGENTINA", emo:"🇦🇷", tier:2, emb:["sun","#d8a93b"], regions: H([s,w,s], 4) },
+    { name:"ALGERIA", emo:"🇩🇿", tier:2, emb:["crescent","#d21034",{x:.5,y:.5}], regions: V([g,w]) },
     { name:"AUSTRIA", emo:"🇦🇹", tier:1, regions: H([r,w,r], 4) },
-    { name:"JORDAN", emo:"🇯🇴", tier:3, stamp:"⭐", regions: [...H([g,w,k]), TRI(r, triH)] },
+    { name:"JORDAN", emo:"🇯🇴", tier:3, emb:["star7","#fff",{x:.16,y:.5}], regions: [...H([g,w,k]), TRI(r, triH)] },
     /* K */
-    { name:"PORTUGAL", emo:"🇵🇹", tier:3, stamp:"🛡️", regions: [BOX(g,0,0,.4,1,4), BOX(r,.4,0,.6,1,4)] },
-    { name:"DR CONGO", emo:"🇨🇩", tier:3, stamp:"⭐", stampPos:{x:.18,y:.22}, regions: [FIELD(s), POLY(r, diagBand)] },
-    { name:"UZBEKISTAN", emo:"🇺🇿", tier:3, stamp:"☪️", regions: H([g,w,s]) },
+    { name:"PORTUGAL", emo:"🇵🇹", tier:3, emb:["shield","#fff",{x:.4,y:.5}], regions: [BOX(g,0,0,.4,1,4), BOX(r,.4,0,.6,1,4)] },
+    { name:"DR CONGO", emo:"🇨🇩", tier:3, emb:["star","#f7d618",{x:.18,y:.22}], regions: [FIELD(s), POLY(r, diagBand)] },
+    { name:"UZBEKISTAN", emo:"🇺🇿", tier:3, emb:["crescent","#fff",{x:.26,y:.3}], regions: H([g,w,s]) },
     { name:"COLOMBIA", emo:"🇨🇴", tier:2, regions: [BAND(r,.75,.25), BAND(b,.5,.25), BAND(y,0,.5,4)] },
     /* L */
     { name:"ENGLAND", emo:"🏴󠁧󠁢󠁥󠁮󠁧󠁿", tier:2, regions: [FIELD(w, 5), CROSS(r)] },
-    { name:"CROATIA", emo:"🇭🇷", tier:3, stamp:"🛡️", regions: H([b,w,r]) },
-    { name:"GHANA", emo:"🇬🇭", tier:2, stamp:"⭐", regions: H([g,y,r]) },
-    { name:"PANAMA", emo:"🇵🇦", tier:4, stamp:"⭐", regions: [BOX(w,0,0,.5,.5), BOX(r,.5,0,.5,.5), BOX(n,0,.5,.5,.5), BOX(w,.5,.5,.5,.5)] },
+    { name:"CROATIA", emo:"🇭🇷", tier:3, emb:["shield","#d52b1e"], regions: H([b,w,r]) },
+    { name:"GHANA", emo:"🇬🇭", tier:2, emb:["star","#111"], regions: H([g,y,r]) },
+    { name:"PANAMA", emo:"🇵🇦", tier:4, emb:["star","#1c4fb0",{x:.25,y:.25}], regions: [BOX(w,0,0,.5,.5), BOX(r,.5,0,.5,.5), BOX(n,0,.5,.5,.5), BOX(w,.5,.5,.5,.5)] },
   ];
   // SAUDI ARABIA: the shahada and sword are intentionally NOT depicted — the
   // creed is sacred script, inappropriate to render as pourable liquid. The
-  // tile is the plain green field with a stylised ⚔️ stamp only.
+  // tile is the plain green field with a stylised sword emblem only.
+
+  // ---------- emblem library (crisp inline SVG, identical on every device) ----
+  // every emblem draws inside a 0 0 100 100 viewBox; `c` is the requested fill.
+  const PI = Math.PI;
+  const pts = a => a.map(p => p.map(n => +n.toFixed(2)).join(",")).join(" ");
+  // n-point star, outer radius ro, inner ratio k, rotated so a point faces up
+  const starPolyPts = (cx, cy, ro, n = 5, k = .382, rot = -PI / 2) => {
+    const out = [];
+    for (let i = 0; i < n * 2; i++) {
+      const r = i % 2 ? ro : ro * 1, rr = i % 2 ? ro * k : ro;
+      const a = rot + i * PI / n;
+      out.push([cx + rr * Math.cos(a), cy + rr * Math.sin(a)]);
+    }
+    return pts(out);
+  };
+  const starPoly = (cx, cy, ro, c, n = 5, k = .382, rot = -PI / 2) =>
+    `<polygon points="${starPolyPts(cx, cy, ro, n, k, rot)}" fill="${c}"/>`;
+  // sun-of-may: core disc + alternating straight/wavy triangular rays + a face
+  function sunSVG(c) {
+    const cx = 50, cy = 50, ri = 22, ro = 47, n = 16; let rays = "";
+    for (let i = 0; i < n; i++) {
+      const a = i / n * 2 * PI;
+      const p1 = [cx + ri * Math.cos(a - .085), cy + ri * Math.sin(a - .085)];
+      const p2 = [cx + ro * Math.cos(a), cy + ro * Math.sin(a)];
+      const p3 = [cx + ri * Math.cos(a + .085), cy + ri * Math.sin(a + .085)];
+      rays += `<polygon points="${pts([p1, p2, p3])}" fill="${c}"/>`;
+    }
+    const ink = "rgba(0,0,0,.42)";
+    const face = `<circle cx="43" cy="46" r="2.6" fill="${ink}"/>` +
+      `<circle cx="57" cy="46" r="2.6" fill="${ink}"/>` +
+      `<path d="M42 56 Q50 63 58 56" stroke="${ink}" stroke-width="2.6" fill="none" stroke-linecap="round"/>`;
+    return `<circle cx="${cx}" cy="${cy}" r="${ri}" fill="${c}"/>${rays}${face}`;
+  }
+  // crescent (opening to the fly) + a small five-point star in the opening
+  const crescentSVG = c =>
+    `<path d="M63 14 A36 36 0 1 0 63 86 A28 28 0 1 1 63 14 Z" fill="${c}"/>` +
+    starPoly(76, 50, 15, c);
+  // taegeuk (Korean) — red over blue with the S-divider + four black trigrams
+  function taegeukSVG() {
+    const red = "#cd2e3a", blue = "#0047a0", cx = 50, cy = 50, R = 30;
+    const yy = `<path d="M${cx - R} ${cy} A${R / 2} ${R / 2} 0 0 1 ${cx} ${cy} ` +
+      `A${R / 2} ${R / 2} 0 0 0 ${cx + R} ${cy} A${R} ${R} 0 0 0 ${cx - R} ${cy} Z" fill="${red}"/>` +
+      `<path d="M${cx - R} ${cy} A${R / 2} ${R / 2} 0 0 0 ${cx} ${cy} ` +
+      `A${R / 2} ${R / 2} 0 0 1 ${cx + R} ${cy} A${R} ${R} 0 0 1 ${cx - R} ${cy} Z" fill="${blue}"/>`;
+    // four trigrams on the diagonals; tri = [solid?,solid?,solid?] outer→inner
+    const tri = (ang, bars) => {
+      const ux = Math.cos(ang), uy = Math.sin(ang);       // pointing outward
+      const px = -uy, py = ux;                            // bar long-axis
+      let g = "";
+      bars.forEach((solid, b) => {
+        const d = 40 + b * 7, hl = 11;                    // distance, half-length
+        const mx = cx + ux * d, my = cy + uy * d;
+        const seg = (s, e) => `<line x1="${mx + px * s}" y1="${my + py * s}" ` +
+          `x2="${mx + px * e}" y2="${my + py * e}" stroke="#111" stroke-width="3.4" stroke-linecap="round"/>`;
+        g += solid ? seg(-hl, hl) : seg(-hl, -3) + seg(3, hl);
+      });
+      return g;
+    };
+    return `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none"/>${yy}` +
+      tri(-3 * PI / 4, [1, 1, 1]) + tri(3 * PI / 4, [1, 0, 1]) +
+      tri(-PI / 4, [1, 0, 1]) + tri(PI / 4, [0, 0, 0]);
+  }
+  // bold maple leaf (Canada) — single symmetric path
+  const mapleSVG = c => `<path fill="${c}" d="M50 6 L54.5 30 L67 24 L63 41 L82 39 L72 52 ` +
+    `L92 60 L68 64 L72 74 L55 70 L57 94 L50 84 L43 94 L45 70 L28 74 L32 64 L8 60 ` +
+    `L28 52 L18 39 L37 41 L33 24 L45.5 30 Z"/>`;
+  // generic heraldic shield with a soft inner highlight
+  const shieldSVG = c =>
+    `<path fill="${c}" d="M50 10 L80 18 L80 48 Q80 78 50 92 Q20 78 20 48 L20 18 Z"/>` +
+    `<path fill="rgba(255,255,255,.18)" d="M50 16 L74 22 L74 47 Q74 72 50 84 Z"/>`;
+  // single sabre, hilt to the fly (Saudi) — blade + guard + grip + pommel
+  const swordSVG = c =>
+    `<path fill="${c}" d="M10 51 L70 47.5 L70 54.5 L10 53 Z"/>` +
+    `<rect x="70" y="40" width="5" height="22" rx="2" fill="${c}"/>` +
+    `<rect x="76" y="47" width="13" height="8" rx="3" fill="${c}"/>` +
+    `<circle cx="92" cy="51" r="4.5" fill="${c}"/>`;
+  // Southern Cross constellation (AU/NZ) — four big stars + one small
+  const southernCrossSVG = c =>
+    starPoly(50, 20, 11, c) + starPoly(50, 80, 13, c) +
+    starPoly(24, 52, 11, c) + starPoly(74, 48, 11, c) + starPoly(56, 60, 6, c);
+  // canton star grid (USA)
+  function starsGridSVG(c) {
+    let g = "";
+    for (let r = 0; r < 4; r++) for (let col = 0; col < 5; col++)
+      g += starPoly(14 + col * 18 + (r % 2 ? 9 : 0), 16 + r * 22, 6.5, c);
+    return g;
+  }
+  // ring of small stars (Cape Verde)
+  function ringStarsSVG(c) {
+    let g = ""; const N = 10;
+    for (let i = 0; i < N; i++) {
+      const a = -PI / 2 + i / N * 2 * PI;
+      g += starPoly(50 + 34 * Math.cos(a), 50 + 34 * Math.sin(a), 7, c);
+    }
+    return g;
+  }
+  // star inside an open laurel-style ring (Paraguay)
+  const wreathStarSVG = c =>
+    `<circle cx="50" cy="50" r="40" fill="none" stroke="${c}" stroke-width="7"/>` +
+    `<circle cx="50" cy="50" r="40" fill="none" stroke="${c}" stroke-width="13" ` +
+    `stroke-dasharray="9 7" stroke-linecap="round" opacity=".85"/>` + starPoly(50, 51, 20, "#d62828");
+  // stylised heraldic spread-eagle, built from mirrored geometric parts
+  function eagleSVG(c) {
+    const mir = a => a.map(([x, y]) => [100 - x, y]);
+    const poly = a => `<polygon points="${pts(a)}" fill="${c}"/>`;
+    const wing = [[52, 36], [70, 30], [88, 30], [80, 38], [92, 44], [78, 48],
+                  [90, 56], [70, 56], [54, 54]];
+    return poly(wing) + poly(mir(wing)) +
+      poly([[46, 33], [54, 33], [52.5, 64], [47.5, 64]]) +          // body
+      poly([[47, 60], [53, 60], [62, 82], [50, 74], [38, 82]]) +    // fanned tail
+      `<circle cx="50" cy="27" r="6.4" fill="${c}"/>` +
+      poly([[55, 24], [66, 28], [55, 31]]);                          // beak
+  }
+  const EMBLEMS = {
+    star:          c => starPoly(50, 52, 46, c),
+    star5o:        c => starPoly(50, 52, 46, c, 5, .382) +
+                        `<polygon points="${starPolyPts(50, 52, 26, 5, .382)}" fill="#e2241a"/>`,
+    star7:         c => starPoly(50, 52, 46, c, 7, .55),
+    sun:           sunSVG,
+    crescent:      crescentSVG,
+    taegeuk:       () => taegeukSVG(),
+    maple:         mapleSVG,
+    shield:        shieldSVG,
+    sword:         swordSVG,
+    southernCross: southernCrossSVG,
+    starsGrid:     starsGridSVG,
+    ringStars:     ringStarsSVG,
+    wreathStar:    wreathStarSVG,
+    eagle:         eagleSVG,
+  };
+  const embSVG = (key, c) =>
+    `<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">${(EMBLEMS[key] || EMBLEMS.star)(c)}</svg>`;
 
   // difficulty normalisation: every flag aims at the same total colour count
   // per tier, so a 1-colour flag (Morocco) gets more junk than a 3-colour one.
@@ -310,9 +445,16 @@ export function mountFlagSort(root, opts = {}) {
         s.pts.map(p => `${p[0] * 100}% ${p[1] * 100}%`).join(",")})`;
     return `left:${s.x * 100}%;top:${s.y * 100}%;width:${s.w * 100}%;height:${s.h * 100}%`;
   }
-  const stampCSS = fl => fl.stampPos
-    ? `inset:auto;left:${fl.stampPos.x * 100}%;top:${fl.stampPos.y * 100}%;` +
-      `transform:translate(-50%,-50%)` : "";
+  // emblem positioning: emb[2] = {x,y} fractions → point-placed + smaller; else
+  // centred + large. `--es` is the emblem size as a fraction of the frame.
+  const embStyle = fl => {
+    const p = fl.emb && fl.emb[2];
+    const x = p ? p.x * 100 : 50, y = p ? p.y * 100 : 50, w = p ? 30 : 46;
+    return `left:${x}%;top:${y}%;width:${w}%;transform:translate(-50%,-50%)`;
+  };
+  const embSpan = (fl, cls, id) => fl.emb
+    ? `<span class="${cls}"${id ? ` id="${id}"` : ""} style="${embStyle(fl)}">` +
+      embSVG(fl.emb[0], fl.emb[1] || "#fff") + `</span>` : "";
   function rebuildFR() {
     const el = $("#frame");
     const r = el.getBoundingClientRect();
@@ -373,8 +515,7 @@ export function mountFlagSort(root, opts = {}) {
     fr.innerHTML = L.regions.map((rg, ri) =>
       `<div class="region${ri === ai ? " need" : ""}" style="${regionCSS(rg.shape)}">
         <div class="ghost" style="background:${rg.color}"></div>
-      </div>`).join("") + (L.stamp
-      ? `<div class="stamp ghost" id="stamp" style="${stampCSS(L)}">${L.stamp}</div>` : "");
+      </div>`).join("") + embSpan(L, "stamp ghost", "stamp");
     const hint = $("#hint");
     if (f < seq.length) {
       hint.style.visibility = "visible";
@@ -698,8 +839,8 @@ export function mountFlagSort(root, opts = {}) {
     if (stamp) {
       stamp.classList.remove("ghost");
       stamp.animate([
-        { transform: "scale(3) rotate(-20deg)", opacity: 0 },
-        { transform: "scale(1) rotate(0)", opacity: 1 }
+        { transform: "translate(-50%,-50%) scale(3) rotate(-20deg)", opacity: 0 },
+        { transform: "translate(-50%,-50%) scale(1) rotate(0)", opacity: 1 }
       ], { duration: 420, easing: "cubic-bezier(.2,1.6,.4,1)" });
     }
     if (!RM) fr.classList.add("wave");
@@ -734,7 +875,7 @@ export function mountFlagSort(root, opts = {}) {
       const done = solved.has(fl.name);
       const thumb = fl.regions.map(rg =>
         `<div class="treg" style="${regionCSS(rg.shape)};background:${rg.color}"></div>`).join("")
-        + (fl.stamp ? `<div class="tstamp" style="${stampCSS(fl)}">${fl.stamp}</div>` : "")
+        + embSpan(fl, "tstamp")
         + (done ? `<div class="tick">✅</div>` : "");
       return `<div class="tile" data-i="${i}">
         <div class="thumb${done ? " solved" : ""}">${thumb}</div>

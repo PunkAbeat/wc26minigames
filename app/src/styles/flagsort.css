@@ -41,9 +41,10 @@
   border: 2px dashed rgba(255,255,255,.6); animation: fspulse 1.3s infinite;
 }
 @keyframes fspulse { 50% { opacity: .35; } }
-.fs-root .stamp { position: absolute; inset: 0; display: flex; align-items: center;
-         justify-content: center; font-size: 52px; pointer-events: none; }
-.fs-root .stamp.ghost { opacity: .18; }
+.fs-root .stamp { position: absolute; pointer-events: none; line-height: 0; }
+.fs-root .stamp svg { width: 100%; height: auto; display: block;
+         filter: drop-shadow(0 1px 1px rgba(0,0,0,.28)); }
+.fs-root .stamp.ghost { opacity: .22; }
 .fs-root .frame.done { border-color: #ffd34d; box-shadow: 0 0 24px rgba(255,211,77,.8); }
 .fs-root .frame.wave { animation: fswave .5s ease-in-out 4; }
 @keyframes fswave {
@@ -112,8 +113,9 @@
 .fs-root .tick { position: absolute; right: 2px; top: 1px; font-size: 11px;
                  filter: drop-shadow(0 1px 1px rgba(0,0,0,.5)); }
 .fs-root .treg { position: absolute; }
-.fs-root .tstamp { position: absolute; inset: 0; display: flex; align-items: center;
-          justify-content: center; font-size: 17px; }
+.fs-root .tstamp { position: absolute; line-height: 0; }
+.fs-root .tstamp svg { width: 100%; height: auto; display: block;
+          filter: drop-shadow(0 .5px .5px rgba(0,0,0,.3)); }
 .fs-root .tile .nm { color: #fff; font-size: 9px; font-weight: 700; margin-top: 3px; line-height: 1.1;
             text-shadow: 0 1px 2px rgba(0,0,0,.4); }
 .fs-root .tile .dots { font-size: 7px; color: #ffd34d; letter-spacing: 1px; }
