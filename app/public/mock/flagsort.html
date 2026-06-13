@@ -1,7 +1,10 @@
 <!doctype html>
-<!-- FLAG SORT feel mock — DISPOSABLE. Not the real game: no route, no i18n, no
-     daily seed. Target-pattern water sort: pour colours so the frame's layers
-     match the flag's stripes, bottom stripe first. Flag colours simplified. -->
+<!-- FLAG SORT feel mock v2 — DISPOSABLE. Not the real game: no route, no i18n,
+     no daily seed. Target-pattern water sort: pour colours so the frame's
+     layers match the flag's stripes, bottom stripe first.
+     v2: procedural liquid on canvas — liquid stays level while the tube tilts
+     (half-plane volume solve), continuous drain, spring-surface slosh, curved
+     tapering stream with droplets, splash ripples, glug bubbles. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -16,7 +19,11 @@
     background: linear-gradient(#6fbdee, #b9e0f6 46%, #2e8b46 46.3%, #1c6332);
     color: #10243a; touch-action: manipulation; overflow: hidden;
   }
+  canvas.fx { position: fixed; inset: 0; pointer-events: none; }
+  #liqc { z-index: 5; }
+  #fxc  { z-index: 30; }
   .top {
+    position: relative; z-index: 10;
     display: flex; justify-content: space-between; align-items: center;
     background: #14324f; color: #fff; padding: 10px 14px;
   }
@@ -24,7 +31,8 @@
   .tag { background: #ffd34d; color: #14324f; font-size: 10px; font-weight: 800;
          border-radius: 999px; padding: 2px 8px; margin-left: 6px; vertical-align: 2px; }
   .lvl { font-weight: 700; font-size: 13px; opacity: .9; }
-  main { max-width: 430px; margin: 0 auto; padding: 10px 14px; text-align: center; }
+  main { position: relative; z-index: 10; max-width: 430px; margin: 0 auto;
+         padding: 10px 14px; text-align: center; }
   .flagname { font-weight: 800; letter-spacing: 1px; margin: 4px 0 8px; color: #fff;
               text-shadow: 0 1px 3px rgba(0,0,0,.4); font-size: 17px; }
   .frame {
@@ -35,8 +43,7 @@
   }
   .stripe { flex: 1; position: relative; }
   .stripe .ghost { position: absolute; inset: 0; opacity: .15; }
-  .stripe .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0%;
-                  transition: width .16s ease-out; }
+  .stripe .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0%; }
   .stripe.need::after {
     content: ''; position: absolute; inset: 3px; border-radius: 4px;
     border: 2px dashed rgba(255,255,255,.6); animation: pulse 1.3s infinite;
@@ -51,10 +58,6 @@
     25% { transform: rotate(-1.6deg) skewY(-.8deg); }
     75% { transform: rotate(1.6deg) skewY(.8deg); }
   }
-  @keyframes shake {
-    20%, 60% { transform: translateX(-7px); }
-    40%, 80% { transform: translateX(7px); }
-  }
   .hint {
     margin: 10px auto 0; display: inline-flex; gap: 8px; align-items: center;
     background: #14324f; color: #fff; border-radius: 999px; padding: 6px 14px;
@@ -63,23 +66,22 @@
   .hint .sw { width: 14px; height: 14px; border-radius: 4px;
               border: 1.5px solid rgba(255,255,255,.65); }
   .row { display: flex; justify-content: center; align-items: flex-end;
-         gap: 18px; margin: 24px 0 12px; min-height: 162px; }
+         gap: 18px; margin: 24px 0 12px; min-height: 166px; }
+  .slot { position: relative; width: 46px; height: 150px; }
   .tube {
-    position: relative; width: 46px; height: 150px;
+    position: absolute; inset: 0;
     border: 2.5px solid rgba(255,255,255,.8); border-top-color: rgba(255,255,255,.35);
-    background: rgba(255,255,255,.16); border-radius: 10px 10px 22px 22px;
-    box-shadow: inset 0 0 12px rgba(255,255,255,.2), 0 4px 10px rgba(0,0,0,.2);
-    transition: transform .15s ease-out;
+    background: rgba(255,255,255,.13); border-radius: 10px 10px 22px 22px;
+    box-shadow: inset 0 0 12px rgba(255,255,255,.18), 0 4px 10px rgba(0,0,0,.2);
+    will-change: transform;
   }
-  .tube.sel { transform: translateY(-10px); border-color: #ffd34d;
-              box-shadow: inset 0 0 12px rgba(255,255,255,.2), 0 0 14px rgba(255,211,77,.7); }
-  .tube .liq { position: absolute; left: 4px; right: 4px; top: 4px; bottom: 4px;
-               display: flex; flex-direction: column-reverse;
-               border-radius: 5px 5px 17px 17px; overflow: hidden; }
-  .u { width: 100%; height: 0%; transition: height .14s ease-out; flex: none; }
-  .pouring { z-index: 40; }
-  .stream { position: fixed; width: 7px; border-radius: 4px; z-index: 50; height: 0;
-            box-shadow: 0 0 8px rgba(255,255,255,.45); }
+  .tube::after {
+    content: ''; position: absolute; top: 8px; bottom: 14px; left: 6px; width: 6px;
+    border-radius: 4px; background: rgba(255,255,255,.28);
+  }
+  .tube.sel { border-color: #ffd34d;
+              box-shadow: inset 0 0 12px rgba(255,255,255,.18), 0 0 14px rgba(255,211,77,.7); }
+  .tube.pouring { z-index: 40; }
   .controls { display: flex; justify-content: center; gap: 12px; }
   .controls button {
     background: #14324f; color: #fff; border: 0; border-radius: 999px;
@@ -106,6 +108,8 @@
 </style>
 </head>
 <body>
+<canvas id="liqc" class="fx"></canvas>
+<canvas id="fxc" class="fx"></canvas>
 <header class="top">
   <div class="brand">FLAG SORT<span class="tag">FEEL MOCK</span></div>
   <div class="lvl" id="lvl"></div>
@@ -130,14 +134,16 @@
     { name: "SPAIN",     emo: "🇪🇸", stripes: [["#aa151b","RED"],   ["#f1bf00","GOLD"],  ["#aa151b","RED"]] },
     { name: "ARGENTINA", emo: "🇦🇷", stripes: [["#74acdf","SKY"],   ["#ffffff","WHITE"], ["#74acdf","SKY"]], stamp: "☀️" },
   ];
-  const CAP = 4, PER = 3;
+  const CAP = 4, PER = 3, NSPRING = 6;
   const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let li = 0, L, seq, label, tubes, f, hist, sel = -1, busy = false, deal0;
+  let T = [], anim = null, parts = [];
 
+  const sm = t => t * t * (3 - 2 * t);
   const shuffle = a => { for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
-  // Solvability check: tiny DFS over canonical states. Tubes are bottom→top arrays.
+  // ---------- solver (unchanged from v1): every deal is winnable ----------
   function solvable(t0, sq) {
     const seen = new Set();
     const key = (t, g) => t.map(x => x.join(",")).sort().join("|") + "#" + g;
@@ -146,7 +152,7 @@
       const k = key(t, g);
       if (seen.has(k) || seen.size > 30000) return false;
       seen.add(k);
-      for (let i = 0; i < t.length; i++) {                // tube -> frame
+      for (let i = 0; i < t.length; i++) {
         const a = t[i]; if (!a.length) continue;
         const c = a[a.length - 1];
         if (c !== sq[g]) continue;
@@ -155,7 +161,7 @@
         const nt = t.map(x => x.slice()); nt[i] = a.slice(0, a.length - acc);
         if (dfs(nt, g + acc)) return true;
       }
-      for (let i = 0; i < t.length; i++) {                // tube -> tube
+      for (let i = 0; i < t.length; i++) {
         const a = t[i]; if (!a.length) continue;
         const c = a[a.length - 1];
         let run = 0; for (let j = a.length - 1; j >= 0 && a[j] === c; j--) run++;
@@ -163,7 +169,7 @@
           if (d === i) continue;
           const b = t[d];
           if (b.length && b[b.length - 1] !== c) continue;
-          if (!b.length && run === a.length) continue;   // monochrome tube -> empty is a no-op
+          if (!b.length && run === a.length) continue;
           const space = CAP - b.length; if (!space) continue;
           const m = Math.min(run, space);
           const nt = t.map(x => x.slice());
@@ -175,31 +181,111 @@
     }
     return dfs(t0.map(x => x.slice()), 0);
   }
-
   function freshDeal() {
     for (let n = 0; n < 400; n++) {
       const pool = shuffle(seq.slice());
-      const T = [pool.slice(0, 3), pool.slice(3, 6), pool.slice(6, 9), []];
-      if (solvable(T, seq)) return T;
+      const t = [pool.slice(0, 3), pool.slice(3, 6), pool.slice(6, 9), []];
+      if (solvable(t, seq)) return t;
     }
     return [seq.slice(0, 3), seq.slice(3, 6), seq.slice(6, 9), []];
   }
 
-  function newLevel(i) {
-    li = i; L = LEVELS[i];
-    seq = []; label = {};
-    for (let s = L.stripes.length - 1; s >= 0; s--) {     // bottom stripe pours first
-      const [c, lb] = L.stripes[s]; label[c] = lb;
-      for (let k = 0; k < PER; k++) seq.push(c);
+  // ---------- canvas setup ----------
+  const liqc = $("#liqc"), fxc = $("#fxc");
+  const lctx = liqc.getContext("2d"), fctx = fxc.getContext("2d");
+  function sizeCanvas() {
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    for (const c of [liqc, fxc]) {
+      c.width = innerWidth * dpr; c.height = innerHeight * dpr;
+      c.style.width = innerWidth + "px"; c.style.height = innerHeight + "px";
+      c.getContext("2d").setTransform(dpr, 0, 0, dpr, 0, 0);
     }
-    tubes = freshDeal();
-    deal0 = tubes.map(x => x.slice());
-    f = 0; hist = []; sel = -1; busy = false;
-    render();
   }
 
-  function stripeFill(si) { return Math.max(0, Math.min(PER, f - (2 - si) * PER)); }
+  // ---------- liquid geometry: half-plane volume solve in a tilted tube ----------
+  function localPoly(iw, ih) {
+    const hw = iw / 2, hh = ih / 2, r = 15;
+    return [
+      { x: -hw, y: -hh }, { x: hw, y: -hh },
+      { x: hw, y: hh - r }, { x: hw - .29 * r, y: hh - .29 * r }, { x: hw - r, y: hh },
+      { x: -hw + r, y: hh }, { x: -hw + .29 * r, y: hh - .29 * r }, { x: -hw, y: hh - r },
+    ];
+  }
+  function polyArea(p) {
+    let a = 0;
+    for (let i = 0; i < p.length; i++) {
+      const q = p[(i + 1) % p.length]; a += p[i].x * q.y - q.x * p[i].y;
+    }
+    return Math.abs(a) / 2;
+  }
+  function clipBelow(poly, Y) {           // keep screen-space y >= Y
+    const out = [];
+    for (let i = 0; i < poly.length; i++) {
+      const a = poly[i], b = poly[(i + 1) % poly.length];
+      const ain = a.y >= Y, bin = b.y >= Y;
+      if (ain) out.push(a);
+      if (ain !== bin) {
+        const t = (Y - a.y) / (b.y - a.y);
+        out.push({ x: a.x + (b.x - a.x) * t, y: Y });
+      }
+    }
+    return out;
+  }
+  function surfaceFor(poly, target) {     // Y where area below == target
+    let lo = Infinity, hi = -Infinity;
+    for (const p of poly) { lo = Math.min(lo, p.y); hi = Math.max(hi, p.y); }
+    for (let i = 0; i < 22; i++) {
+      const mid = (lo + hi) / 2;
+      if (polyArea(clipBelow(poly, mid)) > target) lo = mid; else hi = mid;
+    }
+    return (lo + hi) / 2;
+  }
 
+  // ---------- per-tube runtime ----------
+  function bandsOf(arr) {
+    const b = [];
+    for (const c of arr) {
+      if (b.length && b[b.length - 1].color === c) b[b.length - 1].vol++;
+      else b.push({ color: c, vol: 1 });
+    }
+    return b;
+  }
+  function rebuildT() {
+    T = [];
+    document.querySelectorAll(".slot").forEach((slot, i) => {
+      const el = slot.firstElementChild;
+      el.style.transform = "";
+      const r = slot.getBoundingClientRect();
+      const iw = r.width - 10, ih = r.height - 10;
+      T.push({
+        el, slot, cx: r.left + r.width / 2, cy: r.top + r.height / 2, iw, ih,
+        poly: localPoly(iw, ih), unitA: polyArea(localPoly(iw, ih)) / CAP,
+        pose: { dx: 0, dy: 0, ang: 0 },
+        offs: new Array(NSPRING).fill(0), vels: new Array(NSPRING).fill(0),
+        bands: bandsOf(tubes[i]), topY: r.top + r.height / 2,
+      });
+    });
+  }
+  function remeasure() {                   // slots never carry transforms, so this
+    for (const t of T) {                   // is always the true resting position
+      const r = t.slot.getBoundingClientRect();
+      t.cx = r.left + r.width / 2; t.cy = r.top + r.height / 2;
+    }
+  }
+  function worldPoly(t) {
+    const c = Math.cos(t.pose.ang), s = Math.sin(t.pose.ang);
+    return t.poly.map(p => ({
+      x: t.cx + t.pose.dx + p.x * c - p.y * s,
+      y: t.cy + t.pose.dy + p.x * s + p.y * c,
+    }));
+  }
+  function excite(t, amt) {
+    const i = 1 + Math.floor(Math.random() * (NSPRING - 2));
+    t.vels[i] -= amt * (0.7 + Math.random() * 0.6);
+  }
+
+  // ---------- DOM render (game chrome; liquid itself lives on canvas) ----------
+  function stripeFill(si) { return Math.max(0, Math.min(PER, f - (2 - si) * PER)); }
   function render() {
     $("#lvl").textContent = `FLAG ${li + 1} / ${LEVELS.length}`;
     $("#flagname").textContent = `${L.emo} ${L.name}`;
@@ -218,109 +304,259 @@
       hint.innerHTML = `POUR NEXT <span class="sw" style="background:${seq[f]}"></span> ${label[seq[f]]}`;
     } else hint.style.visibility = "hidden";
     const row = $("#row");
-    row.innerHTML = tubes.map((t, i) =>
-      `<div class="tube${i === sel ? " sel" : ""}" data-i="${i}"><div class="liq">${
-        t.map(c => `<div class="u" style="background:${c};height:${100 / CAP}%"></div>`).join("")
-      }</div></div>`).join("");
+    if (!row.children.length)
+      row.innerHTML = tubes.map((_, i) =>
+        `<div class="slot"><div class="tube" data-i="${i}"></div></div>`).join("");
+    document.querySelectorAll(".tube").forEach((el, i) =>
+      el.classList.toggle("sel", i === sel));
     $("#undo").disabled = !hist.length;
   }
-
   const snapshot = () => hist.push({ t: tubes.map(x => x.slice()), f });
 
-  // --- pour choreography: lift + tilt the tube, stream, units glug across ---
-  function tilt(srcEl, dr, color, n, onUnit, done) {
-    if (RM) { for (let k = 0; k < n; k++) onUnit(k); setTimeout(done, 120); return; }
-    const sr = srcEl.getBoundingClientRect();
-    const dir = (sr.left + sr.width / 2) <= (dr.left + dr.width / 2) ? 1 : -1;
-    const tx = dr.left + dr.width / 2 - dir * sr.height * .40 - (sr.left + sr.width / 2);
-    const ty = dr.top - sr.width * .85 - (sr.top + sr.height / 2);
-    srcEl.classList.add("pouring");
-    const pose = `translate(${tx}px,${ty}px) rotate(${dir * 100}deg)`;
-    const a1 = srcEl.animate([{ transform: "none" }, { transform: pose }],
-      { duration: 280, easing: "cubic-bezier(.5,0,.6,1)", fill: "forwards" });
-    a1.onfinish = () => {
-      const st = document.createElement("div");
-      st.className = "stream"; st.style.background = color;
-      st.style.left = (dr.left + dr.width / 2 - 3.5) + "px";
-      st.style.top = (dr.top - 16) + "px";
-      document.body.appendChild(st);
-      st.animate([{ height: "0px" }, { height: dr.height * .7 + 16 + "px" }],
-        { duration: 110, fill: "forwards" });
-      let k = 0;
-      const iv = setInterval(() => {
-        onUnit(k); k++;
-        if (k < n) return;
-        clearInterval(iv);
-        st.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 130, fill: "forwards" })
-          .onfinish = () => st.remove();
-        const a2 = srcEl.animate([{ transform: pose }, { transform: "none" }],
-          { duration: 260, easing: "ease-in-out", fill: "forwards" });
-        a2.onfinish = () => { a1.cancel(); a2.cancel(); srcEl.classList.remove("pouring"); done(); };
-      }, 150);
+  function newLevel(i) {
+    li = i; L = LEVELS[i];
+    seq = []; label = {};
+    for (let s = L.stripes.length - 1; s >= 0; s--) {
+      const [c, lb] = L.stripes[s]; label[c] = lb;
+      for (let k = 0; k < PER; k++) seq.push(c);
+    }
+    tubes = freshDeal();
+    deal0 = tubes.map(x => x.slice());
+    f = 0; hist = []; sel = -1; busy = false; anim = null; parts = [];
+    render(); rebuildT();
+  }
+  function resync() { T.forEach((t, i) => { t.bands = bandsOf(tubes[i]); }); }
+
+  // ---------- pour animation machine ----------
+  function startPour(si, dst) {
+    const a = tubes[si], c = a[a.length - 1];
+    let run = 0; for (let j = a.length - 1; j >= 0 && a[j] === c; j--) run++;
+    let m;
+    if (dst.type === "tube") m = Math.min(run, CAP - tubes[dst.i].length);
+    else { m = 0; while (m < run && seq[f + m] === c) m++; }
+    snapshot(); busy = true; sel = -1; render();
+    // render() rebuilds the frame DOM — re-grab the live stripe element
+    if (dst.type === "frame") dst.el = $("#frame").children[2 - Math.floor(f / PER)];
+
+    const commit = () => {
+      if (dst.type === "tube")
+        for (let k = 0; k < m; k++) { a.pop(); tubes[dst.i].push(c); }
+      else { for (let k = 0; k < m; k++) a.pop(); f += m; }
+      resync(); anim = null; busy = false; render();
+      if (f === seq.length) win();
+    };
+    if (RM) { commit(); return; }
+
+    const S = T[si];
+    let landX, landTop, D = null, frameRect = null, base = 0;
+    if (dst.type === "tube") { D = T[dst.i]; landX = D.cx; landTop = D.cy - D.ih / 2; }
+    else {
+      frameRect = dst.el.getBoundingClientRect();
+      base = f - (2 - +dst.el.dataset.si) * PER;
+      landX = frameRect.left + (base + .5) / PER * frameRect.width;
+      landTop = frameRect.top;
+    }
+    const dir = S.cx <= landX ? 1 : -1;
+    const px = landX - dir * S.ih * .42;
+    const py = landTop - S.iw * 1.05;
+    const baseAng = dir * 97 * Math.PI / 180;
+    const srcBand = S.bands[S.bands.length - 1];
+    const srcVol0 = srcBand.vol;
+    let dstBand = null, dstVol0 = 0;
+    if (D) {
+      if (D.bands.length && D.bands[D.bands.length - 1].color === c) {
+        dstBand = D.bands[D.bands.length - 1]; dstVol0 = dstBand.vol;
+      } else { dstBand = { color: c, vol: 0 }; D.bands.push(dstBand); }
+    }
+    S.el.classList.add("pouring");
+    anim = {
+      step(now) {
+        if (this.t0 === null) this.t0 = now;
+        const t = now - this.t0;
+        const T1 = 300, T2 = 380 + m * 240, T3 = 280;
+        if (t < T1) {
+          const k = sm(t / T1);
+          S.pose = { dx: (px - S.cx) * k, dy: (py - S.cy) * k, ang: baseAng * k };
+        } else if (t < T1 + T2) {
+          const pf = (t - T1) / T2;
+          this.pouring = true;
+          const delivered = m * pf;
+          srcBand.vol = Math.max(srcVol0 - delivered, 0.001);
+          if (dstBand) { dstBand.vol = dstVol0 + delivered; excite(D, .5); }
+          else {
+            const w = ((base + delivered) / PER * 100) + "%";
+            dst.el.querySelector(".fill").style.width = w;
+            landX = frameRect.left + Math.min((base + delivered + .15) / PER, 1) * frameRect.width;
+          }
+          S.pose.ang = baseAng + dir * .22 * pf;
+          this.streamEnd = D
+            ? { x: D.cx, y: D.topY - 2 }
+            : { x: landX, y: frameRect.top + frameRect.height * (+dst.el.dataset.si + .5) / 3 };
+          if (Math.random() < .5) parts.push({ type: "drop", x: this.streamEnd.x + (Math.random() - .5) * 8,
+            y: this.streamEnd.y, vx: (Math.random() - .5) * 2.4, vy: -(.8 + Math.random() * 1.6),
+            life: 26, color: c, r: 1.5 + Math.random() * 1.5 });
+          if (Math.random() < .12) parts.push({ type: "ring", x: this.streamEnd.x, y: this.streamEnd.y,
+            r: 2, life: 22, color: "rgba(255,255,255,.5)" });
+          if (Math.random() < .18) {
+            const wp = worldPoly(S); let bx = 0, by = -Infinity;
+            for (const p of wp) { bx += p.x / wp.length; by = Math.max(by, p.y); }
+            parts.push({ type: "bub", x: bx + (Math.random() - .5) * S.iw * .5, y: by - 6,
+              vy: -(.5 + Math.random() * .7), life: 50, tube: si, r: 1.2 + Math.random() * 1.6 });
+          }
+        } else if (t < T1 + T2 + T3) {
+          this.pouring = false;
+          srcBand.vol = Math.max(srcVol0 - m, 0.001);
+          if (dstBand) dstBand.vol = dstVol0 + m;
+          const k = 1 - sm((t - T1 - T2) / T3);
+          S.pose = { dx: (px - S.cx) * k, dy: (py - S.cy) * k, ang: (baseAng + dir * .22) * k };
+          if (!this.sloshed && k < .4) { this.sloshed = true; excite(S, 2.2); excite(S, 1.4); }
+        } else {
+          S.pose = { dx: 0, dy: 0, ang: 0 };
+          S.el.classList.remove("pouring");
+          commit();
+        }
+      },
+      t0: null, si, c, pouring: false, streamEnd: null,
     };
   }
 
-  function addUnitEl(di, color) {
-    const liq = document.querySelectorAll(".tube")[di].querySelector(".liq");
-    const u = document.createElement("div");
-    u.className = "u"; u.style.background = color; u.style.height = "0%";
-    liq.appendChild(u);
-    requestAnimationFrame(() => { u.style.height = 100 / CAP + "%"; });
-  }
-  function dropTopEl(si) {
-    const liq = document.querySelectorAll(".tube")[si].querySelector(".liq");
-    const u = liq.lastElementChild;
-    if (u) { u.style.height = "0%"; setTimeout(() => u.remove(), 150); }
-  }
-
-  function pourTube(si, di) {
-    const a = tubes[si], b = tubes[di], c = a[a.length - 1];
-    let run = 0; for (let j = a.length - 1; j >= 0 && a[j] === c; j--) run++;
-    const m = Math.min(run, CAP - b.length);
-    snapshot(); busy = true; sel = -1;
-    const els = document.querySelectorAll(".tube");
-    els[si].classList.remove("sel");
-    tilt(els[si], els[di].getBoundingClientRect(), c, m,
-      () => { dropTopEl(si); addUnitEl(di, c); },
-      () => {
-        for (let k = 0; k < m; k++) { a.pop(); b.push(c); }
-        busy = false; render();
-      });
-  }
-
-  function pourFrame(si) {
-    const a = tubes[si], c = a[a.length - 1];
-    let run = 0; for (let j = a.length - 1; j >= 0 && a[j] === c; j--) run++;
-    let acc = 0; while (acc < run && seq[f + acc] === c) acc++;
-    snapshot(); busy = true; sel = -1;
-    const els = document.querySelectorAll(".tube");
-    els[si].classList.remove("sel");
-    const stripeEl = $("#frame").children[2 - Math.floor(f / PER)];
-    let g = f;
-    tilt(els[si], stripeEl.getBoundingClientRect(), c, acc,
-      () => {
-        dropTopEl(si); g++;
-        const sIdx = 2 - Math.floor((g - 1) / PER);
-        const el = $("#frame").children[sIdx];
-        if (el) el.querySelector(".fill").style.width =
-          ((g - (2 - sIdx) * PER) / PER * 100) + "%";
-      },
-      () => {
-        for (let k = 0; k < acc; k++) a.pop();
-        f += acc; busy = false; render();
-        if (f === seq.length) win();
-      });
-  }
-
-  function reject() {
-    const fr = $("#frame");
-    fr.animate([
-      { transform: "translateX(0)" }, { transform: "translateX(-7px)" },
-      { transform: "translateX(7px)" }, { transform: "translateX(-5px)" },
-      { transform: "translateX(0)" }], { duration: 320 });
-    sel = -1; render();
+  // ---------- draw loop ----------
+  function drawTube(t) {
+    const wp = worldPoly(t);
+    const total = t.bands.reduce((s, b) => s + b.vol, 0);
+    if (total <= 0.002) { t.topY = t.cy + t.ih / 2; return; }
+    // cumulative volumes from the top band down — each fill covers the lower part
+    const cums = []; let acc = total;
+    for (let k = t.bands.length - 1; k >= 0; k--) { cums.push({ color: t.bands[k].color, vol: acc }); acc -= t.bands[k].vol; }
+    let topSpan = null, topYline = 0;
+    cums.forEach((cv, idx) => {
+      const Y = surfaceFor(wp, cv.vol * t.unitA);
+      const region = clipBelow(wp, Y);
+      if (region.length < 3) return;
+      lctx.beginPath();
+      region.forEach((p, i) => i ? lctx.lineTo(p.x, p.y) : lctx.moveTo(p.x, p.y));
+      lctx.closePath(); lctx.fillStyle = cv.color; lctx.fill();
+      if (idx === 0) {
+        topYline = Y; t.topY = Y;
+        let x0 = Infinity, x1 = -Infinity;
+        for (const p of region) if (Math.abs(p.y - Y) < .75) { x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); }
+        if (x1 > x0) topSpan = { x0, x1, color: cv.color };
+      }
+    });
+    // springy surface: bumps in liquid colour, dips erased to show "less"
+    if (topSpan) {
+      const { x0, x1, color } = topSpan;
+      const off = u => {
+        const s = u * (NSPRING - 1), i = Math.min(Math.floor(s), NSPRING - 2), fr = s - i;
+        return Math.max(-6, Math.min(6, t.offs[i] * (1 - fr) + t.offs[i + 1] * fr));
+      };
+      for (const mode of ["up", "down"]) {
+        lctx.save();
+        if (mode === "down") lctx.globalCompositeOperation = "destination-out";
+        lctx.beginPath(); lctx.moveTo(x0, topYline);
+        for (let s = 0; s <= 10; s++) {
+          const u = s / 10, o = off(u);
+          const y = mode === "up" ? topYline - Math.max(o, 0) : topYline + Math.max(-o, 0);
+          lctx.lineTo(x0 + (x1 - x0) * u, y);
+        }
+        lctx.lineTo(x1, topYline); lctx.closePath();
+        lctx.fillStyle = color; lctx.fill(); lctx.restore();
+      }
+      lctx.beginPath();
+      for (let s = 0; s <= 10; s++) {
+        const u = s / 10, y = topYline - off(u);
+        s ? lctx.lineTo(x0 + (x1 - x0) * u, y) : lctx.moveTo(x0, y);
+      }
+      lctx.strokeStyle = "rgba(255,255,255,.4)"; lctx.lineWidth = 1.5; lctx.stroke();
+    }
   }
 
+  function drawStream() {
+    if (!anim || !anim.pouring || !anim.streamEnd) return;
+    const S = T[anim.si], wp = worldPoly(S);
+    let lip = wp[0];
+    for (const p of [wp[0], wp[1]]) if (p.y > lip.y) lip = p;
+    const e = anim.streamEnd;
+    const wob = Math.sin(performance.now() / 55) * .9;
+    fctx.beginPath();
+    fctx.moveTo(lip.x, lip.y);
+    fctx.quadraticCurveTo(lip.x + (e.x - lip.x) * .12, lip.y + (e.y - lip.y) * .5, e.x, e.y);
+    fctx.strokeStyle = anim.c; fctx.lineCap = "round"; fctx.lineWidth = 5.5 + wob; fctx.stroke();
+    fctx.strokeStyle = "rgba(255,255,255,.35)"; fctx.lineWidth = 1.8; fctx.stroke();
+  }
+
+  function stepParts() {
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const p = parts[i];
+      p.life--;
+      if (p.type === "drop") { p.x += p.vx; p.y += p.vy; p.vy += .18; }
+      if (p.type === "bub") { p.y += p.vy; if (T[p.tube] && p.y < T[p.tube].topY + 3) p.life = 0; }
+      if (p.type === "ring") p.r += 1.1;
+      if (p.life <= 0) parts.splice(i, 1);
+    }
+  }
+  function drawParts() {
+    for (const p of parts) {
+      fctx.globalAlpha = Math.min(1, p.life / 12);
+      if (p.type === "ring") {
+        fctx.beginPath(); fctx.ellipse(p.x, p.y, p.r, p.r * .35, 0, 0, 7);
+        fctx.strokeStyle = p.color; fctx.lineWidth = 1.4; fctx.stroke();
+      } else if (p.type === "bub") {
+        const t = T[p.tube];
+        if (!t) continue;
+        fctx.save();
+        const wp = worldPoly(t);
+        fctx.beginPath(); wp.forEach((q, i) => i ? fctx.lineTo(q.x, q.y) : fctx.moveTo(q.x, q.y));
+        fctx.closePath(); fctx.clip();
+        fctx.beginPath(); fctx.arc(p.x, p.y, p.r, 0, 7);
+        fctx.strokeStyle = "rgba(255,255,255,.55)"; fctx.lineWidth = 1; fctx.stroke();
+        fctx.restore();
+      } else {
+        fctx.beginPath(); fctx.arc(p.x, p.y, p.r, 0, 7);
+        fctx.fillStyle = p.color; fctx.fill();
+      }
+      fctx.globalAlpha = 1;
+    }
+  }
+
+  function loop(now) {
+    if (!anim) remeasure();                // self-heal on any layout shift
+    if (anim) anim.step(now);
+    for (const t of T) {
+      // surface springs with neighbour spread
+      for (let i = 0; i < NSPRING; i++) {
+        const l = t.offs[i - 1] || 0, r = t.offs[i + 1] || 0;
+        t.vels[i] += -.055 * t.offs[i] + .16 * (l + r - 2 * t.offs[i]);
+        t.vels[i] *= .9;
+      }
+      for (let i = 0; i < NSPRING; i++) t.offs[i] += t.vels[i];
+      // selection lift (only when this tube isn't mid-pour)
+      if (!anim || anim.si !== T.indexOf(t)) {
+        const target = T.indexOf(t) === sel ? -12 : 0;
+        t.pose.dy += (target - t.pose.dy) * .3;
+        t.pose.dx *= .7; t.pose.ang *= .7;
+      }
+      const { dx, dy, ang } = t.pose;
+      t.el.style.transform = (Math.abs(dx) + Math.abs(dy) + Math.abs(ang) > .01)
+        ? `translate(${dx}px,${dy}px) rotate(${ang}rad)` : "";
+    }
+    stepParts();
+    lctx.clearRect(0, 0, innerWidth, innerHeight);
+    fctx.clearRect(0, 0, innerWidth, innerHeight);
+    for (const t of T) drawTube(t);
+    if (location.search.includes("debug"))
+      for (const t of T) {
+        fctx.fillStyle = "#f0f";
+        fctx.fillRect(t.cx - 2, t.cy - 2, 4, 4);
+        fctx.strokeStyle = "#f0f";
+        fctx.strokeRect(t.cx - t.iw / 2, t.cy - t.ih / 2, t.iw, t.ih);
+      }
+    drawStream();
+    drawParts();
+    requestAnimationFrame(loop);
+  }
+
+  // ---------- win / input ----------
   function confetti() {
     const set = [L.emo, "🎉", "⚽", "✨"];
     for (let i = 0; i < 22; i++) {
@@ -332,11 +568,10 @@
       s.animate([
         { transform: "translateY(0) rotate(0)", opacity: 1 },
         { transform: `translateY(105vh) rotate(${(Math.random() - .5) * 720}deg)`, opacity: .8 }
-      ], { duration: 1400 + Math.random() * 1200, easing: "ease-in", delay: Math.random() * 350 })
-        .onfinish && setTimeout(() => s.remove(), 3200);
+      ], { duration: 1400 + Math.random() * 1200, easing: "ease-in", delay: Math.random() * 350 });
+      setTimeout(() => s.remove(), 3200);
     }
   }
-
   function win() {
     busy = true;
     $("#hint").style.visibility = "hidden";
@@ -363,7 +598,9 @@
                   : "Flag complete. Next one's trickier…"}</p>
         <button>${last ? "PLAY AGAIN" : "NEXT FLAG →"}</button></div>`;
       document.body.appendChild(b);
-      b.querySelector("button").onclick = () => { b.remove(); newLevel(last ? 0 : li + 1); };
+      b.querySelector("button").onclick = () => {
+        b.remove(); $("#row").innerHTML = ""; newLevel(last ? 0 : li + 1);
+      };
     }, 1100);
   }
 
@@ -372,34 +609,52 @@
     const tube = e.target.closest(".tube");
     if (tube) {
       const i = +tube.dataset.i;
-      if (sel < 0) { if (tubes[i].length) { sel = i; render(); } return; }
+      if (sel < 0) { if (tubes[i].length) { sel = i; excite(T[i], 1); render(); } return; }
       if (sel === i) { sel = -1; render(); return; }
       const a = tubes[sel], b = tubes[i];
       const ok = b.length < CAP && (!b.length || b[b.length - 1] === a[a.length - 1]);
-      if (ok) pourTube(sel, i);
+      if (ok) startPour(sel, { type: "tube", i });
       else { sel = tubes[i].length ? i : -1; render(); }
       return;
     }
     if (e.target.closest("#frame")) {
       if (sel < 0 || f >= seq.length) return;
       const a = tubes[sel];
-      if (a[a.length - 1] === seq[f]) pourFrame(sel);
-      else reject();
+      if (a[a.length - 1] === seq[f]) {
+        const el = $("#frame").children[2 - Math.floor(f / PER)];
+        startPour(sel, { type: "frame", el });
+      } else {
+        $("#frame").animate([
+          { transform: "translateX(0)" }, { transform: "translateX(-7px)" },
+          { transform: "translateX(7px)" }, { transform: "translateX(-5px)" },
+          { transform: "translateX(0)" }], { duration: 320 });
+        sel = -1; render();
+      }
       return;
     }
     if (sel >= 0) { sel = -1; render(); }
   });
-
   $("#undo").onclick = () => {
     if (busy || !hist.length) return;
-    const h = hist.pop(); tubes = h.t; f = h.f; sel = -1; render();
+    const h = hist.pop(); tubes = h.t; f = h.f; sel = -1; render(); resync();
   };
   $("#restart").onclick = () => {
     if (busy) return;
-    tubes = deal0.map(x => x.slice()); f = 0; hist = []; sel = -1; render();
+    tubes = deal0.map(x => x.slice()); f = 0; hist = []; sel = -1; render(); resync();
   };
+  addEventListener("resize", sizeCanvas);
 
+  sizeCanvas();
   newLevel(0);
+  requestAnimationFrame(loop);
+  // headless test hook: ?demo fixes the deal and auto-pours so a screenshot can catch the tilt
+  if (location.search.includes("demo")) {
+    const [K, R, G] = ["#2b2b2b", "#d40e14", "#ffce00"];
+    tubes = [[K, R, G], [G, K, R], [R, G, K], []];
+    deal0 = tubes.map(x => x.slice());
+    render(); resync();
+    setTimeout(() => { if (!busy) startPour(0, { type: "tube", i: 3 }); }, 500);
+  }
 })();
 </script>
 </body>
