@@ -1,6 +1,6 @@
-/* COLOURS — build the flag by pouring its colours into place, water-sort
-   style. Campaign ("Road to the Final", all 48 qualified nations) + play any
-   nation. The game itself is the imperative canvas engine in
+/* HOIST — raise every nation's flag by pouring its colours into place,
+   water-sort style. Campaign ("Road to the Final", all 48 qualified nations)
+   + play any nation. The game itself is the imperative canvas engine in
    ../lib/flagsort/game (ported verbatim from the feel mock; the internal
    "flagsort" identifiers predate the rename and stay for continuity); this
    route renders the DOM skeleton it writes into, the app chrome, and owns
@@ -14,28 +14,29 @@ import { useEffect, useRef, useState } from 'react'
 import { mountFlagSort } from '../lib/flagsort/game'
 import { loadSolved, saveSolved } from '../lib/flagsort/storage'
 import { track, trackPageView } from '../lib/analytics'
+import { FlagMark } from '../components/FlagMark'
 import '../styles/flagsort.css'
 
 const ORIGIN = (import.meta.env.VITE_SITE_ORIGIN as string | undefined) || ''
 
-export const Route = createFileRoute('/colours')({
+export const Route = createFileRoute('/hoist')({
   head: () => ({
     meta: [
-      { title: 'COLOURS ⚽ Build every World Cup flag' },
+      { title: 'HOIST ⚽ Raise every World Cup flag' },
       {
         name: 'description',
         content:
-          'Pour the colours into place to build the flags of all 48 qualified nations. A water-sort puzzle for the 2026 tournament.',
+          'Pour the colours into place to raise the flags of all 48 qualified nations. A water-sort puzzle for the 2026 tournament.',
       },
-      { property: 'og:title', content: 'COLOURS ⚽ Build every World Cup flag' },
+      { property: 'og:title', content: 'HOIST ⚽ Raise every World Cup flag' },
       {
         property: 'og:description',
-        content: 'Pour the colours, build the flag. 48 nations, one Road to the Final.',
+        content: 'Pour the colours, raise the flag. 48 nations, one Road to the Final.',
       },
       { property: 'og:type', content: 'website' },
       ...(ORIGIN
         ? [
-            { property: 'og:url', content: ORIGIN + '/colours' },
+            { property: 'og:url', content: ORIGIN + '/hoist' },
             { property: 'og:image', content: ORIGIN + '/og/matchday.png' },
             { property: 'og:image:width', content: '1200' },
             { property: 'og:image:height', content: '630' },
@@ -55,7 +56,7 @@ function FlagSortPage() {
   const [howto, setHowto] = useState(false)
 
   useEffect(() => {
-    trackPageView('/colours')
+    trackPageView('/hoist')
     const root = rootRef.current
     if (!root) return
     const solved = loadSolved()
@@ -97,11 +98,11 @@ function FlagSortPage() {
         <div className="kicker">Summer 2026 · 48 nations</div>
         <div className="wordmark disp">
           <span className="emblem" aria-hidden="true">
-            💧
+            <FlagMark size={34} />
           </span>
-          COLOURS
+          HOIST
         </div>
-        <div className="sub">Pour the colours, build the flag</div>
+        <div className="sub">Pour the colours, raise the flag</div>
         <div className="scoreboard">
           <span className="trophy" aria-hidden="true">
             🏆

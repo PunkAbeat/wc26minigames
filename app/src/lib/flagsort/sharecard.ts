@@ -1,4 +1,4 @@
-/* COLOURS share card — the "collection wall" that travels in group chats:
+/* HOIST share card — the "collection wall" that travels in group chats:
    the real flags you've built, lit up against the ones still to go, with the
    X/48 count. Same pitch-night art direction as the ANTHEM card (1200×630, the
    standard link-card aspect). Client-only — drawn on a user device where SVG
@@ -83,10 +83,10 @@ async function drawFlagCard(canvas: HTMLCanvasElement, o: FlagCardOpts): Promise
     ctx.fill()
   }
 
-  /* gold ball + FLAG SORT wordmark, centred as one group */
+  /* gold ball + HOIST wordmark, centred as one group */
   const cy = 118
   ctx.font = "800 80px 'Baloo 2', sans-serif"
-  const word = 'COLOURS'
+  const word = 'HOIST'
   const tw = ctx.measureText(word).width
   const ballR = 32
   const gap = 16
@@ -110,10 +110,10 @@ async function drawFlagCard(canvas: HTMLCanvasElement, o: FlagCardOpts): Promise
   ctx.shadowColor = 'transparent'
   ctx.shadowOffsetY = 0
 
-  /* count pill: "23 / 48 FLAGS BUILT" */
+  /* count pill: "23 / 48 FLAGS RAISED" */
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  const label = `${o.built} / ${o.total} FLAGS BUILT`
+  const label = `${o.built} / ${o.total} FLAGS RAISED`
   ctx.font = "800 32px 'Baloo 2', sans-serif"
   const pillW = ctx.measureText(label).width + 64
   rr(ctx, (W - pillW) / 2, 168, pillW, 56, 28)
@@ -168,7 +168,7 @@ async function drawFlagCard(canvas: HTMLCanvasElement, o: FlagCardOpts): Promise
   ctx.font = "700 26px 'Nunito', sans-serif"
   ctx.textAlign = 'right'
   ctx.textBaseline = 'middle'
-  ctx.fillText(o.host ? `Play at ${o.host}/colours` : '', W - 56, H - 40)
+  ctx.fillText(o.host ? `Play at ${o.host}/hoist` : '', W - 56, H - 40)
 }
 
 export async function renderFlagCard(o: FlagCardOpts): Promise<Blob | null> {
@@ -193,5 +193,5 @@ export function flagShareText(built: number, total: number, cells: boolean[]): s
     grid += cells[i] ? '🟩' : '⬜'
     if (i % 8 === 7) grid += '\n'
   }
-  return `⚽ COLOURS\n${built}/${total} World Cup flags built\n\n${grid.trim()}`
+  return `⚽ HOIST\n${built}/${total} World Cup flags raised\n\n${grid.trim()}`
 }

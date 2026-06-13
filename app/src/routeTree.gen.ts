@@ -10,7 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as OgRouteImport } from './routes/og'
-import { Route as ColoursRouteImport } from './routes/colours'
+import { Route as HoistRouteImport } from './routes/hoist'
 import { Route as AnthemRouteImport } from './routes/anthem'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiSubscribeRouteImport } from './routes/api.subscribe'
@@ -23,9 +23,9 @@ const OgRoute = OgRouteImport.update({
   path: '/og',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ColoursRoute = ColoursRouteImport.update({
-  id: '/colours',
-  path: '/colours',
+const HoistRoute = HoistRouteImport.update({
+  id: '/hoist',
+  path: '/hoist',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AnthemRoute = AnthemRouteImport.update({
@@ -62,7 +62,7 @@ const ApiAnthemStatsRoute = ApiAnthemStatsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/anthem': typeof AnthemRoute
-  '/colours': typeof ColoursRoute
+  '/hoist': typeof HoistRoute
   '/og': typeof OgRoute
   '/api/anthem-stats': typeof ApiAnthemStatsRoute
   '/api/error': typeof ApiErrorRoute
@@ -72,7 +72,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/anthem': typeof AnthemRoute
-  '/colours': typeof ColoursRoute
+  '/hoist': typeof HoistRoute
   '/og': typeof OgRoute
   '/api/anthem-stats': typeof ApiAnthemStatsRoute
   '/api/error': typeof ApiErrorRoute
@@ -83,7 +83,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/anthem': typeof AnthemRoute
-  '/colours': typeof ColoursRoute
+  '/hoist': typeof HoistRoute
   '/og': typeof OgRoute
   '/api/anthem-stats': typeof ApiAnthemStatsRoute
   '/api/error': typeof ApiErrorRoute
@@ -95,7 +95,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/anthem'
-    | '/colours'
+    | '/hoist'
     | '/og'
     | '/api/anthem-stats'
     | '/api/error'
@@ -105,7 +105,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/anthem'
-    | '/colours'
+    | '/hoist'
     | '/og'
     | '/api/anthem-stats'
     | '/api/error'
@@ -115,7 +115,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/anthem'
-    | '/colours'
+    | '/hoist'
     | '/og'
     | '/api/anthem-stats'
     | '/api/error'
@@ -126,7 +126,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnthemRoute: typeof AnthemRoute
-  ColoursRoute: typeof ColoursRoute
+  HoistRoute: typeof HoistRoute
   OgRoute: typeof OgRoute
   ApiAnthemStatsRoute: typeof ApiAnthemStatsRoute
   ApiErrorRoute: typeof ApiErrorRoute
@@ -143,11 +143,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OgRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/colours': {
-      id: '/colours'
-      path: '/colours'
-      fullPath: '/colours'
-      preLoaderRoute: typeof ColoursRouteImport
+    '/hoist': {
+      id: '/hoist'
+      path: '/hoist'
+      fullPath: '/hoist'
+      preLoaderRoute: typeof HoistRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/anthem': {
@@ -198,7 +198,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnthemRoute: AnthemRoute,
-  ColoursRoute: ColoursRoute,
+  HoistRoute: HoistRoute,
   OgRoute: OgRoute,
   ApiAnthemStatsRoute: ApiAnthemStatsRoute,
   ApiErrorRoute: ApiErrorRoute,

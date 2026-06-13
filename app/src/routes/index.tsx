@@ -5,6 +5,7 @@ import { track, trackPageView } from '../lib/analytics'
 import { t, useLang } from '../lib/i18n'
 import type { Lang } from '../lib/i18n'
 import { LangSwitch } from '../components/LangSwitch'
+import { FlagMark } from '../components/FlagMark'
 import '../styles/hub.css'
 
 const ORIGIN = (import.meta.env.VITE_SITE_ORIGIN as string | undefined) || ''
@@ -64,12 +65,12 @@ const GAMES: GameEntry[] = [
   },
   {
     id: 'flagsort',
-    name: 'COLOURS',
-    icon: '💧',
+    name: 'HOIST',
+    icon: '🏴',
     tagline: 'flagsort_tagline',
     status: 'live',
     badge: 'badge_campaign',
-    to: '/colours',
+    to: '/hoist',
   },
   { id: 'tba-2', name: '???', icon: '🏆', tagline: 'tba_tagline', status: 'soon', badge: 'badge_soon' },
 ]
@@ -142,7 +143,9 @@ function Hub() {
             <>
               <div className="markings" />
               <div className="gc-pad">
-                <div className="gc-icon">{g.icon}</div>
+                <div className="gc-icon">
+                  {g.id === 'flagsort' ? <FlagMark size={38} /> : g.icon}
+                </div>
                 <div className="gc-body">
                   <div className="gc-name disp">{g.name}</div>
                   <div className="gc-tag">{t(lang, g.tagline)}</div>

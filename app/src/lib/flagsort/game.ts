@@ -692,10 +692,13 @@ export function mountFlagSort(root, opts = {}) {
   function stuck() {
     const b = document.createElement("div");
     b.className = "banner";
-    b.innerHTML = `<div class="card"><div class="big">🚫</div>
+    b.innerHTML = `<div class="wcard">
+      <div class="wbig">🚫</div>
       <h2>DEAD END</h2><p>No useful moves left.</p>
-      <button data-a="u">↩ UNDO</button>
-      <button data-a="r" style="background:#14324f;color:#fff;margin-left:8px">↻ RESTART</button></div>`;
+      <div class="wbtns">
+        <button data-a="u" class="wprimary">↩ UNDO</button>
+        <button data-a="r" class="wghost">↻ RESTART</button>
+      </div></div>`;
     root.appendChild(b);
     b.querySelectorAll("button").forEach(btn => btn.onclick = () => {
       b.remove();
@@ -742,12 +745,18 @@ export function mountFlagSort(root, opts = {}) {
             new Set(nx.regions.map(rg => rg.color)).size + nx.junk.length} colours, ${
             Math.ceil((nx.regions.reduce((a, rg) => a + rg.units, 0) + nx.junk.length * CAP) / CAP)
             + nx.spares} tubes.`;
+      const built = LEVELS.filter(fl => solved.has(fl.name)).length;
       const b = document.createElement("div");
       b.className = "banner";
-      b.innerHTML = `<div class="card"><div class="big">${L.emo}</div>
-        <h2>${L.name}!</h2><p>${tease}</p>
-        <button data-n="1">${last ? "ALL FLAGS" : "NEXT FLAG →"}</button>
-        <button data-n="0" style="background:#14324f;color:#fff;margin-left:8px">≡ FLAGS</button></div>`;
+      b.innerHTML = `<div class="wcard">
+        <div class="wbunting" aria-hidden="true">${"<i></i>".repeat(9)}</div>
+        <div class="wkicker">FLAG RAISED · ${built} / 48</div>
+        <div class="wflagwrap"><img class="wflag" src="${flagSrc(L.name)}" alt="${L.name}" draggable="false"></div>
+        <h2>${L.name}</h2><p>${tease}</p>
+        <div class="wbtns">
+          <button data-n="1" class="wprimary">${last ? "ALL FLAGS" : "NEXT FLAG →"}</button>
+          <button data-n="0" class="wghost">≡ FLAGS</button>
+        </div></div>`;
       root.appendChild(b);
       b.querySelector('[data-n="1"]').onclick = () => {
         b.remove(); $("#row").innerHTML = "";
@@ -806,14 +815,14 @@ export function mountFlagSort(root, opts = {}) {
     const built = cells.filter(Boolean).length;
     opts.track && opts.track("share_clicked", { mode: "flagsort" });
     const txt = flagShareText(built, LEVELS.length, cells) +
-      "\n" + location.origin + "/colours?ref=share";
+      "\n" + location.origin + "/hoist?ref=share";
     const done = () => toast("Copied! Paste it anywhere.");
     if (navigator.share) {
       let files;
       try {
         const blob = await renderFlagCard({ cells, codes, built, total: LEVELS.length, host: location.host });
         if (blob) {
-          const f = new File([blob], `colours-${built}-of-48.png`, { type: "image/png" });
+          const f = new File([blob], `hoist-${built}-of-48.png`, { type: "image/png" });
           if (navigator.canShare && navigator.canShare({ files: [f] })) files = [f];
         }
       } catch { /* share text only */ }
