@@ -113,6 +113,8 @@
 .fs-root .tick { position: absolute; right: 2px; top: 1px; font-size: 11px;
                  filter: drop-shadow(0 1px 1px rgba(0,0,0,.5)); }
 .fs-root .treg { position: absolute; }
+.fs-root .thumbimg { position: absolute; inset: 0; width: 100%; height: 100%;
+          object-fit: cover; border-radius: inherit; }
 .fs-root .tstamp { position: absolute; line-height: 0; }
 .fs-root .tstamp svg { width: 100%; height: auto; display: block;
           filter: drop-shadow(0 .5px .5px rgba(0,0,0,.3)); }

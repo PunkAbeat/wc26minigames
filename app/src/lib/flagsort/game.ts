@@ -39,6 +39,22 @@ export function mountFlagSort(root, opts = {}) {
   const diamond = [[.5,.08],[.92,.5],[.5,.92],[.08,.5]];
   const diagBand = [[0,1],[.34,1],[1,.34],[1,0],[.66,0],[0,.66]]; // corner-to-corner stripe
 
+  // ISO codes → local official SVG (flagcdn, public domain) under /flags/.
+  // Used for grid thumbnails + the completion reveal; the geometric region
+  // model below stays the puzzle/liquid logic. England/Scotland = GB subdivs.
+  const CODE = {
+    "MEXICO":"mx","SOUTH AFRICA":"za","SOUTH KOREA":"kr","CZECHIA":"cz","CANADA":"ca",
+    "BOSNIA & H.":"ba","QATAR":"qa","SWITZERLAND":"ch","BRAZIL":"br","MOROCCO":"ma",
+    "HAITI":"ht","SCOTLAND":"gb-sct","UNITED STATES":"us","PARAGUAY":"py","AUSTRALIA":"au",
+    "TÜRKIYE":"tr","GERMANY":"de","CURAÇAO":"cw","IVORY COAST":"ci","ECUADOR":"ec",
+    "NETHERLANDS":"nl","JAPAN":"jp","SWEDEN":"se","TUNISIA":"tn","BELGIUM":"be","EGYPT":"eg",
+    "IRAN":"ir","NEW ZEALAND":"nz","SPAIN":"es","CAPE VERDE":"cv","SAUDI ARABIA":"sa",
+    "URUGUAY":"uy","FRANCE":"fr","SENEGAL":"sn","IRAQ":"iq","NORWAY":"no","ARGENTINA":"ar",
+    "ALGERIA":"dz","AUSTRIA":"at","JORDAN":"jo","PORTUGAL":"pt","DR CONGO":"cd",
+    "UZBEKISTAN":"uz","COLOMBIA":"co","ENGLAND":"gb-eng","CROATIA":"hr","GHANA":"gh","PANAMA":"pa",
+  };
+  const flagSrc = name => `/flags/${CODE[name]}.svg`;
+
   // all 48 qualified nations (groups A–L), sorted into a difficulty ladder below.
   // emb = [emblemKey, fill, pos?] — a crisp inline-SVG emblem drawn ON the flag
   // (see EMBLEMS below). pos {x,y} (fractions) places + shrinks it; default is
@@ -873,9 +889,7 @@ export function mountFlagSort(root, opts = {}) {
   function buildSelect() {
     const tiles = LEVELS.map((fl, i) => {
       const done = solved.has(fl.name);
-      const thumb = fl.regions.map(rg =>
-        `<div class="treg" style="${regionCSS(rg.shape)};background:${rg.color}"></div>`).join("")
-        + embSpan(fl, "tstamp")
+      const thumb = `<img class="thumbimg" src="${flagSrc(fl.name)}" alt="${fl.name}" loading="lazy" draggable="false">`
         + (done ? `<div class="tick">✅</div>` : "");
       return `<div class="tile" data-i="${i}">
         <div class="thumb${done ? " solved" : ""}">${thumb}</div>
