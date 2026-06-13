@@ -528,6 +528,7 @@ export function mountFlagSort(root, opts = {}) {
         }
       },
       t0: null, si, c, pouring: false, streamEnd: null,
+      dstTube: dst.type === "tube",
     };
   }
 
@@ -688,13 +689,32 @@ export function mountFlagSort(root, opts = {}) {
     stepParts();
     lctx.clearRect(0, 0, cssW, cssH);
     fctx.clearRect(0, 0, cssW, cssH);
-    // the pouring tube is lifted/tilted over the others (and matches its DOM
-    // z-index), so draw its liquid LAST — otherwise a higher-index destination
-    // (e.g. a bottom-row spare) paints over it and it looks like it's behind.
+    // the pouring tube is lifted/tilted over the others (DOM z-index 40), so it
+    // must read fully in front. Draw every other vessel first; then, for a
+    // tube→tube pour, erase the pouring tube's whole footprint from the liquid
+    // layer (so a neighbour's liquid can't bleed through its glass) and redraw
+    // its liquid on top.
     const psi = anim ? anim.si : -1;
     for (let i = 0; i < T.length; i++) if (i !== psi) drawTube(T[i]);
     for (const v of FR) drawTube(v);
-    if (psi >= 0) drawTube(T[psi]);
+    if (psi >= 0) {
+      if (anim.dstTube) {
+        const t = T[psi], c = Math.cos(t.pose.ang), s = Math.sin(t.pose.ang);
+        const gp = localPoly(t.iw + 10, t.ih + 10, 14);   // full glass footprint
+        lctx.save();
+        lctx.globalCompositeOperation = "destination-out";
+        lctx.fillStyle = "#000";
+        lctx.beginPath();
+        gp.forEach((p, i) => {
+          const x = t.cx + t.pose.dx + p.x * c - p.y * s;
+          const y = t.cy + t.pose.dy + p.x * s + p.y * c;
+          i ? lctx.lineTo(x, y) : lctx.moveTo(x, y);
+        });
+        lctx.closePath(); lctx.fill();
+        lctx.restore();
+      }
+      drawTube(T[psi]);
+    }
     if (DEBUG)
       for (const t of T) {
         fctx.fillStyle = "#f0f";
