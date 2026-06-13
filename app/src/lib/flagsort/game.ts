@@ -758,8 +758,10 @@ export function mountFlagSort(root, opts = {}) {
   }
 
   // ---------- flag-select grid (campaign map + "play any nation") ----------
+  // grouped by World Cup group A–L (each group = 4 nations, FLAGS source order
+  // via fl.ord); within the engine LEVELS is tier-sorted, so we regroup here.
   function buildSelect() {
-    const tiles = LEVELS.map((fl, i) => {
+    const tile = (fl, i) => {
       const done = solved.has(fl.name);
       const thumb = `<img class="thumbimg" src="${flagSrc(fl.name)}" alt="${fl.name}" loading="lazy" draggable="false">`
         + (done ? `<div class="tick">✅</div>` : "");
@@ -768,13 +770,24 @@ export function mountFlagSort(root, opts = {}) {
         <div class="nm">${fl.name}</div>
         <div class="dots">${"●".repeat(fl.tier)}</div>
       </div>`;
+    };
+    const groups = {};
+    LEVELS.forEach((fl, i) => {
+      const letter = String.fromCharCode(65 + Math.floor(fl.ord / 4));
+      (groups[letter] = groups[letter] || []).push({ fl, i });
+    });
+    const sections = Object.keys(groups).sort().map(letter => {
+      const cells = groups[letter].sort((a, b) => a.fl.ord - b.fl.ord)
+        .map(it => tile(it.fl, it.i)).join("");
+      return `<div class="gsec"><div class="glabel">Group ${letter}</div>
+        <div class="grid">${cells}</div></div>`;
     }).join("");
     const n = LEVELS.filter(fl => solved.has(fl.name)).length;
     $("#select").innerHTML =
       `<div class="shead"><div class="t">ROAD TO THE FINAL</div>
        <div class="sub">${n} / 48 flags built · pick any nation · difficulty ● → ●●●●</div>
        <button class="sshare" id="sshare" type="button">↗ Share my ${n}/48</button></div>
-       <div class="grid">${tiles}</div>`;
+       ${sections}<div style="height:20px"></div>`;
     $("#select").querySelectorAll(".tile").forEach(t =>
       t.onclick = () => { $("#row").innerHTML = ""; newLevel(+t.dataset.i); });
     $("#sshare").onclick = share;

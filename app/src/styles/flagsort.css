@@ -1,142 +1,187 @@
-/* FLAG SORT — styles ported from the public/mock/flagsort.html feel mock and
-   scoped under .fs-root so they never touch the rest of the app. The game is a
-   full-screen fixed surface; the two canvases sit behind the DOM chrome.
+/* FLAG SORT — shares the MATCHDAY look with ANTHEM (tokens + body gradient from
+   styles.css). The page chrome (bunting, header, pitch card, candy controls)
+   mirrors .page-anthem so the two games feel like one product; the game-
+   specific bits (liquid frame, tubes, flag grid) are scoped under .fs-root.
+   The two canvases are fixed full-viewport overlays the engine draws into.
    keyframes are fs-prefixed to avoid colliding with anthem.css. */
 
-.fs-root {
-  position: fixed; inset: 0; overflow: hidden;
-  font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
-  background: linear-gradient(#6fbdee, #b9e0f6 46%, #2e8b46 46.3%, #1c6332);
-  color: #10243a; touch-action: manipulation;
-}
-.fs-root * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+.fs-root { color: var(--txt); }
+.fs-root.page { padding-bottom: 28px; }
+.fs-root * { -webkit-tap-highlight-color: transparent; user-select: none; }
+
 .fs-root canvas.fx { position: fixed; inset: 0; pointer-events: none; }
 .fs-root #liqc { z-index: 5; }
 .fs-root #fxc { z-index: 30; }
-.fs-root .top {
-  position: relative; z-index: 10;
-  display: flex; justify-content: space-between; align-items: center;
-  background: #14324f; color: #fff; padding: 10px 14px;
-}
-.fs-root .brand { font-weight: 800; letter-spacing: 1.5px; }
-.fs-root .tag { background: #ffd34d; color: #14324f; font-size: 10px; font-weight: 800;
-       border-radius: 999px; padding: 2px 8px; margin-left: 6px; vertical-align: 2px; }
-.fs-root .lvl { font-weight: 700; font-size: 13px; opacity: .9; }
-.fs-root .back { background: none; border: 0; color: #cfe0ee; font-weight: 700;
-                 font-size: 13px; margin-right: 6px; cursor: pointer; }
-.fs-root main { position: relative; z-index: 10; max-width: 430px; margin: 0 auto;
-       padding: 10px 14px; text-align: center; }
-.fs-root .flagname { font-weight: 800; letter-spacing: 1px; margin: 4px 0 8px; color: #fff;
-            text-shadow: 0 1px 3px rgba(0,0,0,.4); font-size: 17px; }
-.fs-root .frame {
-  position: relative; width: 70%; max-width: 250px; aspect-ratio: 3 / 2;
-  margin: 0 auto; border: 3px solid #fff; border-radius: 8px; overflow: hidden;
-  background: rgba(255,255,255,.10);
-  box-shadow: 0 6px 18px rgba(0,0,0,.28);
-}
+
+/* ---------- shared chrome (mirrors .page-anthem) ---------- */
+.fs-root .bunting { width: 100%; max-width: 520px; display: flex; justify-content: center;
+        margin-top: 4px; filter: drop-shadow(0 4px 3px rgba(0,0,0,.25)); }
+.fs-root .bunting i { width: 30px; height: 0; border-left: 15px solid transparent;
+        border-right: 15px solid transparent; border-top: 24px solid;
+        transform-origin: top center; animation: sway 3.2s ease-in-out infinite; }
+.fs-root .bunting i:nth-child(even) { animation-delay: .4s; }
+
+.fs-root header { width: 100%; max-width: 460px; text-align: center; margin-top: 14px;
+        position: relative; padding-top: 44px; z-index: 10; }
+.fs-root .kicker { font-size: 11px; font-weight: 800; letter-spacing: .3em; color: var(--gold);
+        text-transform: uppercase; }
+.fs-root .wordmark { font-family: 'Baloo 2', cursive; font-size: 46px; font-weight: 800;
+        line-height: 1; margin: 6px 0 0; display: inline-flex; align-items: center; gap: 12px;
+        color: #fff; text-shadow: 0 3px 0 rgba(0,0,0,.18); }
+.fs-root .wordmark .emblem { font-size: 34px; line-height: 1;
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,.35)); animation: bob 2.6s ease-in-out infinite; }
+.fs-root .sub { color: var(--mut); font-size: 14px; font-weight: 700; margin-top: 8px; }
+.fs-root .scoreboard { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px;
+        background: var(--ink); border: 2px solid rgba(255,255,255,.14); border-radius: var(--pill);
+        padding: 7px 16px; font-family: 'Baloo 2'; font-weight: 700; font-size: 13px;
+        letter-spacing: .1em; color: var(--gold); box-shadow: 0 6px 16px -8px rgba(0,0,0,.6); }
+
+.fs-root .back { position: absolute; top: 0; left: 0; height: 34px; display: inline-flex;
+        align-items: center; gap: 6px; padding: 0 13px; border-radius: var(--pill);
+        border: 2px solid rgba(255,255,255,.25); background: rgba(0,0,0,.2); color: #fff;
+        font-family: 'Baloo 2'; font-weight: 700; font-size: 12.5px; text-decoration: none; }
+.fs-root .help, .fs-root .statsbtn { position: absolute; top: 0; width: 34px; height: 34px;
+        border-radius: 50%; border: 2px solid rgba(255,255,255,.25); background: rgba(0,0,0,.2);
+        color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.fs-root .help { right: 0; font-family: 'Baloo 2'; font-weight: 700; font-size: 16px; }
+.fs-root .statsbtn { right: 42px; }
+
+/* ---------- the pitch card ---------- */
+.fs-root .card { position: relative; width: 100%; max-width: 440px; margin-top: 16px;
+        border-radius: var(--r-lg); background: linear-gradient(168deg, var(--pitch1), var(--pitch2));
+        border: 1px solid rgba(255,255,255,.18);
+        box-shadow: 0 24px 50px -20px rgba(0,0,0,.7), inset 0 2px 0 rgba(255,255,255,.25); z-index: 1; }
+.fs-root .deco { position: absolute; inset: 0; border-radius: var(--r-lg); overflow: hidden;
+        pointer-events: none; }
+.fs-root .markings { position: absolute; inset: 12px; border: 2.5px solid rgba(255,255,255,.28);
+        border-radius: 14px; }
+.fs-root .cc { position: absolute; top: 0; left: 50%; width: 118px; height: 118px; margin-left: -59px;
+        margin-top: -59px; border: 2.5px solid rgba(255,255,255,.22); border-radius: 50%; }
+.fs-root .cl { position: absolute; left: 50%; top: 12px; height: 54px; width: 2.5px;
+        background: rgba(255,255,255,.22); margin-left: -1px; }
+.fs-root .pad { position: relative; z-index: 2; padding: 18px 16px 20px;
+        display: flex; flex-direction: column; align-items: center; }
+
+/* ---------- game: flag name, liquid frame ---------- */
+.fs-root .flagname { font-family: 'Baloo 2'; font-weight: 800; letter-spacing: .5px; margin: 2px 0 12px;
+        color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.4); font-size: 18px; }
+.fs-root .frame { position: relative; width: 66%; max-width: 240px; aspect-ratio: 3 / 2;
+        margin: 0 auto; border: 3px solid #fff; border-radius: 10px; overflow: hidden;
+        background: rgba(255,255,255,.10); box-shadow: 0 8px 20px rgba(0,0,0,.32); }
 /* faint real flag = the target; canvas paints the bright reveal as you pour;
    on win it fades to full opacity = the crisp official flag */
-.fs-root .flagghost { position: absolute; inset: 0; width: 100%; height: 100%;
-         object-fit: fill; opacity: .14; transition: opacity .5s ease;
-         pointer-events: none; }
+.fs-root .flagghost { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill;
+        opacity: .14; transition: opacity .5s ease; pointer-events: none; }
 .fs-root .frame.done .flagghost { opacity: 1; }
 .fs-root .region { position: absolute; }
-.fs-root .region .ghost { position: absolute; inset: 0; opacity: .15; border-radius: inherit; }
-.fs-root .region.need::after {
-  content: ''; position: absolute; inset: 3px; border-radius: inherit;
-  border: 2px dashed rgba(255,255,255,.6); animation: fspulse 1.3s infinite;
-}
+.fs-root .region.need::after { content: ''; position: absolute; inset: 3px; border-radius: inherit;
+        border: 2px dashed rgba(255,255,255,.7); animation: fspulse 1.3s infinite; }
 @keyframes fspulse { 50% { opacity: .35; } }
-.fs-root .stamp { position: absolute; pointer-events: none; line-height: 0; }
-.fs-root .stamp svg { width: 100%; height: auto; display: block;
-         filter: drop-shadow(0 1px 1px rgba(0,0,0,.28)); }
-.fs-root .stamp.ghost { opacity: .22; }
-.fs-root .frame.done { border-color: #ffd34d; box-shadow: 0 0 24px rgba(255,211,77,.8); }
+.fs-root .frame.done { border-color: var(--gold); box-shadow: 0 0 26px rgba(255,210,63,.85); }
 .fs-root .frame.wave { animation: fswave .5s ease-in-out 4; }
-@keyframes fswave {
-  25% { transform: rotate(-1.6deg) skewY(-.8deg); }
-  75% { transform: rotate(1.6deg) skewY(.8deg); }
-}
-.fs-root .hint {
-  margin: 10px auto 0; display: inline-flex; gap: 8px; align-items: center;
-  background: #14324f; color: #fff; border-radius: 999px; padding: 6px 14px;
-  font-weight: 700; font-size: 12px; letter-spacing: .6px; min-height: 28px;
-}
-.fs-root .hint .sw { width: 14px; height: 14px; border-radius: 4px;
-            border: 1.5px solid rgba(255,255,255,.65); }
+@keyframes fswave { 25% { transform: rotate(-1.6deg) skewY(-.8deg); }
+        75% { transform: rotate(1.6deg) skewY(.8deg); } }
+
+/* ---------- hint (gold candy pill, like ANTHEM) ---------- */
+.fs-root .hintwrap { min-height: 30px; margin-top: 12px; display: flex; justify-content: center; }
+.fs-root .hint { display: inline-flex; gap: 8px; align-items: center; font-family: 'Baloo 2';
+        background: linear-gradient(180deg, #ffe066, #ffcf2e); color: #5a4300; border-radius: var(--pill);
+        padding: 7px 15px; font-weight: 800; font-size: 12.5px; letter-spacing: .4px;
+        box-shadow: 0 4px 0 var(--gold-d), 0 8px 14px -6px rgba(0,0,0,.4); }
+.fs-root .hint .sw { width: 14px; height: 14px; border-radius: 4px; border: 1.5px solid rgba(0,0,0,.35); }
+
+/* ---------- tubes ---------- */
 .fs-root .row { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-end;
-       gap: 14px 13px; margin: 18px auto 12px; min-height: 132px; max-width: 320px; }
+        gap: 14px 13px; margin: 16px auto 14px; min-height: 132px; max-width: 320px; }
 .fs-root .slot { position: relative; width: 42px; height: 128px; }
-.fs-root .tube {
-  position: absolute; inset: 0;
-  border: 2.5px solid rgba(255,255,255,.8); border-top-color: rgba(255,255,255,.35);
-  background: rgba(255,255,255,.13); border-radius: 9px 9px 19px 19px;
-  box-shadow: inset 0 0 12px rgba(255,255,255,.18), 0 4px 10px rgba(0,0,0,.2);
-  will-change: transform;
-}
-.fs-root .tube::after {
-  content: ''; position: absolute; top: 7px; bottom: 12px; left: 5px; width: 5px;
-  border-radius: 4px; background: rgba(255,255,255,.28);
-}
-.fs-root .tube.sel { border-color: #ffd34d;
-            box-shadow: inset 0 0 12px rgba(255,255,255,.18), 0 0 14px rgba(255,211,77,.7); }
+.fs-root .tube { position: absolute; inset: 0;
+        border: 2.5px solid rgba(255,255,255,.85); border-top-color: rgba(255,255,255,.4);
+        background: rgba(255,255,255,.13); border-radius: 9px 9px 19px 19px;
+        box-shadow: inset 0 0 12px rgba(255,255,255,.18), 0 4px 10px rgba(0,0,0,.2); will-change: transform; }
+.fs-root .tube::after { content: ''; position: absolute; top: 7px; bottom: 12px; left: 5px; width: 5px;
+        border-radius: 4px; background: rgba(255,255,255,.28); }
+.fs-root .tube.sel { border-color: var(--gold);
+        box-shadow: inset 0 0 12px rgba(255,255,255,.18), 0 0 14px rgba(255,210,63,.7); }
 .fs-root .tube.pouring { z-index: 40; }
+
+/* ---------- controls (candy pills) ---------- */
 .fs-root .controls { display: flex; justify-content: center; gap: 12px; }
-.fs-root .controls button {
-  background: #14324f; color: #fff; border: 0; border-radius: 999px;
-  padding: 10px 18px; font-weight: 800; font-size: 13px; letter-spacing: .5px;
-}
+.fs-root .controls button { font-family: 'Baloo 2'; background: rgba(0,0,0,.22);
+        border: 2px solid rgba(255,255,255,.25); color: var(--soft); border-radius: var(--pill);
+        padding: 9px 18px; font-weight: 700; font-size: 13px; letter-spacing: .4px; cursor: pointer; }
+.fs-root .controls button:active { transform: scale(.96); }
 .fs-root .controls button:disabled { opacity: .4; }
-.fs-root .note { color: rgba(255,255,255,.85); font-size: 11px; margin-top: 12px;
-        text-shadow: 0 1px 2px rgba(0,0,0,.3); }
+
+/* ---------- win banner / confetti ---------- */
 .fs-root .banner { position: fixed; inset: 0; z-index: 80; display: flex; align-items: center;
-          justify-content: center; background: rgba(8,20,35,.55); }
-.fs-root .banner .card { background: #fff; border-radius: 18px; padding: 22px 26px;
-                text-align: center; width: 78%; max-width: 320px;
-                box-shadow: 0 12px 30px rgba(0,0,0,.35); animation: fspop .35s ease-out; }
+        justify-content: center; background: rgba(8,20,35,.55); }
+.fs-root .banner .card { background: #fff; border-radius: 20px; padding: 22px 26px; text-align: center;
+        width: 78%; max-width: 320px; margin: 0; box-shadow: 0 12px 30px rgba(0,0,0,.4);
+        animation: fspop .35s ease-out; }
 @keyframes fspop { from { transform: scale(.7); opacity: 0; } }
 .fs-root .banner .big { font-size: 56px; line-height: 1; }
-.fs-root .banner h2 { margin: 8px 0 4px; color: #14324f; letter-spacing: 1px; }
+.fs-root .banner h2 { font-family: 'Baloo 2'; margin: 8px 0 4px; color: var(--ink); letter-spacing: .5px; }
 .fs-root .banner p { margin: 4px 0 14px; color: #4a647e; font-size: 13px; }
-.fs-root .banner button { background: #ffd34d; color: #14324f; border: 0; border-radius: 999px;
-                 padding: 12px 24px; font-weight: 800; font-size: 14px; letter-spacing: .5px; }
+.fs-root .banner button { font-family: 'Baloo 2'; background: var(--gold); color: var(--goldink);
+        border: 0; border-radius: var(--pill); padding: 12px 24px; font-weight: 800; font-size: 14px;
+        letter-spacing: .5px; cursor: pointer; box-shadow: 0 5px 0 var(--gold-d); }
 .fs-root .confetti { position: fixed; z-index: 90; top: -40px; font-size: 22px; pointer-events: none; }
-.fs-root #menu { background: rgba(255,255,255,.15); color: #fff; border: 0; border-radius: 8px;
-        font-size: 18px; font-weight: 800; padding: 2px 10px; margin-right: 8px; cursor: pointer; }
+
+/* ---------- how-to modal ---------- */
+.fs-root .fs-modal { position: fixed; inset: 0; z-index: 95; display: flex; align-items: center;
+        justify-content: center; background: rgba(8,20,35,.6); padding: 20px; }
+.fs-root .fs-modalcard { background: #fff; color: var(--ink); border-radius: 20px; padding: 22px 24px;
+        width: 100%; max-width: 340px; box-shadow: 0 16px 40px rgba(0,0,0,.45); animation: fspop .3s ease-out; }
+.fs-root .fs-modalcard h2 { font-family: 'Baloo 2'; margin: 0 0 10px; }
+.fs-root .fs-modalcard p { color: #34506a; font-size: 13.5px; line-height: 1.5; margin: 0 0 10px; }
+.fs-root .fs-modalcard button { font-family: 'Baloo 2'; background: var(--gold); color: var(--goldink);
+        border: 0; border-radius: var(--pill); padding: 11px 22px; font-weight: 800; font-size: 14px;
+        cursor: pointer; margin-top: 6px; box-shadow: 0 4px 0 var(--gold-d); }
+
+/* ---------- flag-select grid (ROAD TO THE FINAL) ---------- */
 .fs-root #select { position: fixed; inset: 0; z-index: 70; overflow-y: auto;
-          background: linear-gradient(#6fbdee, #2e8b46); -webkit-overflow-scrolling: touch; }
-.fs-root #select .shead { background: #14324f; color: #fff; padding: 12px 14px; text-align: center;
-                 position: sticky; top: 0; z-index: 2; }
-.fs-root #select .shead .t { font-weight: 800; letter-spacing: 1.5px; }
-.fs-root #select .shead .sub { font-size: 11px; opacity: .8; margin-top: 2px; }
-.fs-root #select .sshare { margin-top: 8px; background: #ffd34d; color: #14324f; border: 0;
-          border-radius: 999px; font-weight: 800; font-size: 12px; padding: 6px 16px;
-          cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,.3); }
+        -webkit-overflow-scrolling: touch;
+        background: radial-gradient(700px 360px at 50% -60px, rgba(255,226,140,.22), transparent 65%),
+                    linear-gradient(180deg, var(--bg1), var(--bg2)); }
+.fs-root #select .shead { background: var(--ink); color: #fff; padding: 14px 14px 12px;
+        text-align: center; position: sticky; top: 0; z-index: 2; box-shadow: 0 6px 18px -8px rgba(0,0,0,.7); }
+.fs-root #select .shead .t { font-family: 'Baloo 2'; font-weight: 800; letter-spacing: 1.6px;
+        font-size: 17px; color: #fff; }
+.fs-root #select .shead .sub { font-size: 11px; opacity: .85; margin-top: 2px; color: var(--mut); }
+.fs-root #select .sshare { margin-top: 10px; font-family: 'Baloo 2'; background: var(--gold);
+        color: var(--goldink); border: 0; border-radius: var(--pill); font-weight: 800; font-size: 12px;
+        padding: 7px 18px; cursor: pointer; box-shadow: 0 4px 0 var(--gold-d); }
 .fs-root #select .sshare:active { transform: scale(.96); }
-.fs-root .fs-toast { position: fixed; left: 50%; bottom: 32px; transform: translate(-50%, 16px);
-          background: #14324f; color: #fff; padding: 10px 18px; border-radius: 999px;
-          font-weight: 700; font-size: 13px; z-index: 90; opacity: 0; pointer-events: none;
-          box-shadow: 0 4px 16px rgba(0,0,0,.4); transition: opacity .25s, transform .25s; }
-.fs-root .fs-toast.show { opacity: 1; transform: translate(-50%, 0); }
-.fs-root .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 12px;
-        max-width: 460px; margin: 0 auto; }
+.fs-root .gsec { max-width: 480px; margin: 0 auto; padding: 0 12px; }
+.fs-root .glabel { display: flex; align-items: center; gap: 10px; color: var(--gold);
+        font-family: 'Baloo 2'; font-weight: 800; font-size: 13px; letter-spacing: .14em;
+        text-transform: uppercase; margin: 16px 2px 9px; }
+.fs-root .glabel::before, .fs-root .glabel::after { content: ''; height: 2px; flex: 1;
+        background: linear-gradient(90deg, transparent, rgba(255,210,63,.45)); }
+.fs-root .glabel::before { background: linear-gradient(90deg, rgba(255,210,63,.45), transparent); }
+.fs-root .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 11px; }
 .fs-root .tile { text-align: center; cursor: pointer; }
-.fs-root .thumb { position: relative; width: 100%; aspect-ratio: 3 / 2; border-radius: 5px;
-         overflow: hidden; background: #cdd8e2; border: 1.5px solid rgba(255,255,255,.7);
-         box-shadow: 0 2px 5px rgba(0,0,0,.25); }
-.fs-root .thumb.solved { border-color: #ffd34d; box-shadow: 0 0 0 2px #ffd34d, 0 2px 5px rgba(0,0,0,.3); }
-.fs-root .tick { position: absolute; right: 2px; top: 1px; font-size: 11px;
-                 filter: drop-shadow(0 1px 1px rgba(0,0,0,.5)); }
-.fs-root .treg { position: absolute; }
-.fs-root .thumbimg { position: absolute; inset: 0; width: 100%; height: 100%;
-          object-fit: cover; border-radius: inherit; }
-.fs-root .tstamp { position: absolute; line-height: 0; }
-.fs-root .tstamp svg { width: 100%; height: auto; display: block;
-          filter: drop-shadow(0 .5px .5px rgba(0,0,0,.3)); }
-.fs-root .tile .nm { color: #fff; font-size: 9px; font-weight: 700; margin-top: 3px; line-height: 1.1;
-            text-shadow: 0 1px 2px rgba(0,0,0,.4); }
-.fs-root .tile .dots { font-size: 7px; color: #ffd34d; letter-spacing: 1px; }
+.fs-root .thumb { position: relative; width: 100%; aspect-ratio: 3 / 2; border-radius: 10px;
+        overflow: hidden; background: rgba(255,255,255,.10); border: 2px solid rgba(255,255,255,.55);
+        box-shadow: 0 3px 8px rgba(0,0,0,.3); }
+.fs-root .thumb.solved { border-color: var(--gold);
+        box-shadow: 0 0 0 2px var(--gold), 0 3px 8px rgba(0,0,0,.35); }
+.fs-root .thumbimg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.fs-root .tick { position: absolute; right: 3px; top: 2px; font-size: 11px;
+        filter: drop-shadow(0 1px 1px rgba(0,0,0,.5)); }
+.fs-root .tile .nm { color: #fff; font-size: 9px; font-weight: 800; margin-top: 4px; line-height: 1.1;
+        text-shadow: 0 1px 2px rgba(0,0,0,.5); }
+.fs-root .tile .dots { font-size: 7px; color: var(--gold); letter-spacing: 1px; }
 .fs-root .tile:active .thumb { transform: scale(.94); }
+
+/* ---------- toast ---------- */
+.fs-root .fs-toast { position: fixed; left: 50%; bottom: 32px; transform: translate(-50%, 16px);
+        background: var(--ink); color: #fff; padding: 10px 18px; border-radius: var(--pill);
+        font-weight: 700; font-size: 13px; z-index: 96; opacity: 0; pointer-events: none;
+        box-shadow: 0 4px 16px rgba(0,0,0,.4); transition: opacity .25s, transform .25s; }
+.fs-root .fs-toast.show { opacity: 1; transform: translate(-50%, 0); }
+
 @media (prefers-reduced-motion: reduce) {
-  .fs-root .frame.wave, .fs-root .region.need::after { animation: none; }
+  .fs-root .frame.wave, .fs-root .region.need::after, .fs-root .bunting i,
+  .fs-root .wordmark .emblem { animation: none; }
 }

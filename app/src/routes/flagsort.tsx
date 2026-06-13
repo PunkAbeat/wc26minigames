@@ -9,7 +9,7 @@
    tagline is translated. SSR renders the static shell; the engine mounts in a
    client effect, so server and client markup always agree. */
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { mountFlagSort } from '../lib/flagsort/game'
 import { loadSolved, saveSolved } from '../lib/flagsort/storage'
 import { track, trackPageView } from '../lib/analytics'
@@ -47,8 +47,11 @@ export const Route = createFileRoute('/flagsort')({
   component: FlagSortPage,
 })
 
+const BUNTING_COLS = ['#ffd23f', '#ffffff', '#ff6b3d', '#1fd17a']
+
 function FlagSortPage() {
   const rootRef = useRef<HTMLDivElement>(null)
+  const [howto, setHowto] = useState(false)
 
   useEffect(() => {
     trackPageView('/flagsort')
@@ -67,50 +70,91 @@ function FlagSortPage() {
   }, [])
 
   return (
-    <div className="fs-root" ref={rootRef}>
+    <div className="page page-flagsort fs-root" ref={rootRef}>
       {/* liquid behind (#liqc), splashes in front (#fxc) — both full-viewport */}
       <canvas id="liqc" className="fx" />
       <canvas id="fxc" className="fx" />
 
-      <header className="top">
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <Link to="/" className="back" aria-label="Back to games">
-            ⚽ Games
-          </Link>
-          <button id="menu" title="All flags" type="button">
-            ≡
-          </button>
-          <div className="brand">
-            FLAG SORT<span className="tag">BETA</span>
-          </div>
+      <div className="bunting" aria-hidden="true">
+        {Array.from({ length: 15 }, (_, i) => (
+          <i key={i} style={{ borderTopColor: BUNTING_COLS[i % BUNTING_COLS.length] }} />
+        ))}
+      </div>
+
+      <header>
+        <Link className="back" to="/" aria-label="All games">
+          ⚽ Games
+        </Link>
+        <button className="help" aria-label="How to play" type="button" onClick={() => setHowto(true)}>
+          ?
+        </button>
+        <button className="statsbtn" id="menu" aria-label="All flags" type="button">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true">
+            <path d="M3 3h8v8H3zM13 3h8v8h-8zM3 13h8v8H3zM13 13h8v8h-8z" />
+          </svg>
+        </button>
+        <div className="kicker">Summer 2026 · 48 nations</div>
+        <div className="wordmark disp">
+          <span className="emblem" aria-hidden="true">
+            🎌
+          </span>
+          FLAG SORT
         </div>
-        <div className="lvl" id="lvl" />
+        <div className="sub">Pour the colours, build the flag</div>
+        <div className="scoreboard">
+          <span className="trophy" aria-hidden="true">
+            🏆
+          </span>
+          <span id="lvl" />
+        </div>
       </header>
 
       {/* the engine fills #select (grid), #frame (regions), #row (tubes),
           #flagname / #lvl / #hint, and wires #menu / #undo / #restart */}
       <div id="select" hidden />
 
-      <main>
-        <div className="flagname" id="flagname" />
-        <div className="frame" id="frame" />
-        <div>
-          <span className="hint" id="hint" />
+      <div className="card">
+        <div className="deco" aria-hidden="true">
+          <div className="markings" />
+          <div className="cl" />
+          <div className="cc" />
         </div>
-        <div className="row" id="row" />
-        <div className="controls">
-          <button id="undo" type="button">
-            ↩ UNDO
-          </button>
-          <button id="restart" type="button">
-            ↻ RESTART
-          </button>
+        <div className="pad">
+          <div className="flagname" id="flagname" />
+          <div className="frame" id="frame" />
+          <div className="hintwrap">
+            <span className="hint" id="hint" />
+          </div>
+          <div className="row" id="row" />
+          <div className="controls">
+            <button id="undo" type="button">
+              ↩ UNDO
+            </button>
+            <button id="restart" type="button">
+              ↻ RESTART
+            </button>
+          </div>
         </div>
-        <p className="note">
-          Tap a tube, then tap another tube or the flag. The flag fills its{' '}
-          <b>highlighted region first</b>. Junk colours never enter the flag — park them in tubes.
-        </p>
-      </main>
+      </div>
+
+      {howto && (
+        <div className="fs-modal" onClick={() => setHowto(false)}>
+          <div className="fs-modalcard" onClick={(e) => e.stopPropagation()}>
+            <h2>How to play</h2>
+            <p>
+              Tap a tube, then tap another tube or the flag frame to pour. The flag fills its{' '}
+              <b>highlighted region first</b> — match the colour the hint asks for.
+            </p>
+            <p>
+              Some colours are <b>junk</b>: they never belong in the flag. Park them in spare tubes
+              to clear the way. Build all 48 nations on the Road to the Final.
+            </p>
+            <button type="button" onClick={() => setHowto(false)}>
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
