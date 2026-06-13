@@ -424,3 +424,37 @@ it does in the native clones, and does aiming at a flag pattern feel different
 from sorting to uniform tubes. SHOOTOUT remains the standing alternative if
 sorting doesn't land.
 
+### FLAG SORT: scaling to all 48 nations + difficulty model (13 Jun, after the ladder landed)
+
+Owner verdict on the mock iterations: liquid feel "awesome", ladder "a great
+direction". Open question answered here: gradual vs uniform difficulty.
+
+**Region model (how non-stripe flags fit).** The renderer fills *regions*,
+not stripes: vertical tricolors = narrow tall tanks filling bottom-up
+(France, Mexico, Italy, Belgium…); field-plus-emblem flags pour the field
+and **stamp the emblem** as the completion flourish (Japan disc, Turkey
+crescent, Brazil diamond+globe — the Argentina ☀️ already proves the beat);
+crosses/diagonals = polygon regions with a fill order. Per-nation content =
+a compact spec (regions, colors, fill order, stamp). Editorial care point:
+the Saudi flag carries the shahada — needs a respectful treatment decision.
+
+**Difficulty insight: the flag barely determines difficulty.** Flags give
+2–4 colors + an ordering constraint; junk colors, spares and burial depth
+are free knobs. A 2-color flag gets more junk than a 3-color flag to land at
+equal total complexity, and the solver can *grade* deals (min solution
+length / search effort) and accept only deals inside a target band →
+**uniform difficulty per nation is achievable**, while each flag still plays
+differently (repeated-color traps vs linear runs).
+
+**Recommended structure — both, as modes:**
+- *Campaign "Road to the Final"*: 48 nations in a tournament-shaped ramp
+  (group stage easy → knockouts → final boss), ordered by intrinsic flag
+  complexity. Collect-all-48 badge wall as the retention/share hook.
+- *Solver-normalized fixed band* powering "play YOUR nation" any time, and
+  later a *daily flag* (uniform difficulty = comparable/shareable, slots
+  into the hub's daily DNA when wanted).
+
+**Remaining technical unknown:** region generalization only. Cheapest
+retirement: add Mexico (vertical) + Japan (field+disc) to the mock; if those
+pour well, the other 46 are content entries.
+
