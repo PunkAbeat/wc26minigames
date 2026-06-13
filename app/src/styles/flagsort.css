@@ -34,6 +34,12 @@
   background: rgba(255,255,255,.10);
   box-shadow: 0 6px 18px rgba(0,0,0,.28);
 }
+/* faint real flag = the target; canvas paints the bright reveal as you pour;
+   on win it fades to full opacity = the crisp official flag */
+.fs-root .flagghost { position: absolute; inset: 0; width: 100%; height: 100%;
+         object-fit: fill; opacity: .14; transition: opacity .5s ease;
+         pointer-events: none; }
+.fs-root .frame.done .flagghost { opacity: 1; }
 .fs-root .region { position: absolute; }
 .fs-root .region .ghost { position: absolute; inset: 0; opacity: .15; border-radius: inherit; }
 .fs-root .region.need::after {
