@@ -38,13 +38,13 @@
   .frame {
     position: relative; width: 70%; max-width: 250px; aspect-ratio: 3 / 2;
     margin: 0 auto; border: 3px solid #fff; border-radius: 8px; overflow: hidden;
-    background: rgba(255,255,255,.10); display: flex; flex-direction: column;
+    background: rgba(255,255,255,.10);
     box-shadow: 0 6px 18px rgba(0,0,0,.28);
   }
-  .stripe { flex: 1; position: relative; }
-  .stripe .ghost { position: absolute; inset: 0; opacity: .15; }
-  .stripe.need::after {
-    content: ''; position: absolute; inset: 3px; border-radius: 4px;
+  .region { position: absolute; }
+  .region .ghost { position: absolute; inset: 0; opacity: .15; border-radius: inherit; }
+  .region.need::after {
+    content: ''; position: absolute; inset: 3px; border-radius: inherit;
     border: 2px dashed rgba(255,255,255,.6); animation: pulse 1.3s infinite;
   }
   @keyframes pulse { 50% { opacity: .35; } }
@@ -102,7 +102,7 @@
                    padding: 12px 24px; font-weight: 800; font-size: 14px; letter-spacing: .5px; }
   .confetti { position: fixed; z-index: 90; top: -40px; font-size: 22px; pointer-events: none; }
   @media (prefers-reduced-motion: reduce) {
-    .frame.wave, .stripe.need::after { animation: none; }
+    .frame.wave, .region.need::after { animation: none; }
   }
 </style>
 </head>
@@ -128,19 +128,32 @@
 <script>
 (() => {
   const $ = s => document.querySelector(s);
-  // per: units per stripe · junk: distractor colours (4 units each, never enter
-  // the flag) · spares: empty tubes. Difficulty = junk depth + scarce spares.
+  // A flag is a list of REGIONS in fill order; each region is a tank: a
+  // horizontal band, a vertical column, or a disc. shape coords are fractions
+  // of the frame (circle r is a fraction of frame height). junk colours (4
+  // units each) never enter the flag. Difficulty = junk depth + scarce spares.
+  const H3 = (cols, per) => cols.map((c, i) => ({ color: c[0], label: c[1], units: per,
+    shape: { type: "rect", x: 0, y: (2 - i) / 3, w: 1, h: 1 / 3 } }));      // bottom-up
+  const V3 = (cols, per) => cols.map((c, i) => ({ color: c[0], label: c[1], units: per,
+    shape: { type: "rect", x: i / 3, y: 0, w: 1 / 3, h: 1 } }));            // left-to-right
   const LEVELS = [
-    { name: "GERMANY", emo: "🇩🇪", per: 3, spares: 1, junk: [],
-      stripes: [["#2b2b2b","BLACK"], ["#d40e14","RED"], ["#ffce00","GOLD"]] },
-    { name: "AUSTRIA", emo: "🇦🇹", per: 4, spares: 1, junk: ["#2563eb"],
-      stripes: [["#ed2939","RED"], ["#ffffff","WHITE"], ["#ed2939","RED"]] },
-    { name: "NETHERLANDS", emo: "🇳🇱", per: 4, spares: 1, junk: ["#16a34a","#f59e0b"],
-      stripes: [["#ae1c28","RED"], ["#ffffff","WHITE"], ["#21468b","BLUE"]] },
-    { name: "ARGENTINA", emo: "🇦🇷", per: 4, spares: 2, junk: ["#16a34a","#9333ea","#8b5e34"],
-      stripes: [["#74acdf","SKY"], ["#ffffff","WHITE"], ["#74acdf","SKY"]], stamp: "☀️" },
-    { name: "SPAIN", emo: "🇪🇸", per: 4, spares: 2, junk: ["#2563eb","#16a34a","#9333ea","#0d9488","#ec4899"],
-      stripes: [["#aa151b","RED"], ["#f1bf00","GOLD"], ["#aa151b","RED"]] },
+    { name: "GERMANY", emo: "🇩🇪", spares: 1, junk: [],
+      regions: H3([["#ffce00","GOLD"], ["#d40e14","RED"], ["#2b2b2b","BLACK"]], 3) },
+    { name: "AUSTRIA", emo: "🇦🇹", spares: 1, junk: ["#2563eb"],
+      regions: H3([["#ed2939","RED"], ["#f4f4f4","WHITE"], ["#ed2939","RED"]], 4) },
+    { name: "MEXICO", emo: "🇲🇽", spares: 1, junk: ["#f59e0b"],
+      regions: V3([["#006847","GREEN"], ["#f4f4f4","WHITE"], ["#ce1126","RED"]], 4) },
+    { name: "NETHERLANDS", emo: "🇳🇱", spares: 1, junk: ["#16a34a","#f59e0b"],
+      regions: H3([["#21468b","BLUE"], ["#f4f4f4","WHITE"], ["#ae1c28","RED"]], 4) },
+    { name: "ARGENTINA", emo: "🇦🇷", spares: 2, junk: ["#16a34a","#9333ea","#8b5e34"], stamp: "☀️",
+      regions: H3([["#74acdf","SKY"], ["#f4f4f4","WHITE"], ["#74acdf","SKY"]], 4) },
+    { name: "JAPAN", emo: "🇯🇵", spares: 2, junk: ["#2563eb","#16a34a","#9333ea","#f59e0b"],
+      regions: [
+        { color: "#f4f4f4", label: "WHITE", units: 8, shape: { type: "rect", x: 0, y: 0, w: 1, h: 1 } },
+        { color: "#bc002d", label: "RED", units: 4, shape: { type: "circle", cx: .5, cy: .5, r: .3 } },
+      ] },
+    { name: "SPAIN", emo: "🇪🇸", spares: 2, junk: ["#2563eb","#16a34a","#9333ea","#0d9488","#ec4899"],
+      regions: H3([["#aa151b","RED"], ["#f1bf00","GOLD"], ["#aa151b","RED"]], 4) },
   ];
   const CAP = 4, NSPRING = 6;
   const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -292,25 +305,66 @@
       const r = t.slot.getBoundingClientRect();
       t.cx = r.left + r.width / 2; t.cy = r.top + r.height / 2;
     }
-    if (F) {
-      const r = F.el.getBoundingClientRect();
-      F.cx = r.left + r.width / 2; F.cy = r.top + r.height / 2;
+    if (FR.length && FRrect) {
+      const r = $("#frame").getBoundingClientRect();
+      if (Math.abs(r.width - FRrect.width) > .5) { rebuildFR(); return; }
+      const dx = r.left - FRrect.left, dy = r.top - FRrect.top;
+      if (dx || dy) for (const v of FR) { v.cx += dx; v.cy += dy; }
+      FRrect = r;
     }
   }
-  // the flag frame is itself a vessel: a wide tank of capacity 9 whose liquid
-  // must end up layered as the flag — same renderer as the tubes
-  let F = null;
-  function rebuildF() {
+  // each flag REGION is its own vessel (band, column, or disc) rendered by the
+  // same liquid system as the tubes; regions fill in L.regions order
+  let FR = [], FRrect = null;
+  function shapePts(s, W, H) {
+    if (s.type === "circle") {
+      const pts = [];
+      for (let i = 0; i < 20; i++) {
+        const a = i / 20 * 2 * Math.PI;
+        pts.push({ x: s.cx * W + Math.cos(a) * s.r * H, y: s.cy * H + Math.sin(a) * s.r * H });
+      }
+      return pts;
+    }
+    return [{ x: s.x * W, y: s.y * H }, { x: (s.x + s.w) * W, y: s.y * H },
+            { x: (s.x + s.w) * W, y: (s.y + s.h) * H }, { x: s.x * W, y: (s.y + s.h) * H }];
+  }
+  function rebuildFR() {
     const el = $("#frame");
     const r = el.getBoundingClientRect();
-    const iw = r.width - 8, ih = r.height - 8;
-    F = {
-      el, cx: r.left + r.width / 2, cy: r.top + r.height / 2, iw, ih,
-      poly: localPoly(iw, ih, 6), unitA: polyArea(localPoly(iw, ih, 6)) / seq.length,
-      pose: { dx: 0, dy: 0, ang: 0 },
-      offs: new Array(10).fill(0), vels: new Array(10).fill(0),
-      bands: bandsOf(seq.slice(0, f)), topY: r.top + r.height / 2,
-    };
+    FRrect = r;
+    const W = r.width - 8, H = r.height - 8, ox = r.left + 4, oy = r.top + 4;
+    let before = 0;
+    FR = L.regions.map(reg => {
+      const pts = shapePts(reg.shape, W, H);
+      let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+      for (const p of pts) { x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x);
+                             y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); }
+      const cx = ox + (x0 + x1) / 2, cy = oy + (y0 + y1) / 2;
+      const poly = pts.map(p => ({ x: ox + p.x - cx, y: oy + p.y - cy }));
+      const v = {
+        el, cx, cy, iw: x1 - x0, ih: y1 - y0, poly, unitA: polyArea(poly) / reg.units,
+        pose: { dx: 0, dy: 0, ang: 0 },
+        offs: new Array(8).fill(0), vels: new Array(8).fill(0),
+        bands: [], topY: cy + (y1 - y0) / 2, units: reg.units, color: reg.color, before,
+      };
+      before += reg.units;
+      return v;
+    });
+    syncFR();
+  }
+  function syncFR() {
+    for (const v of FR) {
+      const vol = Math.max(0, Math.min(v.units, f - v.before));
+      v.bands = vol > 0 ? [{ color: v.color, vol }] : [];
+    }
+  }
+  function activeIdx() {
+    let acc = 0;
+    for (let i = 0; i < L.regions.length; i++) {
+      if (f < acc + L.regions[i].units) return i;
+      acc += L.regions[i].units;
+    }
+    return -1;
   }
   function worldPoly(t) {
     const c = Math.cos(t.pose.ang), s = Math.sin(t.pose.ang);
@@ -330,10 +384,15 @@
     $("#flagname").textContent = `${L.emo} ${L.name}`;
     const fr = $("#frame");
     fr.classList.remove("done", "wave");
-    fr.innerHTML = L.stripes.map((s, si) => {
-      const need = f < seq.length && si === L.stripes.length - 1 - Math.floor(f / L.per);
-      return `<div class="stripe${need ? " need" : ""}" data-si="${si}">
-        <div class="ghost" style="background:${s[0]}"></div>
+    const ai = activeIdx();
+    fr.innerHTML = L.regions.map((reg, ri) => {
+      const s = reg.shape;
+      const st = s.type === "circle"
+        ? `left:${(s.cx - s.r * 2 / 3) * 100}%;top:${(s.cy - s.r) * 100}%;` +
+          `width:${s.r * 4 / 3 * 100}%;height:${s.r * 200}%;border-radius:50%`
+        : `left:${s.x * 100}%;top:${s.y * 100}%;width:${s.w * 100}%;height:${s.h * 100}%`;
+      return `<div class="region${ri === ai ? " need" : ""}" style="${st}">
+        <div class="ghost" style="background:${reg.color}"></div>
       </div>`;
     }).join("") + (L.stamp ? `<div class="stamp ghost" id="stamp">${L.stamp}</div>` : "");
     const hint = $("#hint");
@@ -354,18 +413,18 @@
   function newLevel(i) {
     li = i; L = LEVELS[i];
     seq = []; label = {};
-    for (let s = L.stripes.length - 1; s >= 0; s--) {
-      const [c, lb] = L.stripes[s]; label[c] = lb;
-      for (let k = 0; k < L.per; k++) seq.push(c);
+    for (const reg of L.regions) {
+      label[reg.color] = reg.label;
+      for (let k = 0; k < reg.units; k++) seq.push(reg.color);
     }
     tubes = freshDeal();
     deal0 = tubes.map(x => x.slice());
     f = 0; hist = []; sel = -1; busy = false; anim = null; parts = [];
-    render(); rebuildT(); rebuildF();
+    render(); rebuildT(); rebuildFR();
   }
   function resync() {
     T.forEach((t, i) => { t.bands = bandsOf(tubes[i]); });
-    if (F) F.bands = bandsOf(seq.slice(0, f));
+    syncFR();
   }
 
   // ---------- pour animation machine ----------
@@ -389,8 +448,10 @@
     // purpose is judging the pour. The real game would honor the setting.
 
     const S = T[si];
-    const R = dst.type === "tube" ? T[dst.i] : F;   // destination vessel
-    const landX = R.cx, landTop = R.cy - R.ih / 2;
+    const R = dst.type === "tube" ? T[dst.i] : FR[activeIdx()];  // destination vessel
+    // pour over the open top of the frame, not over the region itself
+    const landX = R.cx;
+    const landTop = dst.type === "tube" ? R.cy - R.ih / 2 : FRrect.top;
     const dir = S.cx <= landX ? 1 : -1;
     const px = landX - dir * S.ih * .42;
     const py = landTop - S.iw * 1.05;
@@ -549,7 +610,7 @@
   function loop(now) {
     if (!anim) remeasure();                // self-heal on any layout shift
     if (anim) anim.step(now);
-    for (const t of (F ? [...T, F] : T)) {
+    for (const t of [...T, ...FR]) {
       // surface springs with neighbour spread
       for (let i = 0; i < t.offs.length; i++) {
         const l = t.offs[i - 1] || 0, r = t.offs[i + 1] || 0;
@@ -573,7 +634,7 @@
     lctx.clearRect(0, 0, innerWidth, innerHeight);
     fctx.clearRect(0, 0, innerWidth, innerHeight);
     for (const t of T) drawTube(t);
-    if (F) drawTube(F);
+    for (const v of FR) drawTube(v);
     if (location.search.includes("debug"))
       for (const t of T) {
         fctx.fillStyle = "#f0f";
@@ -638,11 +699,11 @@
     busy = true;
     $("#hint").style.visibility = "hidden";
     const fr = $("#frame");
-    fr.querySelectorAll(".stripe").forEach(s => s.classList.remove("need"));
-    // hand the finished flag over to the DOM (solid stripes) so the win wave
+    fr.querySelectorAll(".region").forEach(s => s.classList.remove("need"));
+    // hand the finished flag over to the DOM (solid regions) so the win wave
     // can transform the frame without leaving the canvas liquid behind
     fr.querySelectorAll(".ghost").forEach(g => { g.style.opacity = 1; });
-    F.bands = [];
+    for (const v of FR) v.bands = [];
     fr.classList.add("done");
     const stamp = $("#stamp");
     if (stamp) {
@@ -659,8 +720,10 @@
       const nx = LEVELS[li + 1];
       const tease = last
         ? "That's the final — the real game would ladder through all 48 qualified nations."
-        : `Next: ${nx.emo} ${nx.name} — ${3 + nx.junk.length} colours, ${
-            Math.ceil((nx.stripes.length * nx.per + nx.junk.length * CAP) / CAP) + nx.spares} tubes.`;
+        : `Next: ${nx.emo} ${nx.name} — ${
+            new Set(nx.regions.map(r => r.color)).size + nx.junk.length} colours, ${
+            Math.ceil((nx.regions.reduce((s, r) => s + r.units, 0) + nx.junk.length * CAP) / CAP)
+            + nx.spares} tubes.`;
       const b = document.createElement("div");
       b.className = "banner";
       b.innerHTML = `<div class="card"><div class="big">${L.emo}</div>
@@ -713,11 +776,18 @@
   };
   addEventListener("resize", sizeCanvas);
 
+  // read-only state snapshot for headless test drivers
+  window.__fs = () => ({ tubes: tubes.map(x => x.slice()), f, seq: seq.slice(), busy });
   if (RM) document.querySelector(".note").innerHTML +=
     `<br><b>⚠ your OS has "reduce motion" on</b> — the mock animates anyway so the pour can be judged.`;
   sizeCanvas();
-  const lvlQ = parseInt(new URLSearchParams(location.search).get("lvl"), 10);
+  const Q = new URLSearchParams(location.search);
+  const lvlQ = parseInt(Q.get("lvl"), 10);
   newLevel(lvlQ >= 1 && lvlQ <= LEVELS.length ? lvlQ - 1 : 0);
+  // headless test hook: ?fill=N pre-fills the frame (visual checks only —
+  // tube contents are left untouched, so the level is no longer consistent)
+  const fillQ = parseInt(Q.get("fill"), 10);
+  if (fillQ >= 1) { f = Math.min(fillQ, seq.length); render(); resync(); }
   requestAnimationFrame(loop);
   // headless test hook: ?demo fixes the deal and auto-pours so a screenshot can catch the tilt
   if (location.search.includes("demo")) {
