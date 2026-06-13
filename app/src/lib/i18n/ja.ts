@@ -28,7 +28,6 @@ export const ja: Record<StringKey, string> = {
   an_sub: '国歌からどの国か当てよう',
   an_games_link: '⚽ ゲーム一覧',
   practice_label: '🎯 フリープレイ',
-  clip_unlocked_1: '1秒 解放中',
   clip_unlocked_n: '{n}秒 解放中',
   clip_solved: '正解! 🎉',
   clip_out: '回数切れ',
@@ -68,7 +67,7 @@ export const ja: Record<StringKey, string> = {
   match_label: 'MATCH #{n}',
 
   howto_title: '遊び方 ⚽',
-  howto_1: '再生をタップして国歌を聴こう — 最初は**たった1秒**。',
+  howto_1: '再生をタップして国歌を聴こう — 最初は**たった2秒**。',
   howto_2: '国を当てよう。**ミスやスキップ**のたびにクリップが伸び、ヒントが解放される。',
   howto_3:
     'チャンスは**6回**。**UTC午前0時**に新しい国歌が登場 — 正解して連続記録をつなぎ、ネタバレなしのスコアをシェアしよう。物足りない? **フリープレイ**ならすべての国歌を回数無制限で。',

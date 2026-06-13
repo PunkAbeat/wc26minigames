@@ -28,7 +28,6 @@ export const fr: Record<StringKey, string> = {
   an_sub: 'Devinez le pays à son hymne',
   an_games_link: '⚽ Jeux',
   practice_label: '🎯 PARTIE LIBRE',
-  clip_unlocked_1: '1 seconde débloquée',
   clip_unlocked_n: '{n} secondes débloquées',
   clip_solved: 'Trouvé ! 🎉',
   clip_out: 'Plus d’essais',
@@ -68,7 +67,7 @@ export const fr: Record<StringKey, string> = {
   match_label: 'MATCH nº{n}',
 
   howto_title: 'Comment jouer ⚽',
-  howto_1: 'Appuyez sur play pour écouter l’hymne — ça commence avec **1 seconde** seulement.',
+  howto_1: 'Appuyez sur play pour écouter l’hymne — ça commence avec **2 secondes** seulement.',
   howto_2: 'Devinez le pays. Chaque **raté ou passe** dévoile plus de l’extrait et débloque un indice.',
   howto_3:
     'Vous avez **6 essais**. Un nouvel hymne tombe à **minuit UTC** — trouvez-le, gardez votre série et partagez votre score sans spoiler. Envie de plus ? En **partie libre**, tous les hymnes, sans limite quotidienne.',

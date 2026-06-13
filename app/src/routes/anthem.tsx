@@ -215,9 +215,7 @@ function AnthemPage() {
       ? s.won
         ? t(L, 'clip_solved')
         : t(L, 'clip_out')
-      : secs === 1
-        ? t(L, 'clip_unlocked_1')
-        : t(L, 'clip_unlocked_n', { n: secs })
+      : t(L, 'clip_unlocked_n', { n: secs })
   }, [])
 
   /* ---------- core actions (mirroring the original WIRE UP section) ---------- */
@@ -920,7 +918,7 @@ function AnthemPage() {
               </div>
               <div className="labelrow">
                 <span id="clipLabel" ref={clipLabelRef} suppressHydrationWarning>
-                  1 second unlocked
+                  2 seconds unlocked
                 </span>
                 <span id="srcBadge" ref={srcBadgeRef} />
               </div>

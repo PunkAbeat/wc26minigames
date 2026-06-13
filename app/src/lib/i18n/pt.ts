@@ -27,7 +27,6 @@ export const pt: Record<StringKey, string> = {
   an_sub: 'Adivinhe o país pelo hino',
   an_games_link: '⚽ Jogos',
   practice_label: '🎯 JOGO LIVRE',
-  clip_unlocked_1: '1 segundo desbloqueado',
   clip_unlocked_n: '{n} segundos desbloqueados',
   clip_solved: 'Acertou! 🎉',
   clip_out: 'Acabaram as tentativas',
@@ -67,7 +66,7 @@ export const pt: Record<StringKey, string> = {
   match_label: 'PARTIDA #{n}',
 
   howto_title: 'Como jogar ⚽',
-  howto_1: 'Toque no play para ouvir o hino — começa com só **1 segundo**.',
+  howto_1: 'Toque no play para ouvir o hino — começa com só **2 segundos**.',
   howto_2: 'Adivinhe o país. Cada **erro ou pulo** revela mais do trecho e desbloqueia uma dica.',
   howto_3:
     'Você tem **6 tentativas**. Um hino novo cai à **meia-noite UTC** — acerte, mantenha sua sequência e compartilhe seu placar sem spoiler. Quer mais? No **jogo livre** tem todos os hinos, sem limite diário.',

@@ -27,7 +27,6 @@ export const de: Record<StringKey, string> = {
   an_sub: 'Errate das Land an seiner Hymne',
   an_games_link: '⚽ Spiele',
   practice_label: '🎯 FREIES SPIEL',
-  clip_unlocked_1: '1 Sekunde freigeschaltet',
   clip_unlocked_n: '{n} Sekunden freigeschaltet',
   clip_solved: 'Gelöst! 🎉',
   clip_out: 'Keine Versuche mehr',
@@ -67,7 +66,7 @@ export const de: Record<StringKey, string> = {
   match_label: 'MATCH #{n}',
 
   howto_title: 'So wird gespielt ⚽',
-  howto_1: 'Tippe auf Play, um die Hymne zu hören — es beginnt mit nur **1 Sekunde**.',
+  howto_1: 'Tippe auf Play, um die Hymne zu hören — es beginnt mit nur **2 Sekunden**.',
   howto_2:
     'Errate das Land. Jeder **Fehlschuss oder Skip** gibt mehr vom Clip frei und schaltet einen Hinweis frei.',
   howto_3:

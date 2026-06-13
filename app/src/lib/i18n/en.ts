@@ -31,7 +31,6 @@ export const en = {
   an_sub: 'Guess the nation from its anthem',
   an_games_link: '⚽ Games',
   practice_label: '🎯 FREE PLAY',
-  clip_unlocked_1: '1 second unlocked',
   clip_unlocked_n: '{n} seconds unlocked',
   clip_solved: 'Solved! 🎉',
   clip_out: 'Out of guesses',
@@ -75,7 +74,7 @@ export const en = {
 
   /* ---- anthem: modals ---- */
   howto_title: 'How to play ⚽',
-  howto_1: 'Tap play to hear the anthem — it starts at just **1 second**.',
+  howto_1: 'Tap play to hear the anthem — it starts at just **2 seconds**.',
   howto_2:
     'Guess the nation. Each **miss or skip** reveals more of the clip and unlocks a hint card.',
   howto_3:

@@ -28,7 +28,6 @@ export const es: Record<StringKey, string> = {
   an_sub: 'Adivina el país por su himno',
   an_games_link: '⚽ Juegos',
   practice_label: '🎯 JUEGO LIBRE',
-  clip_unlocked_1: '1 segundo desbloqueado',
   clip_unlocked_n: '{n} segundos desbloqueados',
   clip_solved: '¡Resuelto! 🎉',
   clip_out: 'Sin intentos',
@@ -68,7 +67,7 @@ export const es: Record<StringKey, string> = {
   match_label: 'PARTIDO #{n}',
 
   howto_title: '¿Cómo se juega? ⚽',
-  howto_1: 'Pulsa play para escuchar el himno — empieza con solo **1 segundo**.',
+  howto_1: 'Pulsa play para escuchar el himno — empieza con solo **2 segundos**.',
   howto_2: 'Adivina el país. Cada **fallo o salto** revela más del clip y desbloquea una pista.',
   howto_3:
     'Tienes **6 intentos**. Un himno nuevo cae a **medianoche UTC** — resuélvelo, mantén tu racha y comparte tu resultado sin spoilers. ¿Quieres más? En el **juego libre** tienes todos los himnos, sin límite diario.',

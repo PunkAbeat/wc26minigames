@@ -185,8 +185,9 @@ export const PUZZLES: Puzzle[] = [
 
 export const ALL_NATIONS = PUZZLES.map((p) => p.name).sort()
 
-/* clip seconds unlocked per guess stage */
-export const STAGES = [1, 2, 4, 7, 11, 16]
+/* clip seconds unlocked per guess stage — anthem intros build slower than
+   pop songs, so the opening is 2s, not Heardle's 1s (user feedback 13 Jun) */
+export const STAGES = [2, 3, 5, 8, 12, 16]
 
 export const AUDIO_BASE =
   'https://archive.org/download/us-navy-band-national-anthems-public-domain/'

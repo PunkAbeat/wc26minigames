@@ -27,7 +27,6 @@ export const tr: Record<StringKey, string> = {
   an_sub: 'Ülkeyi marşından bil',
   an_games_link: '⚽ Oyunlar',
   practice_label: '🎯 SERBEST OYUN',
-  clip_unlocked_1: '1 saniye açıldı',
   clip_unlocked_n: '{n} saniye açıldı',
   clip_solved: 'Bildin! 🎉',
   clip_out: 'Deneme hakkın bitti',
@@ -67,7 +66,7 @@ export const tr: Record<StringKey, string> = {
   match_label: 'MAÇ #{n}',
 
   howto_title: 'Nasıl oynanır ⚽',
-  howto_1: 'Marşı duymak için play’e bas — sadece **1 saniyeyle** başlar.',
+  howto_1: 'Marşı duymak için play’e bas — sadece **2 saniyeyle** başlar.',
   howto_2: 'Ülkeyi tahmin et. Her **ıska veya atlama** klibin daha fazlasını açar ve bir ipucu verir.',
   howto_3:
     '**6 deneme** hakkın var. **UTC gece yarısı** yeni marş gelir — bil, serini koru ve spoilersız skorunu paylaş. Daha fazlası için **serbest oyunda** tüm marşlar seni bekliyor — günlük sınır yok.',

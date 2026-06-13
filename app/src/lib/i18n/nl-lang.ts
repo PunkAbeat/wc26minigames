@@ -28,7 +28,6 @@ export const nl: Record<StringKey, string> = {
   an_sub: 'Raad het land aan zijn volkslied',
   an_games_link: '⚽ Games',
   practice_label: '🎯 VRIJ SPEL',
-  clip_unlocked_1: '1 seconde ontgrendeld',
   clip_unlocked_n: '{n} seconden ontgrendeld',
   clip_solved: 'Opgelost! 🎉',
   clip_out: 'Geen pogingen meer',
@@ -68,7 +67,7 @@ export const nl: Record<StringKey, string> = {
   match_label: 'MATCH #{n}',
 
   howto_title: 'Hoe speel je ⚽',
-  howto_1: 'Tik op play om het volkslied te horen — het begint met maar **1 seconde**.',
+  howto_1: 'Tik op play om het volkslied te horen — het begint met maar **2 seconden**.',
   howto_2: 'Raad het land. Elke **misser of skip** onthult meer van de clip en ontgrendelt een hint.',
   howto_3:
     'Je krijgt **6 pogingen**. Om **middernacht UTC** valt er een nieuw volkslied — los het op, houd je reeks vast en deel je spoilervrije score. Meer? In **vrij spel** speel je alle volksliederen, zonder daglimiet.',
