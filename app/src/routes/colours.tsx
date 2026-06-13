@@ -1,8 +1,9 @@
-/* FLAG SORT — build the flag by pouring its colours into place, water-sort
+/* COLOURS — build the flag by pouring its colours into place, water-sort
    style. Campaign ("Road to the Final", all 48 qualified nations) + play any
    nation. The game itself is the imperative canvas engine in
-   ../lib/flagsort/game (ported verbatim from the feel mock); this route only
-   renders the DOM skeleton it writes into, plus the app chrome, and owns
+   ../lib/flagsort/game (ported verbatim from the feel mock; the internal
+   "flagsort" identifiers predate the rename and stay for continuity); this
+   route renders the DOM skeleton it writes into, the app chrome, and owns
    campaign progress via localStorage.
 
    Like ANTHEM at phase 1, the in-game copy is English-only for now; the hub
@@ -17,24 +18,24 @@ import '../styles/flagsort.css'
 
 const ORIGIN = (import.meta.env.VITE_SITE_ORIGIN as string | undefined) || ''
 
-export const Route = createFileRoute('/flagsort')({
+export const Route = createFileRoute('/colours')({
   head: () => ({
     meta: [
-      { title: 'FLAG SORT ⚽ Build every World Cup flag' },
+      { title: 'COLOURS ⚽ Build every World Cup flag' },
       {
         name: 'description',
         content:
           'Pour the colours into place to build the flags of all 48 qualified nations. A water-sort puzzle for the 2026 tournament.',
       },
-      { property: 'og:title', content: 'FLAG SORT ⚽ Build every World Cup flag' },
+      { property: 'og:title', content: 'COLOURS ⚽ Build every World Cup flag' },
       {
         property: 'og:description',
-        content: 'Sort the colours, build the flag. 48 nations, one Road to the Final.',
+        content: 'Pour the colours, build the flag. 48 nations, one Road to the Final.',
       },
       { property: 'og:type', content: 'website' },
       ...(ORIGIN
         ? [
-            { property: 'og:url', content: ORIGIN + '/flagsort' },
+            { property: 'og:url', content: ORIGIN + '/colours' },
             { property: 'og:image', content: ORIGIN + '/og/matchday.png' },
             { property: 'og:image:width', content: '1200' },
             { property: 'og:image:height', content: '630' },
@@ -54,7 +55,7 @@ function FlagSortPage() {
   const [howto, setHowto] = useState(false)
 
   useEffect(() => {
-    trackPageView('/flagsort')
+    trackPageView('/colours')
     const root = rootRef.current
     if (!root) return
     const solved = loadSolved()
@@ -96,9 +97,9 @@ function FlagSortPage() {
         <div className="kicker">Summer 2026 · 48 nations</div>
         <div className="wordmark disp">
           <span className="emblem" aria-hidden="true">
-            🎌
+            💧
           </span>
-          FLAG SORT
+          COLOURS
         </div>
         <div className="sub">Pour the colours, build the flag</div>
         <div className="scoreboard">

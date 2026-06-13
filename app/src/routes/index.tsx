@@ -64,12 +64,12 @@ const GAMES: GameEntry[] = [
   },
   {
     id: 'flagsort',
-    name: 'FLAG SORT',
-    icon: '🎌',
+    name: 'COLOURS',
+    icon: '💧',
     tagline: 'flagsort_tagline',
     status: 'live',
     badge: 'badge_campaign',
-    to: '/flagsort',
+    to: '/colours',
   },
   { id: 'tba-2', name: '???', icon: '🏆', tagline: 'tba_tagline', status: 'soon', badge: 'badge_soon' },
 ]

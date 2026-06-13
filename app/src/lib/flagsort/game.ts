@@ -806,14 +806,14 @@ export function mountFlagSort(root, opts = {}) {
     const built = cells.filter(Boolean).length;
     opts.track && opts.track("share_clicked", { mode: "flagsort" });
     const txt = flagShareText(built, LEVELS.length, cells) +
-      "\n" + location.origin + "/flagsort?ref=share";
+      "\n" + location.origin + "/colours?ref=share";
     const done = () => toast("Copied! Paste it anywhere.");
     if (navigator.share) {
       let files;
       try {
         const blob = await renderFlagCard({ cells, codes, built, total: LEVELS.length, host: location.host });
         if (blob) {
-          const f = new File([blob], `flagsort-${built}-of-48.png`, { type: "image/png" });
+          const f = new File([blob], `colours-${built}-of-48.png`, { type: "image/png" });
           if (navigator.canShare && navigator.canShare({ files: [f] })) files = [f];
         }
       } catch { /* share text only */ }

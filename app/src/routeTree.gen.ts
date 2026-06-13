@@ -10,7 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as OgRouteImport } from './routes/og'
-import { Route as FlagsortRouteImport } from './routes/flagsort'
+import { Route as ColoursRouteImport } from './routes/colours'
 import { Route as AnthemRouteImport } from './routes/anthem'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiSubscribeRouteImport } from './routes/api.subscribe'
@@ -23,9 +23,9 @@ const OgRoute = OgRouteImport.update({
   path: '/og',
   getParentRoute: () => rootRouteImport,
 } as any)
-const FlagsortRoute = FlagsortRouteImport.update({
-  id: '/flagsort',
-  path: '/flagsort',
+const ColoursRoute = ColoursRouteImport.update({
+  id: '/colours',
+  path: '/colours',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AnthemRoute = AnthemRouteImport.update({
@@ -62,7 +62,7 @@ const ApiAnthemStatsRoute = ApiAnthemStatsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/anthem': typeof AnthemRoute
-  '/flagsort': typeof FlagsortRoute
+  '/colours': typeof ColoursRoute
   '/og': typeof OgRoute
   '/api/anthem-stats': typeof ApiAnthemStatsRoute
   '/api/error': typeof ApiErrorRoute
@@ -72,7 +72,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/anthem': typeof AnthemRoute
-  '/flagsort': typeof FlagsortRoute
+  '/colours': typeof ColoursRoute
   '/og': typeof OgRoute
   '/api/anthem-stats': typeof ApiAnthemStatsRoute
   '/api/error': typeof ApiErrorRoute
@@ -83,7 +83,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/anthem': typeof AnthemRoute
-  '/flagsort': typeof FlagsortRoute
+  '/colours': typeof ColoursRoute
   '/og': typeof OgRoute
   '/api/anthem-stats': typeof ApiAnthemStatsRoute
   '/api/error': typeof ApiErrorRoute
@@ -95,7 +95,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/anthem'
-    | '/flagsort'
+    | '/colours'
     | '/og'
     | '/api/anthem-stats'
     | '/api/error'
@@ -105,7 +105,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/anthem'
-    | '/flagsort'
+    | '/colours'
     | '/og'
     | '/api/anthem-stats'
     | '/api/error'
@@ -115,7 +115,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/anthem'
-    | '/flagsort'
+    | '/colours'
     | '/og'
     | '/api/anthem-stats'
     | '/api/error'
@@ -126,7 +126,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnthemRoute: typeof AnthemRoute
-  FlagsortRoute: typeof FlagsortRoute
+  ColoursRoute: typeof ColoursRoute
   OgRoute: typeof OgRoute
   ApiAnthemStatsRoute: typeof ApiAnthemStatsRoute
   ApiErrorRoute: typeof ApiErrorRoute
@@ -143,11 +143,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OgRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/flagsort': {
-      id: '/flagsort'
-      path: '/flagsort'
-      fullPath: '/flagsort'
-      preLoaderRoute: typeof FlagsortRouteImport
+    '/colours': {
+      id: '/colours'
+      path: '/colours'
+      fullPath: '/colours'
+      preLoaderRoute: typeof ColoursRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/anthem': {
@@ -198,7 +198,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnthemRoute: AnthemRoute,
-  FlagsortRoute: FlagsortRoute,
+  ColoursRoute: ColoursRoute,
   OgRoute: OgRoute,
   ApiAnthemStatsRoute: ApiAnthemStatsRoute,
   ApiErrorRoute: ApiErrorRoute,
