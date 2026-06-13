@@ -101,6 +101,27 @@
   .banner button { background: #ffd34d; color: #14324f; border: 0; border-radius: 999px;
                    padding: 12px 24px; font-weight: 800; font-size: 14px; letter-spacing: .5px; }
   .confetti { position: fixed; z-index: 90; top: -40px; font-size: 22px; pointer-events: none; }
+  #menu { background: rgba(255,255,255,.15); color: #fff; border: 0; border-radius: 8px;
+          font-size: 18px; font-weight: 800; padding: 2px 10px; margin-right: 8px; }
+  #select { position: fixed; inset: 0; z-index: 70; overflow-y: auto;
+            background: linear-gradient(#6fbdee, #2e8b46); -webkit-overflow-scrolling: touch; }
+  #select .shead { background: #14324f; color: #fff; padding: 12px 14px; text-align: center;
+                   position: sticky; top: 0; z-index: 2; }
+  #select .shead .t { font-weight: 800; letter-spacing: 1.5px; }
+  #select .shead .sub { font-size: 11px; opacity: .8; margin-top: 2px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 12px;
+          max-width: 460px; margin: 0 auto; }
+  .tile { text-align: center; cursor: pointer; }
+  .thumb { position: relative; width: 100%; aspect-ratio: 3 / 2; border-radius: 5px;
+           overflow: hidden; background: #cdd8e2; border: 1.5px solid rgba(255,255,255,.7);
+           box-shadow: 0 2px 5px rgba(0,0,0,.25); }
+  .treg { position: absolute; }
+  .tstamp { position: absolute; inset: 0; display: flex; align-items: center;
+            justify-content: center; font-size: 17px; }
+  .tile .nm { color: #fff; font-size: 9px; font-weight: 700; margin-top: 3px; line-height: 1.1;
+              text-shadow: 0 1px 2px rgba(0,0,0,.4); }
+  .tile .dots { font-size: 7px; color: #ffd34d; letter-spacing: 1px; }
+  .tile:active .thumb { transform: scale(.94); }
   @media (prefers-reduced-motion: reduce) {
     .frame.wave, .region.need::after { animation: none; }
   }
@@ -110,9 +131,13 @@
 <canvas id="liqc" class="fx"></canvas>
 <canvas id="fxc" class="fx"></canvas>
 <header class="top">
-  <div class="brand">FLAG SORT<span class="tag">FEEL MOCK</span></div>
+  <div style="display:flex;align-items:center">
+    <button id="menu" title="All flags">≡</button>
+    <div class="brand">FLAG SORT<span class="tag">FEEL MOCK</span></div>
+  </div>
   <div class="lvl" id="lvl"></div>
 </header>
+<div id="select" hidden></div>
 <main>
   <div class="flagname" id="flagname"></div>
   <div class="frame" id="frame"></div>
@@ -128,37 +153,126 @@
 <script>
 (() => {
   const $ = s => document.querySelector(s);
-  // A flag is a list of REGIONS in fill order; each region is a tank: a
-  // horizontal band, a vertical column, or a disc. shape coords are fractions
-  // of the frame (circle r is a fraction of frame height). junk colours (4
-  // units each) never enter the flag. Difficulty = junk depth + scarce spares.
-  const H3 = (cols, per) => cols.map((c, i) => ({ color: c[0], label: c[1], units: per,
-    shape: { type: "rect", x: 0, y: (2 - i) / 3, w: 1, h: 1 / 3 } }));      // bottom-up
-  const V3 = (cols, per) => cols.map((c, i) => ({ color: c[0], label: c[1], units: per,
-    shape: { type: "rect", x: i / 3, y: 0, w: 1 / 3, h: 1 } }));            // left-to-right
-  const LEVELS = [
-    { name: "GERMANY", emo: "🇩🇪", spares: 1, junk: [],
-      regions: H3([["#ffce00","GOLD"], ["#d40e14","RED"], ["#2b2b2b","BLACK"]], 3) },
-    { name: "AUSTRIA", emo: "🇦🇹", spares: 1, junk: ["#2563eb"],
-      regions: H3([["#ed2939","RED"], ["#f4f4f4","WHITE"], ["#ed2939","RED"]], 4) },
-    { name: "MEXICO", emo: "🇲🇽", spares: 1, junk: ["#f59e0b"],
-      regions: V3([["#006847","GREEN"], ["#f4f4f4","WHITE"], ["#ce1126","RED"]], 4) },
-    { name: "NETHERLANDS", emo: "🇳🇱", spares: 1, junk: ["#16a34a","#f59e0b"],
-      regions: H3([["#21468b","BLUE"], ["#f4f4f4","WHITE"], ["#ae1c28","RED"]], 4) },
-    { name: "ARGENTINA", emo: "🇦🇷", spares: 2, junk: ["#16a34a","#9333ea","#8b5e34"], stamp: "☀️",
-      regions: H3([["#74acdf","SKY"], ["#f4f4f4","WHITE"], ["#74acdf","SKY"]], 4) },
-    { name: "JAPAN", emo: "🇯🇵", spares: 2, junk: ["#2563eb","#16a34a","#9333ea","#f59e0b"],
-      regions: [
-        { color: "#f4f4f4", label: "WHITE", units: 8, shape: { type: "rect", x: 0, y: 0, w: 1, h: 1 } },
-        { color: "#bc002d", label: "RED", units: 4, shape: { type: "circle", cx: .5, cy: .5, r: .3 } },
-      ] },
-    { name: "SPAIN", emo: "🇪🇸", spares: 2, junk: ["#2563eb","#16a34a","#9333ea","#0d9488","#ec4899"],
-      regions: H3([["#aa151b","RED"], ["#f1bf00","GOLD"], ["#aa151b","RED"]], 4) },
+  // A flag is a list of REGIONS in fill order; each region is a liquid tank
+  // shaped as a band / column / disc / cross / triangle / diagonal / diamond.
+  // shape coords are fractions of the frame. Contiguous-surface shapes are
+  // POURED (their colour is part of the puzzle); fiddly emblems (stars,
+  // crescents, eagles, crests) are EMOJI STAMPS shown on completion —
+  // stylised, not the official arms. junk colours never enter the flag.
+  const U = 3;                            // default units per region
+  const reg = (p, units, shape) => ({ color: p[0], label: p[1], units, shape });
+  // colours given in FILL ORDER: H = bottom-to-top, V = left-to-right
+  const H = (cols, u = U) => cols.map((c, i) => reg(c, u,
+    { type: "rect", x: 0, y: (cols.length - 1 - i) / cols.length, w: 1, h: 1 / cols.length }));
+  const V = (cols, u = U) => cols.map((c, i) => reg(c, u,
+    { type: "rect", x: i / cols.length, y: 0, w: 1 / cols.length, h: 1 }));
+  const FIELD = (c, u = 4) => reg(c, u, { type: "rect", x: 0, y: 0, w: 1, h: 1 });
+  const BAND  = (c, y, h, u = U) => reg(c, u, { type: "rect", x: 0, y, w: 1, h });
+  const BOX   = (c, x, y, w, h, u = U) => reg(c, u, { type: "rect", x, y, w, h });
+  const DISC  = (c, u = U, cx = .5, cy = .5, r = .3) => reg(c, u, { type: "circle", cx, cy, r });
+  const POLY  = (c, pts, u = U) => reg(c, u, { type: "poly", pts });
+  const plusPts = (vx, hy, tx, ty) => { const a = vx - tx / 2, b = vx + tx / 2, c = hy - ty / 2, d = hy + ty / 2;
+    return [[a,0],[b,0],[b,c],[1,c],[1,d],[b,d],[b,1],[a,1],[a,d],[0,d],[0,c],[a,c]]; };
+  const CROSS = (c, vx = .5, u = U) => POLY(c, plusPts(vx, .5, .18, .28), u);   // centred / Nordic plus
+  const TRI   = (c, pts, u = U) => POLY(c, pts, u);
+  // colour pairs [hex, label]
+  const r=["#d7141a","RED"], w=["#f4f4f4","WHITE"], k=["#222222","BLACK"], g=["#0a8a3e","GREEN"],
+        y=["#f5c518","GOLD"], b=["#1d4ed8","BLUE"], s=["#5aa6e0","SKY"], n=["#0a2f6b","NAVY"],
+        o=["#ff7a00","ORANGE"], m=["#7a1533","MAROON"];
+  const saltA = [[0,0],[.18,0],[1,.82],[1,1],[.82,1],[0,.18]];   // ╲ bar
+  const saltB = [[1,0],[1,.18],[.18,1],[0,1],[0,.82],[.82,0]];   // ╱ bar
+  const triH  = [[0,0],[.5,.5],[0,1]];                            // hoist triangle
+  const diamond = [[.5,.08],[.92,.5],[.5,.92],[.08,.5]];
+  const diagBand = [[0,1],[.34,1],[1,.34],[1,0],[.66,0],[0,.66]]; // corner-to-corner stripe
+
+  // all 48 qualified nations (groups A–L), sorted into a difficulty ladder below
+  const FLAGS = [
+    /* A */
+    { name:"MEXICO", emo:"🇲🇽", tier:2, stamp:"🦅", regions: V([g,w,r], 4) },
+    { name:"SOUTH AFRICA", emo:"🇿🇦", tier:4, regions: [...H([b,g,r]), TRI(k, triH)] },
+    { name:"SOUTH KOREA", emo:"🇰🇷", tier:2, stamp:"☯️", regions: [FIELD(w, 5)] },
+    { name:"CZECHIA", emo:"🇨🇿", tier:3, regions: [...H([r,w]), TRI(b, triH)] },
+    /* B */
+    { name:"CANADA", emo:"🇨🇦", tier:2, stamp:"🍁", regions: V([r,w,r], 4) },
+    { name:"BOSNIA & H.", emo:"🇧🇦", tier:3, stamp:"⭐", regions: [FIELD(n), TRI(y, [[.3,0],[.78,0],[.3,1]])] },
+    { name:"QATAR", emo:"🇶🇦", tier:2, regions: [BOX(w,0,0,.3,1), BOX(m,.3,0,.7,1,4)] },
+    { name:"SWITZERLAND", emo:"🇨🇭", tier:2, regions: [FIELD(r), CROSS(w)] },
+    /* C */
+    { name:"BRAZIL", emo:"🇧🇷", tier:3, regions: [FIELD(g), POLY(y, diamond), DISC(b, U, .5, .5, .17)] },
+    { name:"MOROCCO", emo:"🇲🇦", tier:2, stamp:"⭐", regions: [FIELD(r)] },
+    { name:"HAITI", emo:"🇭🇹", tier:2, stamp:"🛡️", regions: H([r,n]) },
+    { name:"SCOTLAND", emo:"🏴󠁧󠁢󠁳󠁣󠁴󠁿", tier:3, regions: [FIELD(b), POLY(w, saltA), POLY(w, saltB)] },
+    /* D */
+    { name:"UNITED STATES", emo:"🇺🇸", tier:4, stamp:"⭐", stampPos:{x:.2,y:.25},
+      regions: [FIELD(r), BAND(w,.42,.16), BOX(n,0,0,.4,.5)] },
+    { name:"PARAGUAY", emo:"🇵🇾", tier:3, stamp:"⚪", regions: H([n,w,r]) },
+    { name:"AUSTRALIA", emo:"🇦🇺", tier:4, stamp:"⭐", regions: [FIELD(n, 5)] },
+    { name:"TÜRKIYE", emo:"🇹🇷", tier:2, stamp:"☪️", regions: [FIELD(r)] },
+    /* E */
+    { name:"GERMANY", emo:"🇩🇪", tier:1, regions: H([y,r,k]) },
+    { name:"CURAÇAO", emo:"🇨🇼", tier:3, stamp:"⭐", stampPos:{x:.3,y:.32}, regions: [FIELD(n), BAND(y,.62,.18)] },
+    { name:"IVORY COAST", emo:"🇨🇮", tier:1, regions: V([o,w,g], 4) },
+    { name:"ECUADOR", emo:"🇪🇨", tier:3, stamp:"🦅", regions: [BAND(r,.75,.25), BAND(b,.5,.25), BAND(y,0,.5,4)] },
+    /* F */
+    { name:"NETHERLANDS", emo:"🇳🇱", tier:1, regions: H([b,w,r], 4) },
+    { name:"JAPAN", emo:"🇯🇵", tier:2, regions: [FIELD(w, 6), DISC(r, 4, .5, .5, .3)] },
+    { name:"SWEDEN", emo:"🇸🇪", tier:2, regions: [FIELD(b), CROSS(y, .36)] },
+    { name:"TUNISIA", emo:"🇹🇳", tier:3, stamp:"☪️", regions: [FIELD(r), DISC(w, U, .5, .5, .26)] },
+    /* G */
+    { name:"BELGIUM", emo:"🇧🇪", tier:1, regions: V([k,y,r], 4) },
+    { name:"EGYPT", emo:"🇪🇬", tier:2, stamp:"🦅", regions: H([k,w,r]) },
+    { name:"IRAN", emo:"🇮🇷", tier:2, regions: H([r,w,g]) },
+    { name:"NEW ZEALAND", emo:"🇳🇿", tier:4, stamp:"⭐", regions: [FIELD(n, 5)] },
+    /* H */
+    { name:"SPAIN", emo:"🇪🇸", tier:2, stamp:"🛡️", regions: H([r,y,r], 4) },
+    { name:"CAPE VERDE", emo:"🇨🇻", tier:3, stamp:"⭐", regions: [FIELD(n), BAND(r,.6,.12)] },
+    { name:"SAUDI ARABIA", emo:"🇸🇦", tier:2, stamp:"⚔️", regions: [FIELD(g, 5)] },
+    { name:"URUGUAY", emo:"🇺🇾", tier:4, stamp:"☀️", stampPos:{x:.2,y:.2},
+      regions: [FIELD(w, 5), BAND(s,.22,.12), BAND(s,.55,.12), BOX(w,0,0,.4,.4)] },
+    /* I */
+    { name:"FRANCE", emo:"🇫🇷", tier:1, regions: V([b,w,r], 4) },
+    { name:"SENEGAL", emo:"🇸🇳", tier:2, stamp:"⭐", regions: V([g,y,r], 4) },
+    { name:"IRAQ", emo:"🇮🇶", tier:2, regions: H([k,w,r]) },
+    { name:"NORWAY", emo:"🇳🇴", tier:3, regions: [FIELD(r), CROSS(w, .36), CROSS(b, .36)] },
+    /* J */
+    { name:"ARGENTINA", emo:"🇦🇷", tier:2, stamp:"☀️", regions: H([s,w,s], 4) },
+    { name:"ALGERIA", emo:"🇩🇿", tier:2, stamp:"☪️", regions: V([g,w]) },
+    { name:"AUSTRIA", emo:"🇦🇹", tier:1, regions: H([r,w,r], 4) },
+    { name:"JORDAN", emo:"🇯🇴", tier:3, stamp:"⭐", regions: [...H([g,w,k]), TRI(r, triH)] },
+    /* K */
+    { name:"PORTUGAL", emo:"🇵🇹", tier:3, stamp:"🛡️", regions: [BOX(g,0,0,.4,1,4), BOX(r,.4,0,.6,1,4)] },
+    { name:"DR CONGO", emo:"🇨🇩", tier:3, stamp:"⭐", stampPos:{x:.18,y:.22}, regions: [FIELD(s), POLY(r, diagBand)] },
+    { name:"UZBEKISTAN", emo:"🇺🇿", tier:3, stamp:"☪️", regions: H([g,w,s]) },
+    { name:"COLOMBIA", emo:"🇨🇴", tier:2, regions: [BAND(r,.75,.25), BAND(b,.5,.25), BAND(y,0,.5,4)] },
+    /* L */
+    { name:"ENGLAND", emo:"🏴󠁧󠁢󠁥󠁮󠁧󠁿", tier:2, regions: [FIELD(w, 5), CROSS(r)] },
+    { name:"CROATIA", emo:"🇭🇷", tier:3, stamp:"🛡️", regions: H([b,w,r]) },
+    { name:"GHANA", emo:"🇬🇭", tier:2, stamp:"⭐", regions: H([g,y,r]) },
+    { name:"PANAMA", emo:"🇵🇦", tier:4, stamp:"⭐", regions: [BOX(w,0,0,.5,.5), BOX(r,.5,0,.5,.5), BOX(n,0,.5,.5,.5), BOX(w,.5,.5,.5,.5)] },
   ];
+  // SAUDI ARABIA: the shahada and sword are intentionally NOT depicted — the
+  // creed is sacred script, inappropriate to render as pourable liquid. The
+  // tile is the plain green field with a stylised ⚔️ stamp only.
+
+  // difficulty normalisation: every flag aims at the same total colour count
+  // per tier, so a 1-colour flag (Morocco) gets more junk than a 3-colour one.
+  const JUNKPOOL = ["#2563eb","#16a34a","#9333ea","#f59e0b","#0d9488","#ec4899","#7c3aed","#a16207"];
+  const hex2rgb = h => [1,3,5].map(i => parseInt(h.slice(i,i+2),16));
+  const cdist = (a,b) => { const x=hex2rgb(a), z=hex2rgb(b); return Math.hypot(x[0]-z[0],x[1]-z[1],x[2]-z[2]); };
+  function deriveLevel(flag) {
+    const cols = [...new Set(flag.regions.map(rg => rg.color))];
+    const target = [, 4, 5, 6, 7][flag.tier];
+    const junk = JUNKPOOL.filter(j => cols.every(c => cdist(c, j) > 80))
+      .slice(0, Math.max(0, Math.min(4, target - cols.length)));
+    return { ...flag, junk, spares: flag.tier <= 2 ? 1 : 2 };
+  }
+  const LEVELS = FLAGS.map((f, i) => ({ ...f, ord: i }))
+    .sort((a, b) => a.tier - b.tier || a.ord - b.ord).map(deriveLevel);
+
   const CAP = 4, NSPRING = 6;
   const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let li = 0, L, seq, label, tubes, f, hist, sel = -1, busy = false, deal0;
-  let T = [], anim = null, parts = [];
+  let T = [], anim = null, parts = [], paused = false;
 
   const sm = t => t * t * (3 - 2 * t);
   const shuffle = a => { for (let i = a.length - 1; i > 0; i--) {
@@ -325,9 +439,23 @@
       }
       return pts;
     }
+    if (s.type === "poly") return s.pts.map(p => ({ x: p[0] * W, y: p[1] * H }));
     return [{ x: s.x * W, y: s.y * H }, { x: (s.x + s.w) * W, y: s.y * H },
             { x: (s.x + s.w) * W, y: (s.y + s.h) * H }, { x: s.x * W, y: (s.y + s.h) * H }];
   }
+  // inline CSS to position+clip a region div over the frame (DOM ghost + thumbs)
+  function regionCSS(s) {
+    if (s.type === "circle")
+      return `left:${(s.cx - s.r * 2 / 3) * 100}%;top:${(s.cy - s.r) * 100}%;` +
+             `width:${s.r * 4 / 3 * 100}%;height:${s.r * 200}%;border-radius:50%`;
+    if (s.type === "poly")
+      return `left:0;top:0;width:100%;height:100%;clip-path:polygon(${
+        s.pts.map(p => `${p[0] * 100}% ${p[1] * 100}%`).join(",")})`;
+    return `left:${s.x * 100}%;top:${s.y * 100}%;width:${s.w * 100}%;height:${s.h * 100}%`;
+  }
+  const stampCSS = fl => fl.stampPos
+    ? `inset:auto;left:${fl.stampPos.x * 100}%;top:${fl.stampPos.y * 100}%;` +
+      `transform:translate(-50%,-50%)` : "";
   function rebuildFR() {
     const el = $("#frame");
     const r = el.getBoundingClientRect();
@@ -385,16 +513,11 @@
     const fr = $("#frame");
     fr.classList.remove("done", "wave");
     const ai = activeIdx();
-    fr.innerHTML = L.regions.map((reg, ri) => {
-      const s = reg.shape;
-      const st = s.type === "circle"
-        ? `left:${(s.cx - s.r * 2 / 3) * 100}%;top:${(s.cy - s.r) * 100}%;` +
-          `width:${s.r * 4 / 3 * 100}%;height:${s.r * 200}%;border-radius:50%`
-        : `left:${s.x * 100}%;top:${s.y * 100}%;width:${s.w * 100}%;height:${s.h * 100}%`;
-      return `<div class="region${ri === ai ? " need" : ""}" style="${st}">
-        <div class="ghost" style="background:${reg.color}"></div>
-      </div>`;
-    }).join("") + (L.stamp ? `<div class="stamp ghost" id="stamp">${L.stamp}</div>` : "");
+    fr.innerHTML = L.regions.map((rg, ri) =>
+      `<div class="region${ri === ai ? " need" : ""}" style="${regionCSS(rg.shape)}">
+        <div class="ghost" style="background:${rg.color}"></div>
+      </div>`).join("") + (L.stamp
+      ? `<div class="stamp ghost" id="stamp" style="${stampCSS(L)}">${L.stamp}</div>` : "");
     const hint = $("#hint");
     if (f < seq.length) {
       hint.style.visibility = "visible";
@@ -411,6 +534,7 @@
   const snapshot = () => hist.push({ t: tubes.map(x => x.slice()), f });
 
   function newLevel(i) {
+    paused = false; $("#select").hidden = true;
     li = i; L = LEVELS[i];
     seq = []; label = {};
     for (const reg of L.regions) {
@@ -608,6 +732,11 @@
   }
 
   function loop(now) {
+    if (paused) {
+      lctx.clearRect(0, 0, innerWidth, innerHeight);
+      fctx.clearRect(0, 0, innerWidth, innerHeight);
+      requestAnimationFrame(loop); return;
+    }
     if (!anim) remeasure();                // self-heal on any layout shift
     if (anim) anim.step(now);
     for (const t of [...T, ...FR]) {
@@ -719,26 +848,55 @@
       const last = li === LEVELS.length - 1;
       const nx = LEVELS[li + 1];
       const tease = last
-        ? "That's the final — the real game would ladder through all 48 qualified nations."
+        ? "You've reached the last flag in the ladder. Back to all 48."
         : `Next: ${nx.emo} ${nx.name} — ${
-            new Set(nx.regions.map(r => r.color)).size + nx.junk.length} colours, ${
-            Math.ceil((nx.regions.reduce((s, r) => s + r.units, 0) + nx.junk.length * CAP) / CAP)
+            new Set(nx.regions.map(rg => rg.color)).size + nx.junk.length} colours, ${
+            Math.ceil((nx.regions.reduce((a, rg) => a + rg.units, 0) + nx.junk.length * CAP) / CAP)
             + nx.spares} tubes.`;
       const b = document.createElement("div");
       b.className = "banner";
       b.innerHTML = `<div class="card"><div class="big">${L.emo}</div>
-        <h2>${L.name}!</h2>
-        <p>${tease}</p>
-        <button>${last ? "PLAY AGAIN" : "NEXT FLAG →"}</button></div>`;
+        <h2>${L.name}!</h2><p>${tease}</p>
+        <button data-n="1">${last ? "ALL FLAGS" : "NEXT FLAG →"}</button>
+        <button data-n="0" style="background:#14324f;color:#fff;margin-left:8px">≡ FLAGS</button></div>`;
       document.body.appendChild(b);
-      b.querySelector("button").onclick = () => {
-        b.remove(); $("#row").innerHTML = ""; newLevel(last ? 0 : li + 1);
+      b.querySelector('[data-n="1"]').onclick = () => {
+        b.remove(); $("#row").innerHTML = "";
+        if (last) showSelect(); else newLevel(li + 1);
       };
+      b.querySelector('[data-n="0"]').onclick = () => { b.remove(); showSelect(); };
     }, 1100);
   }
 
+  // ---------- flag-select grid (campaign map + "play any nation") ----------
+  function buildSelect() {
+    const tiles = LEVELS.map((fl, i) => {
+      const thumb = fl.regions.map(rg =>
+        `<div class="treg" style="${regionCSS(rg.shape)};background:${rg.color}"></div>`).join("")
+        + (fl.stamp ? `<div class="tstamp" style="${stampCSS(fl)}">${fl.stamp}</div>` : "");
+      return `<div class="tile" data-i="${i}">
+        <div class="thumb">${thumb}</div>
+        <div class="nm">${fl.name}</div>
+        <div class="dots">${"●".repeat(fl.tier)}</div>
+      </div>`;
+    }).join("");
+    $("#select").innerHTML =
+      `<div class="shead"><div class="t">ROAD TO THE FINAL</div>
+       <div class="sub">48 nations · pick any flag · difficulty ramps ● → ●●●●</div></div>
+       <div class="grid">${tiles}</div>`;
+    $("#select").querySelectorAll(".tile").forEach(t =>
+      t.onclick = () => { $("#row").innerHTML = ""; newLevel(+t.dataset.i); });
+  }
+  function showSelect() {
+    paused = true; busy = false; sel = -1;
+    document.querySelectorAll(".banner").forEach(b => b.remove());
+    if (!$("#select").innerHTML) buildSelect();
+    $("#select").hidden = false; $("#select").scrollTop = 0;
+  }
+  $("#menu").onclick = showSelect;
+
   document.addEventListener("click", e => {
-    if (busy) return;
+    if (busy || paused) return;
     const tube = e.target.closest(".tube");
     if (tube) {
       const i = +tube.dataset.i;
@@ -783,7 +941,8 @@
   sizeCanvas();
   const Q = new URLSearchParams(location.search);
   const lvlQ = parseInt(Q.get("lvl"), 10);
-  newLevel(lvlQ >= 1 && lvlQ <= LEVELS.length ? lvlQ - 1 : 0);
+  if (lvlQ >= 1 && lvlQ <= LEVELS.length) newLevel(lvlQ - 1);
+  else { newLevel(0); if (!location.search.includes("demo")) showSelect(); }
   // headless test hook: ?fill=N pre-fills the frame (visual checks only —
   // tube contents are left untouched, so the level is no longer consistent)
   const fillQ = parseInt(Q.get("fill"), 10);
