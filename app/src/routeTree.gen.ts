@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as OgRouteImport } from './routes/og'
+import { Route as FlagsortRouteImport } from './routes/flagsort'
 import { Route as AnthemRouteImport } from './routes/anthem'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiSubscribeRouteImport } from './routes/api.subscribe'
@@ -20,6 +21,11 @@ import { Route as ApiAnthemStatsRouteImport } from './routes/api.anthem-stats'
 const OgRoute = OgRouteImport.update({
   id: '/og',
   path: '/og',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FlagsortRoute = FlagsortRouteImport.update({
+  id: '/flagsort',
+  path: '/flagsort',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AnthemRoute = AnthemRouteImport.update({
@@ -56,6 +62,7 @@ const ApiAnthemStatsRoute = ApiAnthemStatsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/anthem': typeof AnthemRoute
+  '/flagsort': typeof FlagsortRoute
   '/og': typeof OgRoute
   '/api/anthem-stats': typeof ApiAnthemStatsRoute
   '/api/error': typeof ApiErrorRoute
@@ -65,6 +72,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/anthem': typeof AnthemRoute
+  '/flagsort': typeof FlagsortRoute
   '/og': typeof OgRoute
   '/api/anthem-stats': typeof ApiAnthemStatsRoute
   '/api/error': typeof ApiErrorRoute
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/anthem': typeof AnthemRoute
+  '/flagsort': typeof FlagsortRoute
   '/og': typeof OgRoute
   '/api/anthem-stats': typeof ApiAnthemStatsRoute
   '/api/error': typeof ApiErrorRoute
@@ -86,6 +95,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/anthem'
+    | '/flagsort'
     | '/og'
     | '/api/anthem-stats'
     | '/api/error'
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/anthem'
+    | '/flagsort'
     | '/og'
     | '/api/anthem-stats'
     | '/api/error'
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/anthem'
+    | '/flagsort'
     | '/og'
     | '/api/anthem-stats'
     | '/api/error'
@@ -114,6 +126,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnthemRoute: typeof AnthemRoute
+  FlagsortRoute: typeof FlagsortRoute
   OgRoute: typeof OgRoute
   ApiAnthemStatsRoute: typeof ApiAnthemStatsRoute
   ApiErrorRoute: typeof ApiErrorRoute
@@ -128,6 +141,13 @@ declare module '@tanstack/react-router' {
       path: '/og'
       fullPath: '/og'
       preLoaderRoute: typeof OgRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/flagsort': {
+      id: '/flagsort'
+      path: '/flagsort'
+      fullPath: '/flagsort'
+      preLoaderRoute: typeof FlagsortRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/anthem': {
@@ -178,6 +198,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnthemRoute: AnthemRoute,
+  FlagsortRoute: FlagsortRoute,
   OgRoute: OgRoute,
   ApiAnthemStatsRoute: ApiAnthemStatsRoute,
   ApiErrorRoute: ApiErrorRoute,

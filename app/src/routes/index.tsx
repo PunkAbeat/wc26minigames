@@ -46,9 +46,9 @@ interface GameEntry {
   id: string
   name: string
   icon: string
-  tagline: 'anthem_tagline' | 'tba_tagline'
+  tagline: 'anthem_tagline' | 'flagsort_tagline' | 'tba_tagline'
   status: 'live' | 'soon'
-  badge: 'badge_live' | 'badge_soon'
+  badge: 'badge_live' | 'badge_campaign' | 'badge_soon'
   to?: string
 }
 
@@ -62,7 +62,15 @@ const GAMES: GameEntry[] = [
     badge: 'badge_live',
     to: '/anthem',
   },
-  { id: 'tba-1', name: '???', icon: '🥅', tagline: 'tba_tagline', status: 'soon', badge: 'badge_soon' },
+  {
+    id: 'flagsort',
+    name: 'FLAG SORT',
+    icon: '🎌',
+    tagline: 'flagsort_tagline',
+    status: 'live',
+    badge: 'badge_campaign',
+    to: '/flagsort',
+  },
   { id: 'tba-2', name: '???', icon: '🏆', tagline: 'tba_tagline', status: 'soon', badge: 'badge_soon' },
 ]
 
