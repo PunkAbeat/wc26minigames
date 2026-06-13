@@ -61,6 +61,7 @@ function FlagSortPage() {
         saveSolved(solved)
         track('flagsort_solve', { flag: name })
       },
+      track,
     })
     return () => ctrl.destroy()
   }, [])

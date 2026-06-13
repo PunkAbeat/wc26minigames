@@ -4,6 +4,8 @@
    tuned over several iterations. The route mounts it into a root element and
    passes { onSolve, solved } so React owns campaign progress.
    @ts-nocheck: hand-tuned vanilla canvas code, not worth typing. */
+import { renderFlagCard, flagShareText } from './sharecard'
+
 export function mountFlagSort(root, opts = {}) {
 
   const $ = s => root.querySelector(s);
@@ -770,10 +772,44 @@ export function mountFlagSort(root, opts = {}) {
     const n = LEVELS.filter(fl => solved.has(fl.name)).length;
     $("#select").innerHTML =
       `<div class="shead"><div class="t">ROAD TO THE FINAL</div>
-       <div class="sub">${n} / 48 flags built · pick any nation · difficulty ● → ●●●●</div></div>
+       <div class="sub">${n} / 48 flags built · pick any nation · difficulty ● → ●●●●</div>
+       <button class="sshare" id="sshare" type="button">↗ Share my ${n}/48</button></div>
        <div class="grid">${tiles}</div>`;
     $("#select").querySelectorAll(".tile").forEach(t =>
       t.onclick = () => { $("#row").innerHTML = ""; newLevel(+t.dataset.i); });
+    $("#sshare").onclick = share;
+  }
+  // ---------- share the collection ("I built X/48 flags") ----------
+  function toast(msg) {
+    const el = document.createElement("div");
+    el.className = "fs-toast"; el.textContent = msg;
+    root.appendChild(el);
+    setTimeout(() => el.classList.add("show"));
+    setTimeout(() => { el.classList.remove("show"); setTimeout(() => el.remove(), 300); }, 1900);
+  }
+  async function share() {
+    const cells = LEVELS.map(fl => solved.has(fl.name));
+    const codes = LEVELS.map(fl => CODE[fl.name]);
+    const built = cells.filter(Boolean).length;
+    opts.track && opts.track("share_clicked", { mode: "flagsort" });
+    const txt = flagShareText(built, LEVELS.length, cells) +
+      "\n" + location.origin + "/flagsort?ref=share";
+    const done = () => toast("Copied! Paste it anywhere.");
+    if (navigator.share) {
+      let files;
+      try {
+        const blob = await renderFlagCard({ cells, codes, built, total: LEVELS.length, host: location.host });
+        if (blob) {
+          const f = new File([blob], `flagsort-${built}-of-48.png`, { type: "image/png" });
+          if (navigator.canShare && navigator.canShare({ files: [f] })) files = [f];
+        }
+      } catch { /* share text only */ }
+      navigator.share(files ? { files, text: txt } : { text: txt }).catch(() => {});
+      return;
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText)
+      navigator.clipboard.writeText(txt).then(done).catch(done);
+    else done();
   }
   function showSelect() {
     paused = true; busy = false; sel = -1;
