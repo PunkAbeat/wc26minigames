@@ -9,7 +9,11 @@
 .fs-root.page { padding-bottom: 28px; }
 .fs-root * { -webkit-tap-highlight-color: transparent; user-select: none; }
 
-.fs-root canvas.fx { position: fixed; inset: 0; pointer-events: none; }
+/* the liquid/splash canvases live in DOCUMENT space (top-left of the page) and
+   are as tall as the content, so they scroll WITH the page. A fixed/viewport
+   canvas desyncs from the DOM frame during iOS momentum scroll — this avoids
+   that class of bug entirely. The engine draws at document coordinates. */
+.fs-root canvas.fx { position: absolute; top: 0; left: 0; pointer-events: none; }
 .fs-root #liqc { z-index: 5; }
 .fs-root #fxc { z-index: 30; }
 

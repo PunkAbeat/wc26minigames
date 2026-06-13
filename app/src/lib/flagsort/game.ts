@@ -218,11 +218,21 @@ export function mountFlagSort(root, opts = {}) {
   // ---------- canvas setup ----------
   const liqc = $("#liqc"), fxc = $("#fxc");
   const lctx = liqc.getContext("2d"), fctx = fxc.getContext("2d");
+  // document-space scroll offsets: all element rects are converted to page
+  // coordinates so the canvases (position:absolute, full content height) stay
+  // glued to the DOM as the page scrolls — no fixed-layer desync on iOS.
+  const SX = () => window.pageXOffset || 0;
+  const SY = () => window.pageYOffset || 0;
+  let cssW = 0, cssH = 0;
   function sizeCanvas() {
     const dpr = Math.min(devicePixelRatio || 1, 2);
+    // collapse first so the canvases don't inflate scrollHeight (self-feedback)
+    liqc.style.height = fxc.style.height = "0px";
+    cssW = innerWidth;
+    cssH = Math.max(innerHeight, document.documentElement.scrollHeight);
     for (const c of [liqc, fxc]) {
-      c.width = innerWidth * dpr; c.height = innerHeight * dpr;
-      c.style.width = innerWidth + "px"; c.style.height = innerHeight + "px";
+      c.width = cssW * dpr; c.height = cssH * dpr;
+      c.style.width = cssW + "px"; c.style.height = cssH + "px";
       c.getContext("2d").setTransform(dpr, 0, 0, dpr, 0, 0);
     }
   }
@@ -282,26 +292,31 @@ export function mountFlagSort(root, opts = {}) {
       el.style.transform = "";
       const r = slot.getBoundingClientRect();
       const iw = r.width - 10, ih = r.height - 10;
+      const cx = r.left + SX() + r.width / 2, cy = r.top + SY() + r.height / 2;
       T.push({
-        el, slot, cx: r.left + r.width / 2, cy: r.top + r.height / 2, iw, ih,
+        el, slot, cx, cy, iw, ih,
         poly: localPoly(iw, ih), unitA: polyArea(localPoly(iw, ih)) / CAP,
         pose: { dx: 0, dy: 0, ang: 0 },
         offs: new Array(NSPRING).fill(0), vels: new Array(NSPRING).fill(0),
-        bands: bandsOf(tubes[i]), topY: r.top + r.height / 2,
+        bands: bandsOf(tubes[i]), topY: cy,
       });
     });
   }
   function remeasure() {                   // slots never carry transforms, so this
     for (const t of T) {                   // is always the true resting position
       const r = t.slot.getBoundingClientRect();
-      t.cx = r.left + r.width / 2; t.cy = r.top + r.height / 2;
+      t.cx = r.left + SX() + r.width / 2; t.cy = r.top + SY() + r.height / 2;
     }
     if (FR.length && FRrect) {
       const r = $("#frame").getBoundingClientRect();
+      const left = r.left + SX(), top = r.top + SY();
       if (Math.abs(r.width - FRrect.width) > .5) { rebuildFR(); return; }
-      const dx = r.left - FRrect.left, dy = r.top - FRrect.top;
-      if (dx || dy) for (const v of FR) { v.cx += dx; v.cy += dy; }
-      FRrect = r;
+      const dx = left - FRrect.left, dy = top - FRrect.top;
+      if (dx || dy) {
+        for (const v of FR) { v.cx += dx; v.cy += dy; }
+        FRbox.ox += dx; FRbox.oy += dy;
+      }
+      FRrect = { left, top, width: r.width, height: r.height };
     }
   }
   // each flag REGION is its own vessel (band, column, or disc) rendered by the
@@ -334,11 +349,12 @@ export function mountFlagSort(root, opts = {}) {
   function rebuildFR() {
     const el = $("#frame");
     const r = el.getBoundingClientRect();
-    FRrect = r;
-    const W = r.width - 8, H = r.height - 8, ox = r.left + 4, oy = r.top + 4;
+    const left = r.left + SX(), top = r.top + SY();
+    FRrect = { left, top, width: r.width, height: r.height };
+    const W = r.width - 8, H = r.height - 8, ox = left + 4, oy = top + 4;
     FRbox = { ox, oy, W, H };                // canvas draw box for the real flag
     let before = 0;
-    FR = L.regions.map(reg => {
+    FR = L.regions.map((reg, idx) => {
       const pts = shapePts(reg.shape, W, H);
       let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
       for (const p of pts) { x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x);
@@ -346,7 +362,8 @@ export function mountFlagSort(root, opts = {}) {
       const cx = ox + (x0 + x1) / 2, cy = oy + (y0 + y1) / 2;
       const poly = pts.map(p => ({ x: ox + p.x - cx, y: oy + p.y - cy }));
       const v = {
-        el, cx, cy, iw: x1 - x0, ih: y1 - y0, poly, unitA: polyArea(poly) / reg.units,
+        el, cx, cy, iw: x1 - x0, ih: y1 - y0, poly, idx,
+        unitA: polyArea(poly) / reg.units,
         pose: { dx: 0, dy: 0, ang: 0 },
         offs: new Array(8).fill(0), vels: new Array(8).fill(0),
         bands: [], topY: cy + (y1 - y0) / 2, units: reg.units, color: reg.color, before,
@@ -427,7 +444,7 @@ export function mountFlagSort(root, opts = {}) {
     flagImg = new Image();
     flagImg.onload = () => { flagReady = true; };
     flagImg.src = flagSrc(L.name);
-    render(); rebuildT(); rebuildFR();
+    render(); sizeCanvas(); rebuildT(); rebuildFR();
   }
   function resync() {
     T.forEach((t, i) => { t.bands = bandsOf(tubes[i]); });
@@ -532,13 +549,27 @@ export function mountFlagSort(root, opts = {}) {
       lctx.closePath();
       if (t.isFrame && flagReady && !frameDone && FRbox) {
         // fill-to-reveal: the filled area uncovers the real flag, tinted by the
-        // liquid near the surface and settling to the official colours below
-        lctx.save(); lctx.clip();
+        // liquid near the surface and settling to the official colours below.
+        // Punch the regions stacked ON TOP of this one out of the clip so a base
+        // field (Scotland's blue, Switzerland's red…) doesn't expose the emblem
+        // it underlies before that emblem is actually poured.
+        lctx.save(); lctx.clip();          // clip to the filled part of this region
         lctx.drawImage(flagImg, FRbox.ox, FRbox.oy, FRbox.W, FRbox.H);
         const g = lctx.createLinearGradient(0, Y, 0, Y + 52);
         g.addColorStop(0, cv.color + "d0");
         g.addColorStop(1, cv.color + "12");
-        lctx.fillStyle = g; lctx.fill();
+        lctx.fillStyle = g; lctx.fillRect(FRbox.ox, FRbox.oy, FRbox.W, FRbox.H);
+        // erase the regions stacked on top (still clipped to this region), so the
+        // ghost shows through there until they're poured
+        lctx.globalCompositeOperation = "destination-out";
+        lctx.fillStyle = "#000";           // opaque: destination-out uses src alpha
+        for (const u of FR)
+          if (u.idx > t.idx) {
+            const wp2 = worldPoly(u);
+            lctx.beginPath();
+            wp2.forEach((p, i) => i ? lctx.lineTo(p.x, p.y) : lctx.moveTo(p.x, p.y));
+            lctx.closePath(); lctx.fill();
+          }
         lctx.restore();
       } else { lctx.fillStyle = cv.color; lctx.fill(); }
       if (idx === 0) {
@@ -628,8 +659,8 @@ export function mountFlagSort(root, opts = {}) {
   function loop(now) {
     if (killed) return;
     if (paused) {
-      lctx.clearRect(0, 0, innerWidth, innerHeight);
-      fctx.clearRect(0, 0, innerWidth, innerHeight);
+      lctx.clearRect(0, 0, cssW, cssH);
+      fctx.clearRect(0, 0, cssW, cssH);
       rafId = requestAnimationFrame(loop); return;
     }
     if (!anim) remeasure();                // self-heal on any layout shift
@@ -655,8 +686,8 @@ export function mountFlagSort(root, opts = {}) {
         ? `translate(${dx}px,${dy}px) rotate(${ang}rad)` : "";
     }
     stepParts();
-    lctx.clearRect(0, 0, innerWidth, innerHeight);
-    fctx.clearRect(0, 0, innerWidth, innerHeight);
+    lctx.clearRect(0, 0, cssW, cssH);
+    fctx.clearRect(0, 0, cssW, cssH);
     for (const t of T) drawTube(t);
     for (const v of FR) drawTube(v);
     if (DEBUG)
