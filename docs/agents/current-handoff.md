@@ -1,6 +1,6 @@
 # Current handoff
 
-*Updated: 2026-06-13 (SQUAD parked after two mock passes; criteria relaxed; FLAG SORT proposed by owner — round 5)*
+*Updated: 2026-06-13 (game #2 shipped into the app as HOIST — real flags, ANTHEM-aligned chrome, share card, pitch-styled win banner; awaiting owner deploy)*
 
 ## State
 
@@ -24,11 +24,13 @@ The disposable mock at `/mock/flagsort` still exists (and `build:prod` strips `d
 
 **Share card done (13 Jun, `36890d6`).** A "↗ Share my N/48" button on the grid header builds a 1200×630 "collection wall" PNG (`src/lib/flagsort/sharecard.ts`): wordmark + bunting + "N / 48 FLAGS BUILT" pill + an 8×6 grid of the real flags you've built (dark slots for the rest) + "Play at host/flagsort". Native share sheet with the card attached, clipboard + emoji-grid (🟩/⬜) text fallback + toast; tracked `share_clicked{mode:flagsort}`; `track` passed via engine opts.
 
-**Renamed FLAG SORT → COLOURS (13 Jun, `7de7bd0`).** Owner: the name was "not good" and the 🎌 wordmark emblem read as two Japanese flags. Now COLOURS with a neutral 💧 paint-drop emblem (wordmark + hub card + titles + share card); route moved **`/flagsort` → `/colours`** (file `src/routes/colours.tsx`, routeTree regenerated, hub Link/trackPageView/og/share URL updated). Internal identifiers (`src/lib/flagsort/*`, `.fs-root`, storage key `wc26_flagsort_solved`, analytics `flagsort_*`) deliberately keep the old name — not user-visible, preserves continuity.
+**Renamed FLAG SORT → COLOURS → HOIST (13 Jun, `7de7bd0` then `7b64177`).** Owner rejected "FLAG SORT" (→ COLOURS, 🎌 read as two Japanese flags → 💧 drop), then rejected COLOURS too ("not fond of it; want something flag-related") and the 💧 drop ("does not work well"). Final: **HOIST** (raise every nation's flag) with a **hand-drawn gold waving-flag emblem** — `src/components/FlagMark.tsx`, one inline-SVG mark shared by the hub card and the in-game wordmark (emoji flags render inconsistently per platform, so it's a custom SVG in brand gold). Route moved **`/colours` → `/hoist`** (file `src/routes/hoist.tsx`, routeTree regenerated; hub Link/manifest, titles, og:url, trackPageView, share URL + PNG filename, share-card wordmark/footer/pill all updated). Internal identifiers (`src/lib/flagsort/*`, `.fs-root`, storage key `wc26_flagsort_solved`, analytics `flagsort_*`) deliberately keep the old name — not user-visible, preserves continuity.
+
+**Pitch-styled win banner (13 Jun, `7b64177`).** The win/dead-end banners were a flat white modal; restyled to the pitch-card look — stadium-green gradient, gold rim + a strip of bunting, the **real built flag** with a gold glow, a "FLAG RAISED · n / 48" kicker, and a gold-primary / ghost-secondary button pair (`.wcard`/`.wbunting`/`.wflagwrap`/`.wprimary`/`.wghost` in `flagsort.css`; reduced-motion disables the new wave). Verified on a 390px viewport (hub emblem, header wordmark, win banner).
 
 **Look & feel aligned with ANTHEM (13 Jun, `0540573`).** FLAG SORT dropped its bespoke full-screen blue layout and now uses the shared MATCHDAY stadium-gradient background (`.page page-flagsort fs-root`) + ANTHEM-style chrome: bunting, "⚽ Games" back pill + grid/"?" corner buttons, kicker, Baloo "FLAG SORT" wordmark with a bobbing 🎌 emblem, tagline sub, gold scoreboard pill (`#lvl`). The game plays inside a pitch card (centre circle + markings); gold candy "POUR NEXT" hint + UNDO/RESTART pills; a how-to modal sits behind "?". The ROAD TO THE FINAL grid is **grouped by World Cup group A–L** (4 each via `fl.ord`) with gold dividers and **rounded** thumbnails. Canvas engine unchanged mechanically (same `#liqc/#fxc/#frame/#row`); liquid still tracks the card-positioned elements (verified, 0 exceptions); fits an iPhone viewport without scrolling.
 
-**Remaining FLAG SORT work (not started):** full i18n of in-game strings; a headless suite #12 (the engine exposes `window.__fs()` for a driver). The **flag-accuracy concern is largely resolved** by using real official flags (the geometric `regions` are now just the pour/liquid puzzle, not the final look). SHOOTOUT remains the standing alternative game idea. Still **not deployed** (owner gate).
+**Remaining HOIST work (not started):** full i18n of in-game strings; a headless suite #12 (the engine exposes `window.__fs()` for a driver). The **flag-accuracy concern is largely resolved** by using real official flags (the geometric `regions` are now just the pour/liquid puzzle, not the final look). SHOOTOUT remains the standing alternative game idea. Still **not deployed** (owner gate).
 
 ## Process change for the next pick
 

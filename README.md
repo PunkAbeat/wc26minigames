@@ -9,7 +9,7 @@ A series of daily, shareable browser mini games built around the **2026 FIFA Wor
 | Game | Status | What it is |
 |---|---|---|
 | **ANTHEM** 🎺 | Live (daily + practice) | Hear a growing snippet of a national anthem, guess the nation in six tries — a "Heardle" for World Cup anthems. One official anthem per UTC day across all 48 qualified nations, with streaks, lifetime + global stats, and a shareable result card. Design brief: [games/anthem/HANDOFF.md](games/anthem/HANDOFF.md). |
-| **COLOURS** 💧 | In app, not deployed | Water-sort puzzle — pour the colours into place to build each nation's flag (uses the real official flag SVGs, revealed as you fill). Campaign ("Road to the Final", all 48 qualified nations, grouped A–L) + play any nation; progress saved locally; shareable "X/48 built" card. Route `/colours`. Graduated from a feel mock 13 Jun 2026 (renamed from "FLAG SORT"); shares ANTHEM's look & feel; in-game copy English-first; awaiting owner deploy. Design history: [docs/research/game2-brainstorm.md](docs/research/game2-brainstorm.md). |
+| **HOIST** 🏴 | In app, not deployed | Water-sort puzzle — pour the colours into place to raise each nation's flag (uses the real official flag SVGs, revealed as you fill). Campaign ("Road to the Final", all 48 qualified nations, grouped A–L) + play any nation; progress saved locally; shareable "X/48 raised" card. Route `/hoist`. Graduated from a feel mock 13 Jun 2026 (renamed FLAG SORT → COLOURS → HOIST); shares ANTHEM's look & feel, with a pitch-styled win banner; in-game copy English-first; awaiting owner deploy. Design history: [docs/research/game2-brainstorm.md](docs/research/game2-brainstorm.md). |
 
 ## Repository layout
 
