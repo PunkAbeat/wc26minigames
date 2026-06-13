@@ -74,7 +74,7 @@ export const en = {
 
   /* ---- anthem: modals ---- */
   howto_title: 'How to play ⚽',
-  howto_1: 'Tap play to hear the anthem — it starts at just **2 seconds**.',
+  howto_1: 'Tap play to hear the anthem — it starts at just **4 seconds**.',
   howto_2:
     'Guess the nation. Each **miss or skip** reveals more of the clip and unlocks a hint card.',
   howto_3:

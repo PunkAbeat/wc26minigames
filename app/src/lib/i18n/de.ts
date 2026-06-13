@@ -66,7 +66,7 @@ export const de: Record<StringKey, string> = {
   match_label: 'MATCH #{n}',
 
   howto_title: 'So wird gespielt ⚽',
-  howto_1: 'Tippe auf Play, um die Hymne zu hören — es beginnt mit nur **2 Sekunden**.',
+  howto_1: 'Tippe auf Play, um die Hymne zu hören — es beginnt mit nur **4 Sekunden**.',
   howto_2:
     'Errate das Land. Jeder **Fehlschuss oder Skip** gibt mehr vom Clip frei und schaltet einen Hinweis frei.',
   howto_3:

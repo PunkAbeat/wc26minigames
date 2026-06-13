@@ -66,7 +66,7 @@ export const pt: Record<StringKey, string> = {
   match_label: 'PARTIDA #{n}',
 
   howto_title: 'Como jogar ⚽',
-  howto_1: 'Toque no play para ouvir o hino — começa com só **2 segundos**.',
+  howto_1: 'Toque no play para ouvir o hino — começa com só **4 segundos**.',
   howto_2: 'Adivinhe o país. Cada **erro ou pulo** revela mais do trecho e desbloqueia uma dica.',
   howto_3:
     'Você tem **6 tentativas**. Um hino novo cai à **meia-noite UTC** — acerte, mantenha sua sequência e compartilhe seu placar sem spoiler. Quer mais? No **jogo livre** tem todos os hinos, sem limite diário.',

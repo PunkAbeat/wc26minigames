@@ -67,7 +67,7 @@ export const fr: Record<StringKey, string> = {
   match_label: 'MATCH nº{n}',
 
   howto_title: 'Comment jouer ⚽',
-  howto_1: 'Appuyez sur play pour écouter l’hymne — ça commence avec **2 secondes** seulement.',
+  howto_1: 'Appuyez sur play pour écouter l’hymne — ça commence avec **4 secondes** seulement.',
   howto_2: 'Devinez le pays. Chaque **raté ou passe** dévoile plus de l’extrait et débloque un indice.',
   howto_3:
     'Vous avez **6 essais**. Un nouvel hymne tombe à **minuit UTC** — trouvez-le, gardez votre série et partagez votre score sans spoiler. Envie de plus ? En **partie libre**, tous les hymnes, sans limite quotidienne.',

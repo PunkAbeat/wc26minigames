@@ -66,7 +66,7 @@ export const tr: Record<StringKey, string> = {
   match_label: 'MAÇ #{n}',
 
   howto_title: 'Nasıl oynanır ⚽',
-  howto_1: 'Marşı duymak için play’e bas — sadece **2 saniyeyle** başlar.',
+  howto_1: 'Marşı duymak için play’e bas — sadece **4 saniyeyle** başlar.',
   howto_2: 'Ülkeyi tahmin et. Her **ıska veya atlama** klibin daha fazlasını açar ve bir ipucu verir.',
   howto_3:
     '**6 deneme** hakkın var. **UTC gece yarısı** yeni marş gelir — bil, serini koru ve spoilersız skorunu paylaş. Daha fazlası için **serbest oyunda** tüm marşlar seni bekliyor — günlük sınır yok.',

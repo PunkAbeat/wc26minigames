@@ -67,7 +67,7 @@ export const es: Record<StringKey, string> = {
   match_label: 'PARTIDO #{n}',
 
   howto_title: '¿Cómo se juega? ⚽',
-  howto_1: 'Pulsa play para escuchar el himno — empieza con solo **2 segundos**.',
+  howto_1: 'Pulsa play para escuchar el himno — empieza con solo **4 segundos**.',
   howto_2: 'Adivina el país. Cada **fallo o salto** revela más del clip y desbloquea una pista.',
   howto_3:
     'Tienes **6 intentos**. Un himno nuevo cae a **medianoche UTC** — resuélvelo, mantén tu racha y comparte tu resultado sin spoilers. ¿Quieres más? En el **juego libre** tienes todos los himnos, sin límite diario.',

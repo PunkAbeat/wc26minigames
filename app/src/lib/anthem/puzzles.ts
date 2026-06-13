@@ -185,9 +185,11 @@ export const PUZZLES: Puzzle[] = [
 
 export const ALL_NATIONS = PUZZLES.map((p) => p.name).sort()
 
-/* clip seconds unlocked per guess stage — anthem intros build slower than
-   pop songs, so the opening is 2s, not Heardle's 1s (user feedback 13 Jun) */
-export const STAGES = [2, 3, 5, 8, 12, 16]
+/* clip seconds unlocked per guess stage. Reshaped from Heardle's [1,2,4,7,
+   11,16] on day-1 data (13 Jun): zero solves ever happened below 4s, and 47%
+   lost outright — the curve starts where recognition starts and ends with a
+   long listen (shortest trimmed anthem is ~35s, so 30 fits every nation) */
+export const STAGES = [4, 7, 11, 16, 22, 30]
 
 export const AUDIO_BASE =
   'https://archive.org/download/us-navy-band-national-anthems-public-domain/'

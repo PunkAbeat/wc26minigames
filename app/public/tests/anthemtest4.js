@@ -30,14 +30,14 @@
     ok(!document.getElementById('playBtn').classList.contains('playing'), 'button back to play icon when paused');
     A.playClip(); await sleep(120);
     ok(pb.playing && !pb.paused, 'third press resumes');
-    ok(pb.limit === 2, 'clip limited to 2s on first guess');
+    ok(pb.limit === 4, 'clip limited to 4s on first guess');
     A.stopPlayback(); await sleep(50);
     ok(!pb.playing && !pb.paused, 'stop clears playback');
     ok(document.getElementById('clipLabel').textContent.includes('unlocked'), 'label back to idle');
     ok(!document.getElementById('playhead').classList.contains('show'), 'playhead hidden when idle');
     setVal('France'); A.submitGuess(); await sleep(150);
     ok(A.state.attempt === 1, 'wrong guess registered');
-    ok(pb.playing && pb.limit === 3, 'auto-replay after miss, new 3s limit');
+    ok(pb.playing && pb.limit === 7, 'auto-replay after miss, new 7s limit');
     setVal('England'); A.submitGuess(); await sleep(150);
     ok(A.state.finished && A.state.won, 'win registered');
     ok(A.confetti.parts.length > 0, 'confetti launched (' + A.confetti.parts.length + ' pieces)');

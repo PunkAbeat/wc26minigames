@@ -918,7 +918,7 @@ function AnthemPage() {
               </div>
               <div className="labelrow">
                 <span id="clipLabel" ref={clipLabelRef} suppressHydrationWarning>
-                  2 seconds unlocked
+                  4 seconds unlocked
                 </span>
                 <span id="srcBadge" ref={srcBadgeRef} />
               </div>
