@@ -36,7 +36,7 @@
   .flagname { font-weight: 800; letter-spacing: 1px; margin: 4px 0 8px; color: #fff;
               text-shadow: 0 1px 3px rgba(0,0,0,.4); font-size: 17px; }
   .frame {
-    position: relative; width: 76%; max-width: 290px; aspect-ratio: 3 / 2;
+    position: relative; width: 70%; max-width: 250px; aspect-ratio: 3 / 2;
     margin: 0 auto; border: 3px solid #fff; border-radius: 8px; overflow: hidden;
     background: rgba(255,255,255,.10); display: flex; flex-direction: column;
     box-shadow: 0 6px 18px rgba(0,0,0,.28);
@@ -64,18 +64,18 @@
   }
   .hint .sw { width: 14px; height: 14px; border-radius: 4px;
               border: 1.5px solid rgba(255,255,255,.65); }
-  .row { display: flex; justify-content: center; align-items: flex-end;
-         gap: 18px; margin: 24px 0 12px; min-height: 166px; }
-  .slot { position: relative; width: 46px; height: 150px; }
+  .row { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-end;
+         gap: 14px 13px; margin: 18px auto 12px; min-height: 132px; max-width: 320px; }
+  .slot { position: relative; width: 42px; height: 128px; }
   .tube {
     position: absolute; inset: 0;
     border: 2.5px solid rgba(255,255,255,.8); border-top-color: rgba(255,255,255,.35);
-    background: rgba(255,255,255,.13); border-radius: 10px 10px 22px 22px;
+    background: rgba(255,255,255,.13); border-radius: 9px 9px 19px 19px;
     box-shadow: inset 0 0 12px rgba(255,255,255,.18), 0 4px 10px rgba(0,0,0,.2);
     will-change: transform;
   }
   .tube::after {
-    content: ''; position: absolute; top: 8px; bottom: 14px; left: 6px; width: 6px;
+    content: ''; position: absolute; top: 7px; bottom: 12px; left: 5px; width: 5px;
     border-radius: 4px; background: rgba(255,255,255,.28);
   }
   .tube.sel { border-color: #ffd34d;
@@ -123,17 +123,26 @@
     <button id="restart">↻ RESTART</button>
   </div>
   <p class="note">Disposable feel mock — tap a tube, then tap another tube or the flag.<br>
-  The flag fills its <b>bottom stripe first</b>. Colours simplified.</p>
+  The flag fills its <b>bottom stripe first</b>. Junk colours never enter the flag — park them in tubes.</p>
 </main>
 <script>
 (() => {
   const $ = s => document.querySelector(s);
+  // per: units per stripe · junk: distractor colours (4 units each, never enter
+  // the flag) · spares: empty tubes. Difficulty = junk depth + scarce spares.
   const LEVELS = [
-    { name: "GERMANY",   emo: "🇩🇪", stripes: [["#2b2b2b","BLACK"], ["#d40e14","RED"],   ["#ffce00","GOLD"]] },
-    { name: "SPAIN",     emo: "🇪🇸", stripes: [["#aa151b","RED"],   ["#f1bf00","GOLD"],  ["#aa151b","RED"]] },
-    { name: "ARGENTINA", emo: "🇦🇷", stripes: [["#74acdf","SKY"],   ["#ffffff","WHITE"], ["#74acdf","SKY"]], stamp: "☀️" },
+    { name: "GERMANY", emo: "🇩🇪", per: 3, spares: 1, junk: [],
+      stripes: [["#2b2b2b","BLACK"], ["#d40e14","RED"], ["#ffce00","GOLD"]] },
+    { name: "AUSTRIA", emo: "🇦🇹", per: 4, spares: 1, junk: ["#2563eb"],
+      stripes: [["#ed2939","RED"], ["#ffffff","WHITE"], ["#ed2939","RED"]] },
+    { name: "NETHERLANDS", emo: "🇳🇱", per: 4, spares: 1, junk: ["#16a34a","#f59e0b"],
+      stripes: [["#ae1c28","RED"], ["#ffffff","WHITE"], ["#21468b","BLUE"]] },
+    { name: "ARGENTINA", emo: "🇦🇷", per: 4, spares: 2, junk: ["#16a34a","#9333ea","#8b5e34"],
+      stripes: [["#74acdf","SKY"], ["#ffffff","WHITE"], ["#74acdf","SKY"]], stamp: "☀️" },
+    { name: "SPAIN", emo: "🇪🇸", per: 4, spares: 2, junk: ["#2563eb","#16a34a","#9333ea","#0d9488","#ec4899"],
+      stripes: [["#aa151b","RED"], ["#f1bf00","GOLD"], ["#aa151b","RED"]] },
   ];
-  const CAP = 4, PER = 3, NSPRING = 6;
+  const CAP = 4, NSPRING = 6;
   const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let li = 0, L, seq, label, tubes, f, hist, sel = -1, busy = false, deal0;
   let T = [], anim = null, parts = [];
@@ -149,7 +158,7 @@
     function dfs(t, g) {
       if (g === sq.length) return true;
       const k = key(t, g);
-      if (seen.has(k) || seen.size > 30000) return false;
+      if (seen.has(k) || seen.size > 200000) return false;
       seen.add(k);
       for (let i = 0; i < t.length; i++) {
         const a = t[i]; if (!a.length) continue;
@@ -164,11 +173,15 @@
         const a = t[i]; if (!a.length) continue;
         const c = a[a.length - 1];
         let run = 0; for (let j = a.length - 1; j >= 0 && a[j] === c; j--) run++;
+        let usedEmpty = false;
         for (let d = 0; d < t.length; d++) {
           if (d === i) continue;
           const b = t[d];
           if (b.length && b[b.length - 1] !== c) continue;
-          if (!b.length && run === a.length) continue;
+          if (!b.length) {
+            if (usedEmpty || run === a.length) continue; // empties are symmetric
+            usedEmpty = true;
+          }
           const space = CAP - b.length; if (!space) continue;
           const m = Math.min(run, space);
           const nt = t.map(x => x.slice());
@@ -181,12 +194,21 @@
     return dfs(t0.map(x => x.slice()), 0);
   }
   function freshDeal() {
-    for (let n = 0; n < 400; n++) {
-      const pool = shuffle(seq.slice());
-      const t = [pool.slice(0, 3), pool.slice(3, 6), pool.slice(6, 9), []];
+    const pool0 = seq.concat(L.junk.flatMap(c => Array(CAP).fill(c)));
+    const nFull = Math.ceil(pool0.length / CAP);
+    const sizes = []; let left = pool0.length;
+    for (let i = nFull; i > 0; i--) { const s = Math.ceil(left / i); sizes.push(s); left -= s; }
+    const chunk = pool => {
+      const t = []; let p = 0;
+      for (const s of sizes) { t.push(pool.slice(p, p + s)); p += s; }
+      for (let i = 0; i < L.spares; i++) t.push([]);
+      return t;
+    };
+    for (let n = 0; n < 200; n++) {
+      const t = chunk(shuffle(pool0.slice()));
       if (solvable(t, seq)) return t;
     }
-    return [seq.slice(0, 3), seq.slice(3, 6), seq.slice(6, 9), []];
+    return chunk(pool0); // layered fallback = trivially solvable
   }
 
   // ---------- canvas setup ----------
@@ -202,7 +224,7 @@
   }
 
   // ---------- liquid geometry: half-plane volume solve in a tilted tube ----------
-  function localPoly(iw, ih, r = 15) {
+  function localPoly(iw, ih, r = 12) {
     const hw = iw / 2, hh = ih / 2;
     return [
       { x: -hw, y: -hh }, { x: hw, y: -hh },
@@ -304,18 +326,18 @@
 
   // ---------- DOM render (game chrome; liquid itself lives on canvas) ----------
   function render() {
-    $("#lvl").textContent = `FLAG ${li + 1} / ${LEVELS.length}`;
+    $("#lvl").textContent = `FLAG ${li + 1} / ${LEVELS.length} · ${tubes.length} TUBES`;
     $("#flagname").textContent = `${L.emo} ${L.name}`;
     const fr = $("#frame");
     fr.classList.remove("done", "wave");
     fr.innerHTML = L.stripes.map((s, si) => {
-      const need = f < 9 && si === 2 - Math.floor(f / PER);
+      const need = f < seq.length && si === L.stripes.length - 1 - Math.floor(f / L.per);
       return `<div class="stripe${need ? " need" : ""}" data-si="${si}">
         <div class="ghost" style="background:${s[0]}"></div>
       </div>`;
     }).join("") + (L.stamp ? `<div class="stamp ghost" id="stamp">${L.stamp}</div>` : "");
     const hint = $("#hint");
-    if (f < 9) {
+    if (f < seq.length) {
       hint.style.visibility = "visible";
       hint.innerHTML = `POUR NEXT <span class="sw" style="background:${seq[f]}"></span> ${label[seq[f]]}`;
     } else hint.style.visibility = "hidden";
@@ -334,7 +356,7 @@
     seq = []; label = {};
     for (let s = L.stripes.length - 1; s >= 0; s--) {
       const [c, lb] = L.stripes[s]; label[c] = lb;
-      for (let k = 0; k < PER; k++) seq.push(c);
+      for (let k = 0; k < L.per; k++) seq.push(c);
     }
     tubes = freshDeal();
     deal0 = tubes.map(x => x.slice());
@@ -361,6 +383,7 @@
       else { for (let k = 0; k < m; k++) a.pop(); f += m; }
       resync(); anim = null; busy = false; render();
       if (f === seq.length) win();
+      else if (!movesExist()) stuck();
     };
     // NOTE: the mock animates even under prefers-reduced-motion — its whole
     // purpose is judging the pour. The real game would honor the setting.
@@ -563,7 +586,39 @@
     requestAnimationFrame(loop);
   }
 
-  // ---------- win / input ----------
+  // ---------- win / stuck / input ----------
+  function movesExist() {
+    for (let i = 0; i < tubes.length; i++) {
+      const a = tubes[i]; if (!a.length) continue;
+      const c = a[a.length - 1];
+      if (f < seq.length && c === seq[f]) return true;
+      let run = 0; for (let j = a.length - 1; j >= 0 && a[j] === c; j--) run++;
+      for (let d = 0; d < tubes.length; d++) {
+        if (d === i) continue;
+        const b = tubes[d];
+        if (b.length >= CAP) continue;
+        if (b.length && b[b.length - 1] !== c) continue;
+        if (!b.length && run === a.length) continue;   // shuffling a monochrome tube isn't progress
+        return true;
+      }
+    }
+    return false;
+  }
+  function stuck() {
+    const b = document.createElement("div");
+    b.className = "banner";
+    b.innerHTML = `<div class="card"><div class="big">🚫</div>
+      <h2>DEAD END</h2><p>No useful moves left.</p>
+      <button data-a="u">↩ UNDO</button>
+      <button data-a="r" style="background:#14324f;color:#fff;margin-left:8px">↻ RESTART</button></div>`;
+    document.body.appendChild(b);
+    b.querySelectorAll("button").forEach(btn => btn.onclick = () => {
+      b.remove();
+      if (btn.dataset.a === "u" && hist.length) { const h = hist.pop(); tubes = h.t; f = h.f; }
+      else { tubes = deal0.map(x => x.slice()); f = 0; hist = []; }
+      sel = -1; render(); resync();
+    });
+  }
   function confetti() {
     const set = [L.emo, "🎉", "⚽", "✨"];
     for (let i = 0; i < 22; i++) {
@@ -601,12 +656,16 @@
     confetti();
     setTimeout(() => {
       const last = li === LEVELS.length - 1;
+      const nx = LEVELS[li + 1];
+      const tease = last
+        ? "That's the final — the real game would ladder through all 48 qualified nations."
+        : `Next: ${nx.emo} ${nx.name} — ${3 + nx.junk.length} colours, ${
+            Math.ceil((nx.stripes.length * nx.per + nx.junk.length * CAP) / CAP) + nx.spares} tubes.`;
       const b = document.createElement("div");
       b.className = "banner";
       b.innerHTML = `<div class="card"><div class="big">${L.emo}</div>
         <h2>${L.name}!</h2>
-        <p>${last ? "That's the mock — the real thing would ladder through all 48 qualified nations."
-                  : "Flag complete. Next one's trickier…"}</p>
+        <p>${tease}</p>
         <button>${last ? "PLAY AGAIN" : "NEXT FLAG →"}</button></div>`;
       document.body.appendChild(b);
       b.querySelector("button").onclick = () => {
@@ -657,7 +716,8 @@
   if (RM) document.querySelector(".note").innerHTML +=
     `<br><b>⚠ your OS has "reduce motion" on</b> — the mock animates anyway so the pour can be judged.`;
   sizeCanvas();
-  newLevel(0);
+  const lvlQ = parseInt(new URLSearchParams(location.search).get("lvl"), 10);
+  newLevel(lvlQ >= 1 && lvlQ <= LEVELS.length ? lvlQ - 1 : 0);
   requestAnimationFrame(loop);
   // headless test hook: ?demo fixes the deal and auto-pours so a screenshot can catch the tilt
   if (location.search.includes("demo")) {
