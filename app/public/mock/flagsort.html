@@ -345,7 +345,8 @@
       resync(); anim = null; busy = false; render();
       if (f === seq.length) win();
     };
-    if (RM) { commit(); return; }
+    // NOTE: the mock animates even under prefers-reduced-motion — its whole
+    // purpose is judging the pour. The real game would honor the setting.
 
     const S = T[si];
     let landX, landTop, D = null, frameRect = null, base = 0;
@@ -644,6 +645,8 @@
   };
   addEventListener("resize", sizeCanvas);
 
+  if (RM) document.querySelector(".note").innerHTML +=
+    `<br><b>⚠ your OS has "reduce motion" on</b> — the mock animates anyway so the pour can be judged.`;
   sizeCanvas();
   newLevel(0);
   requestAnimationFrame(loop);
