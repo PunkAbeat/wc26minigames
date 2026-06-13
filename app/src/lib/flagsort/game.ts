@@ -688,8 +688,13 @@ export function mountFlagSort(root, opts = {}) {
     stepParts();
     lctx.clearRect(0, 0, cssW, cssH);
     fctx.clearRect(0, 0, cssW, cssH);
-    for (const t of T) drawTube(t);
+    // the pouring tube is lifted/tilted over the others (and matches its DOM
+    // z-index), so draw its liquid LAST — otherwise a higher-index destination
+    // (e.g. a bottom-row spare) paints over it and it looks like it's behind.
+    const psi = anim ? anim.si : -1;
+    for (let i = 0; i < T.length; i++) if (i !== psi) drawTube(T[i]);
     for (const v of FR) drawTube(v);
+    if (psi >= 0) drawTube(T[psi]);
     if (DEBUG)
       for (const t of T) {
         fctx.fillStyle = "#f0f";
