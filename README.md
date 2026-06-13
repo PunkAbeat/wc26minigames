@@ -56,5 +56,5 @@ More (build, tests, tailnet serving, deploy): [docs/engineering.md](docs/enginee
 
 - Anthem recordings: U.S. Navy Band — works of the U.S. federal government, **public domain**. Source: <https://archive.org/details/us-navy-band-national-anthems-public-domain>
 - Flags: <https://flagcdn.com> · Fonts: Baloo 2 + Nunito (OFL, self-hosted)
-- HOIST emblem: a 3D gold-flag icon (`app/public/hoist-flag.png`), keyed to transparency from a provided source — **confirm its licence before any public launch**
+- HOIST emblem: a 3D gold-flag icon (`app/public/hoist-flag.png`) — AI-generated, no licence required; keyed to transparency from its checkerboard source
 - "FIFA" / "World Cup" are trademarks of FIFA. Unofficial fan project; see the legal item in [docs/process/progress.md](docs/process/progress.md) before any public launch.
