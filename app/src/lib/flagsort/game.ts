@@ -5,6 +5,7 @@
    passes { onSolve, solved } so React owns campaign progress.
    @ts-nocheck: hand-tuned vanilla canvas code, not worth typing. */
 import { renderFlagCard, flagShareText } from './sharecard'
+import { STENCILS } from './stencils'
 
 export function mountFlagSort(root, opts = {}) {
 
@@ -128,6 +129,16 @@ export function mountFlagSort(root, opts = {}) {
   // creed is sacred script, inappropriate to render as pourable liquid. The
   // tile is the plain green field with a stylised sword emblem only.
 
+  // Stencil flags (pour the simplified shapes in sync + stamp painterly crests,
+  // then cross-fade to the real flag) override the crude geometric region model.
+  // Additive: any flag without a stencil keeps the region/real-flag-reveal path
+  // unchanged. A stencil region carries `shapes` (a group filled in sync) and
+  // `solid:true`; the flag gains `ratio` (its true aspect) and optional `stamp`.
+  for (const fl of FLAGS) {
+    const sc = STENCILS[fl.name];
+    if (sc) { fl.regions = sc.regions; fl.ratio = sc.ratio; fl.stamp = sc.stamp; }
+  }
+
   // difficulty normalisation: every flag aims at the same total colour count
   // per tier, so a 1-colour flag (Morocco) gets more junk than a 3-colour one.
   const JUNKPOOL = ["#2563eb","#16a34a","#9333ea","#f59e0b","#0d9488","#ec4899","#7c3aed","#a16207"];
@@ -148,6 +159,7 @@ export function mountFlagSort(root, opts = {}) {
   let li = 0, L, seq, label, tubes, f, hist, sel = -1, busy = false, deal0;
   let T = [], anim = null, parts = [], paused = false;
   let rafId = 0, killed = false;
+  let stampNeed = 0, stampA = 0;     // painterly-crest stamp (canvas, above fills)
   const DEBUG = false;
   const solved = opts.solved || new Set();        // campaign progress (owned by the route)
 
@@ -355,20 +367,25 @@ export function mountFlagSort(root, opts = {}) {
     FRbox = { ox, oy, W, H };                // canvas draw box for the real flag
     let before = 0;
     FR = L.regions.map((reg, idx) => {
-      const pts = shapePts(reg.shape, W, H);
+      // a stencil region carries several shapes that fill in sync; a classic
+      // region is a single shape. Gather the combined bbox either way.
+      const shapeList = reg.shapes || [reg.shape];
+      const allpts = shapeList.map(s => shapePts(s, W, H));
       let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
-      for (const p of pts) { x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x);
-                             y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); }
+      for (const pts of allpts) for (const p of pts) {
+        x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x);
+        y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); }
       const cx = ox + (x0 + x1) / 2, cy = oy + (y0 + y1) / 2;
-      const poly = pts.map(p => ({ x: ox + p.x - cx, y: oy + p.y - cy }));
+      const polys = allpts.map(pts => pts.map(p => ({ x: ox + p.x - cx, y: oy + p.y - cy })));
       const v = {
-        el, cx, cy, iw: x1 - x0, ih: y1 - y0, poly, idx,
-        unitA: polyArea(poly) / reg.units,
+        el, cx, cy, iw: x1 - x0, ih: y1 - y0, idx,
         pose: { dx: 0, dy: 0, ang: 0 },
         offs: new Array(8).fill(0), vels: new Array(8).fill(0),
         bands: [], topY: cy + (y1 - y0) / 2, units: reg.units, color: reg.color, before,
         isFrame: true,
       };
+      if (reg.solid) { v.solid = true; v.polys = polys; }
+      else { v.poly = polys[0]; v.unitA = polyArea(polys[0]) / reg.units; }
       before += reg.units;
       return v;
     });
@@ -388,9 +405,10 @@ export function mountFlagSort(root, opts = {}) {
     }
     return -1;
   }
-  function worldPoly(t) {
+  function worldPoly(t) { return worldPolyPts(t, t.poly); }
+  function worldPolyPts(t, pts) {
     const c = Math.cos(t.pose.ang), s = Math.sin(t.pose.ang);
-    return t.poly.map(p => ({
+    return pts.map(p => ({
       x: t.cx + t.pose.dx + p.x * c - p.y * s,
       y: t.cy + t.pose.dy + p.x * s + p.y * c,
     }));
@@ -406,13 +424,17 @@ export function mountFlagSort(root, opts = {}) {
     $("#flagname").textContent = `${L.emo} ${L.name}`;
     const fr = $("#frame");
     fr.classList.remove("done", "wave");
+    fr.style.aspectRatio = L.ratio ? String(L.ratio) : "3 / 2";   // flag's true ratio
     const ai = activeIdx();
-    // faint real flag = the target; canvas reveals it region-by-region as you
-    // pour; the region divs carry only the "pour next here" pulse outline.
-    fr.innerHTML =
+    // faint real flag = the target; canvas reveals/fills it as you pour. Classic
+    // regions carry a "pour next here" pulse outline; stencil (solid) groups are
+    // multi-shape so they skip the outline. A painterly crest stamps in once its
+    // group is full, and the win cross-fade locks the crisp official flag.
+    let inner =
       `<img class="flagghost" id="flagghost" src="${flagSrc(L.name)}" alt="" draggable="false">`
-      + L.regions.map((rg, ri) =>
-        `<div class="region${ri === ai ? " need" : ""}" style="${regionCSS(rg.shape)}"></div>`).join("");
+      + L.regions.map((rg, ri) => rg.solid ? ""
+        : `<div class="region${ri === ai ? " need" : ""}" style="${regionCSS(rg.shape)}"></div>`).join("");
+    fr.innerHTML = inner;
     const hint = $("#hint");
     if (f < seq.length) {
       hint.style.visibility = "visible";
@@ -439,6 +461,8 @@ export function mountFlagSort(root, opts = {}) {
     tubes = freshDeal();
     deal0 = tubes.map(x => x.slice());
     f = 0; hist = []; sel = -1; busy = false; anim = null; parts = [];
+    stampA = 0; stampNeed = 0;
+    if (L.stamp) for (let i = 0; i <= L.stamp.after; i++) stampNeed += L.regions[i].units;
     // load the real flag for the fill-to-reveal mask + final reveal
     frameDone = false; flagReady = false;
     flagImg = new Image();
@@ -615,6 +639,49 @@ export function mountFlagSort(root, opts = {}) {
     }
   }
 
+  // Stencil vessel: fill every shape of the group to the SAME fraction (sync),
+  // with SOLID flag colour + the spring surface. No real-flag reveal — the crisp
+  // artwork arrives via the emblem stamp and the win cross-fade.
+  function drawSolidVessel(t) {
+    const total = t.bands.reduce((s, b) => s + b.vol, 0);
+    const frac = Math.max(0, Math.min(1, total / t.units));
+    if (frac <= 0.002) { t.topY = t.cy + t.ih / 2; return; }
+    const n = t.offs.length;
+    const off = u => { const s = u * (n - 1), i = Math.min(Math.floor(s), n - 2), fr = s - i;
+      return Math.max(-6, Math.min(6, t.offs[i] * (1 - fr) + t.offs[i + 1] * fr)); };
+    let minTop = Infinity;
+    for (const pp of t.polys) {
+      const wp = worldPolyPts(t, pp);
+      let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+      for (const p of wp) { x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x);
+                            y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); }
+      const Y = y1 - frac * (y1 - y0);
+      minTop = Math.min(minTop, Y);
+      const region = clipBelow(wp, Y);
+      if (region.length < 3) continue;
+      lctx.beginPath();
+      region.forEach((p, i) => i ? lctx.lineTo(p.x, p.y) : lctx.moveTo(p.x, p.y));
+      lctx.closePath(); lctx.fillStyle = t.color; lctx.fill();
+      if (frac < 0.992 && x1 > x0) {            // wavy surface while still filling
+        for (const mode of ["up", "down"]) {
+          lctx.save();
+          if (mode === "down") lctx.globalCompositeOperation = "destination-out";
+          lctx.beginPath(); lctx.moveTo(x0, Y);
+          for (let s = 0; s <= 10; s++) { const u = s / 10, o = off(u);
+            const y = mode === "up" ? Y - Math.max(o, 0) : Y + Math.max(-o, 0);
+            lctx.lineTo(x0 + (x1 - x0) * u, y); }
+          lctx.lineTo(x1, Y); lctx.closePath();
+          lctx.fillStyle = t.color; lctx.fill(); lctx.restore();
+        }
+        lctx.beginPath();
+        for (let s = 0; s <= 10; s++) { const u = s / 10, y = Y - off(u);
+          s ? lctx.lineTo(x0 + (x1 - x0) * u, y) : lctx.moveTo(x0, y); }
+        lctx.strokeStyle = "rgba(255,255,255,.4)"; lctx.lineWidth = 1.4; lctx.stroke();
+      }
+    }
+    t.topY = minTop;
+  }
+
   function drawStream() {
     if (!anim || !anim.pouring || !anim.streamEnd) return;
     const S = T[anim.si], wp = worldPoly(S);
@@ -702,7 +769,22 @@ export function mountFlagSort(root, opts = {}) {
     // its liquid on top.
     const psi = anim ? anim.si : -1;
     for (let i = 0; i < T.length; i++) if (i !== psi) drawTube(T[i]);
-    for (const v of FR) drawTube(v);
+    for (const v of FR) v.solid ? drawSolidVessel(v) : drawTube(v);
+    // painterly crest: once its pour group is full, stamp the real-flag emblem
+    // onto the canvas (above the solid fills, clipped to its region) so it isn't
+    // covered by the white pour. The win cross-fade takes over from here.
+    if (L.stamp && flagReady && !frameDone && FRbox) {
+      stampA = Math.max(0, Math.min(1, stampA + (f >= stampNeed ? 0.06 : -0.2)));
+      if (stampA > 0.01) {
+        const sh = L.stamp.shape;
+        lctx.save(); lctx.globalAlpha = stampA;
+        lctx.beginPath();
+        lctx.rect(FRbox.ox + sh.x * FRbox.W, FRbox.oy + sh.y * FRbox.H, sh.w * FRbox.W, sh.h * FRbox.H);
+        lctx.clip();
+        lctx.drawImage(flagImg, FRbox.ox, FRbox.oy, FRbox.W, FRbox.H);
+        lctx.restore();
+      }
+    } else stampA = 0;
     if (psi >= 0) {
       if (anim.dstTube) {
         const t = T[psi], c = Math.cos(t.pose.ang), s = Math.sin(t.pose.ang);
