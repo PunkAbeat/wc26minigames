@@ -80,7 +80,7 @@ function crescent(cx,cy,ro,ri,off,seg=40){
 // taegeuk (yin-yang): division along a diameter rotated by `rot`; red on the upper
 // side. Korean flag tilts it ~33.7°, red upper-left. -> { red, blue } comma polys
 function taegeuk(cx,cy,R,rot=0,seg=30){
-  const c=Math.cos(rot),s=Math.sin(rot), rp=(px,py)=>[cx+px*c-py*s, cy+px*s+py*c];
+  const c=Math.cos(rot),s=Math.sin(rot), rp=(px,py)=>[cx-(px*c-py*s), cy+px*s+py*c]; // x mirrored: taegeuk is chiral
   const arc=(r,ox,a0,a1)=>{const p=[];for(let i=0;i<=seg;i++){const a=a0+(a1-a0)*i/seg;p.push(rp(ox+r*Math.cos(a),r*Math.sin(a)));}return p;};
   // S along the x-axis from (-R,0) to (R,0): left half bulges up (-y), right half down (+y)
   const S=[...arc(R/2,-R/2,Math.PI,2*Math.PI), ...arc(R/2,R/2,Math.PI,0).slice(1)];
