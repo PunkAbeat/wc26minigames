@@ -21,10 +21,13 @@
   .card{background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.12);border-radius:16px;
     padding:12px;width:240px;max-width:100%;display:flex;flex-direction:column;align-items:center;gap:8px}
   .nm{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#eafff1;text-align:center}
-  .frame{position:relative;width:200px;max-width:100%;border-radius:8px;overflow:hidden;
-    border:3px solid var(--gold);box-shadow:0 0 14px rgba(255,210,63,.4), inset 0 0 0 1px rgba(0,0,0,.25);background:#08311c}
-  .frame svg,.frame img{position:absolute;inset:0;width:100%;height:100%;display:block}
-  .frame img{object-fit:fill}
+  /* uniform 3:2 slot; the flag (true ratio) is centred inside, pitch shows in the margins */
+  .frame{position:relative;width:200px;max-width:100%;aspect-ratio:3/2;display:flex;align-items:center;justify-content:center;
+    border-radius:8px;background:rgba(0,0,0,.16)}
+  .flagbox{position:relative;border-radius:8px;overflow:hidden;border:3px solid var(--gold);
+    box-shadow:0 0 14px rgba(255,210,63,.4), inset 0 0 0 1px rgba(0,0,0,.25);background:#08311c}
+  .flagbox svg,.flagbox img{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .flagbox img{object-fit:fill}
   .ghost{opacity:.13}
   .water{stroke:rgba(0,0,0,.06);stroke-width:.4}
   .sheen{fill:none;stroke:rgba(255,255,255,.5);stroke-width:1;stroke-linecap:round;stroke-linejoin:round}
@@ -206,11 +209,12 @@ function buildFlag(flag){
     });
   });
   if(def.stamp) stampHTML=`<img class="stamp" data-g="${def.stamp.after}" src="${src}" style="clip-path:${def.stamp.clip};-webkit-clip-path:${def.stamp.clip}">`;
+  const SR=1.5, fw=flag.ratio>=SR?100:flag.ratio/SR*100, fh=flag.ratio>=SR?SR/flag.ratio*100:100;
   card.innerHTML=`<div class="nm">${flag.nm}</div>
-    <div class="frame" style="aspect-ratio:${flag.ratio}">
+    <div class="frame"><div class="flagbox" style="width:${F(fw)}%;height:${F(fh)}%">
       <img class="ghost" src="${src}">
       <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs>${defs}</defs>${bodies}</svg>
-      ${stampHTML}<img class="final" src="${src}"></div>
+      ${stampHTML}<img class="final" src="${src}"></div></div>
     <div class="hud"><div class="hint"></div><button class="primary pour">POUR ▸</button><button class="reset" title="reset">↻</button></div>`;
   document.getElementById('grid').appendChild(card);
   const svg=card.querySelector('svg');
