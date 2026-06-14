@@ -77,8 +77,13 @@ const C={r:'#d7141a',w:'#ffffff',k:'#000000',g:'#0a8a3e',y:'#f5c518',b:'#1d4ed8'
 // ---- every flag ----
 const FLAGS=[
  // already approved (4)
- { id:'us', nm:'United States', ratio:1.9, make(H){const s=usStripes(H);return {groups:[
-     g('#b31942','RED',...s.red),g('#f4f4f4','WHITE',...s.white),g('#0a3161','NAVY',...s.canton)]};}},
+ { id:'us', nm:'United States', ratio:1.9, make(H){const s=usStripes(H);
+     const sh=H/13,cw=120,ch=sh*7,stars=[];          // 50 stars: rows of 6/5, staggered
+     for(let i=0;i<9;i++){const cols=i%2===0?6:5,yy=ch*(2*i+1)/18;
+       for(let j=0;j<cols;j++){const xx=cw*((i%2===0?2*j+1:2*j+2))/12; stars.push(star(xx,yy,sh*0.34,5));}}
+     return {groups:[
+     g('#b31942','RED',...s.red),g('#f4f4f4','WHITE',...s.white),g('#0a3161','NAVY',...s.canton),
+     g('#f4f4f4','STARS',...stars)]};}},
  { id:'ba', nm:'Bosnia & H.', ratio:2, make(H){const sx=W/16,sy=H/8,st=[];
      for(let i=0;i<9;i++)st.push(star((2.8+i)*sx,i*sy,sx*0.46,5));
      return {groups:[g('#002395','NAVY',rect(0,0,W,H)),g('#fecb00','GOLD',poly([[.265*W,0],[.765*W,0],[.765*W,H]])),g('#f4f4f4','STARS',...st)]};}},
