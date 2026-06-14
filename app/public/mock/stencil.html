@@ -86,7 +86,9 @@ const FLAGS=[
      g('#f4f4f4','STARS',...stars)]};}},
  { id:'ba', nm:'Bosnia & H.', ratio:2, make(H){const sx=W/16,sy=H/8,st=[];
      for(let i=0;i<9;i++)st.push(star((2.8+i)*sx,i*sy,sx*0.46,5));
-     return {groups:[g('#002395','NAVY',rect(0,0,W,H)),g('#fecb00','GOLD',poly([[.265*W,0],[.765*W,0],[.765*W,H]])),g('#f4f4f4','STARS',...st)]};}},
+     // blue = the real blue areas (left of the diagonal + strip right of the triangle); gold = the triangle
+     const left=poly([[0,0],[.265*W,0],[.765*W,H],[0,H]]), right=poly([[.765*W,0],[W,0],[W,H],[.765*W,H]]);
+     return {groups:[g('#002395','NAVY',left,right),g('#fecb00','GOLD',poly([[.265*W,0],[.765*W,0],[.765*W,H]])),g('#f4f4f4','STARS',...st)]};}},
  { id:'mx', nm:'Mexico', ratio:1.75, make(){return {groups:[
      g('#006847','GREEN',rect(0,0,W/3,'H')),g('#f4f4f4','WHITE',rect(W/3,0,W/3,'H')),g('#ce1126','RED',rect(2*W/3,0,W/3,'H'))],
      stamp:{after:1,clip:'polygon(33.34% 0,66.66% 0,66.66% 100%,33.34% 100%)'}};}},
