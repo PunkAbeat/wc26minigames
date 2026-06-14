@@ -109,6 +109,9 @@ const FLAGS=[
  { id:'dz', nm:'Algeria', ratio:1.5, make(H){return {groups:[g('#006233','GREEN',rect(0,0,W/2,H)),g('#ffffff','WHITE',rect(W/2,0,W/2,H))],stamp:{after:1,clip:'ellipse(16% 26% at 50% 50%)'}};}},
  { id:'cw', nm:'Curaçao', ratio:1.5, make(H){return {groups:[g('#002b7f','BLUE',rect(0,0,W,H)),g('#f9e814','YELLOW',rect(0,.625*H,W,.125*H))]};}},
  { id:'cv', nm:'Cape Verde', ratio:1.7, make(H){return {groups:[g('#003893','BLUE',rect(0,0,W,H)),g('#ffffff','WHITE',rect(0,.5*H,W,.25*H)),g('#cf2027','RED',rect(0,.583*H,W,.084*H))]};}},
+ // Saudi Arabia: only the green field is poured — the shahada is sacred script,
+ // never a pourable element; it appears as the real flag image via the cross-fade.
+ { id:'sa', nm:'Saudi Arabia', ratio:1.5, make(H){return {groups:[g('#006c35','GREEN',rect(0,0,W,H))]};}},
  // geometric
  { id:'ch', nm:'Switzerland', ratio:1.0, make(H){return {groups:[g('#d52b1e','RED',rect(0,0,W,H)),g('#ffffff','WHITE',rect(W*.4,H*.18,W*.2,H*.64),rect(W*.18,H*.4,W*.64,H*.2))]};}},
  { id:'se', nm:'Sweden', ratio:1.6, make(H){return {groups:[g('#006aa7','BLUE',rect(0,0,W,H)),g('#fecc00','GOLD',...ncross(H,W*.3125,H*.2))]};}},
