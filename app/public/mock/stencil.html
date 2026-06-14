@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>HOIST · stencil-fill feel mock</title>
 <style>
-  :root{ --gold:#ffd23f; --gold-d:#e0a400; --goldink:#4a3500; --ink:#0b2e1b; }
+  :root{ --gold:#ffd23f; --gold-d:#e0a400; --goldink:#4a3500; }
   *{box-sizing:border-box}
   body{margin:0;font-family:'Nunito',system-ui,sans-serif;color:#fff;
     background:radial-gradient(1200px 520px at 50% -140px,#1f8a4c,transparent 60%),
@@ -21,18 +21,17 @@
   .card{background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.12);border-radius:18px;
     padding:16px 16px 14px;width:340px;max-width:100%;display:flex;flex-direction:column;align-items:center;gap:10px}
   .nm{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#eafff1}
-  .frame{position:relative;width:280px;max-width:100%;aspect-ratio:3/2;border-radius:10px;overflow:hidden;
-    border:3px solid var(--gold);box-shadow:0 0 22px rgba(255,210,63,.45), inset 0 0 0 1px rgba(0,0,0,.25);background:#0a3d22}
+  /* the flag box takes the flag's OWN aspect ratio — never stretched */
+  .frame{position:relative;width:280px;max-width:100%;border-radius:9px;overflow:hidden;
+    border:3px solid var(--gold);box-shadow:0 0 22px rgba(255,210,63,.45), inset 0 0 0 1px rgba(0,0,0,.25);
+    background:#08311c}
   .frame svg,.frame img{position:absolute;inset:0;width:100%;height:100%;display:block}
-  .frame img{object-fit:fill}
-  .ghost{filter:grayscale(1) brightness(.6);opacity:.16}
-  .preview{opacity:.16}            /* faint colour target for the pourable fields */
-  .water{transition:none}
-  .stamp,.final{opacity:0;transition:opacity .55s ease}
-  .final{filter:none}
+  .frame img{object-fit:fill}            /* box matches flag ratio, so fill == no distortion */
+  .ghost{opacity:.14}                    /* faint full-colour target */
+  .stamp,.final{opacity:0;transition:opacity .5s ease}
   .frame.done .final{opacity:1}
-  .frame.done{animation:wave .5s ease-in-out 3}
-  @keyframes wave{0%,100%{transform:none}25%{transform:skewX(-2.2deg) scaleY(1.015)}75%{transform:skewX(2deg)}}
+  .frame.done{animation:wave .55s ease-in-out 3}
+  @keyframes wave{0%,100%{transform:none}25%{transform:skewX(-1.8deg) scaleY(1.012)}75%{transform:skewX(1.6deg)}}
   .hud{display:flex;align-items:center;gap:10px;width:280px;max-width:100%}
   .hint{flex:1;font-size:12px;font-weight:800;letter-spacing:.04em;display:flex;align-items:center;gap:7px;min-height:18px}
   .sw{width:14px;height:14px;border-radius:4px;border:1px solid rgba(255,255,255,.5);display:inline-block}
@@ -43,144 +42,135 @@
 </head>
 <body>
   <h1>HOIST · stencil-fill</h1>
-  <p class="sub">Pour the colours into the <b>simplified flag shapes</b>. Emblems aren't poured — they
-     <b>stamp in</b>. On completion the frame cross-fades to the real official flag.</p>
+  <p class="sub">Pour the colours into the <b>simplified flag shapes</b>; same-colour shapes fill in sync.
+     Emblems aren't poured — they <b>stamp in</b>. On completion the frame cross-fades to the real flag.</p>
   <div class="bar">
     <button class="primary" id="playAll">▶ Auto-play all</button>
     <button class="ghostb" id="resetAll">↻ Reset all</button>
   </div>
   <div class="grid" id="grid"></div>
-  <p class="note">Feel test only — standalone page, the live game is untouched. Judge: does pouring feel
-     like <i>building the flag</i> now? Watch USA's stripes, Bosnia's triangle, Mexico's eagle stamp,
-     and Australia (mostly stamp — is that still satisfying?).</p>
+  <p class="note">Feel test only — standalone page, the live game is untouched. Each flag uses its true
+     aspect ratio (US 1.9:1, others 2:1 / 1.75:1) so nothing is stretched.</p>
 
 <script>
-const W=300,H=200, F=p=>+p.toFixed(2);
-// ---- USA stripe geometry: stripes minus the canton notch on the top 7 ----
-const sh=H/13, cw=120, ch=sh*7;
-const usRed=[], usWhite=[];
-for(let i=0;i<13;i++){
-  const y=i*sh, beside=i<7, x=beside?cw:0, w=beside?W-cw:W;
-  (i%2===0?usRed:usWhite).push([x,y,w,sh]);
+const W=300, F=p=>+(+p).toFixed(2);
+// ---- per-flag stencils. ratio = w/h (from the real SVG); shapes authored in that box ----
+function usStripes(H){
+  const sh=H/13, cw=120, ch=sh*7, red=[], white=[];
+  for(let i=0;i<13;i++){ const y=i*sh, beside=i<7, x=beside?cw:0, w=beside?W-cw:W;
+    (i%2===0?red:white).push(['rect',x,y,w,sh]); }
+  return {red,white,canton:[['rect',0,0,cw,ch]]};
 }
-// ---- flag definitions ----
-// fills: pour order; each = {color,label, rects?/poly?}. stamp = real-svg clip that
-// fades in when `after` group completes. final = whole real flag cross-fade on done.
 const FLAGS=[
-  { id:'us', nm:'United States', src:'/flags/us.svg',
-    fills:[
-      {color:'#b31942',label:'RED',  rects:usRed},
-      {color:'#ffffff',label:'WHITE',rects:usWhite},
-      {color:'#0a3161',label:'NAVY', rects:[[0,0,cw,ch]]},
-    ],
-    // 50 stars stamp over the canton once navy is in
-    stamp:{after:2, clip:`polygon(0 0, ${F(cw/W*100)}% 0, ${F(cw/W*100)}% ${F(ch/H*100)}%, 0 ${F(ch/H*100)}%)`},
+  { id:'us', nm:'United States', src:'/flags/us.svg', ratio:1.9, make(H){const s=usStripes(H);return [
+      {color:'#b31942',label:'RED',  shapes:s.red},
+      {color:'#ffffff',label:'WHITE',shapes:s.white},
+      {color:'#0a3161',label:'NAVY', shapes:s.canton, stamp:true}, // 50 stars stamp on canton
+    ];},
+    stampClip(H){const sh=H/13; return `polygon(0 0, 40% 0, 40% ${F(sh*7/H*100)}%, 0 ${F(sh*7/H*100)}%)`;},
   },
-  { id:'ba', nm:'Bosnia & H.', src:'/flags/ba.svg',
-    fills:[
-      {color:'#002395',label:'NAVY',rects:[[0,0,W,H]]},
-      {color:'#fecb00',label:'GOLD',poly:[[.265*W,0],[.765*W,0],[.765*W,H]]},
-    ],
-    // the star diagonal is the only fine detail -> final cross-fade carries it
+  { id:'ba', nm:'Bosnia & H.', src:'/flags/ba.svg', ratio:2, make(H){return [
+      {color:'#002395',label:'NAVY',shapes:[['rect',0,0,W,H]]},
+      {color:'#fecb00',label:'GOLD',shapes:[['poly',[[.265*W,0],[.765*W,0],[.765*W,H]]]]},
+    ];},
+    // star diagonal is fine detail -> carried by the final cross-fade
   },
-  { id:'mx', nm:'Mexico', src:'/flags/mx.svg',
-    fills:[
-      {color:'#006847',label:'GREEN',rects:[[0,0,W/3,H]]},
-      {color:'#ffffff',label:'WHITE',rects:[[W/3,0,W/3,H]]},
-      {color:'#ce1126',label:'RED',  rects:[[2*W/3,0,W/3,H]]},
-    ],
-    // eagle coat of arms stamps onto the centre white bar
-    stamp:{after:1, clip:'ellipse(20% 34% at 50% 50%)'},
+  { id:'mx', nm:'Mexico', src:'/flags/mx.svg', ratio:1.75, make(H){return [
+      {color:'#006847',label:'GREEN',shapes:[['rect',0,0,W/3,H]]},
+      {color:'#ffffff',label:'WHITE',shapes:[['rect',W/3,0,W/3,H]], stamp:true}, // eagle stamps on white
+      {color:'#ce1126',label:'RED',  shapes:[['rect',2*W/3,0,W/3,H]]},
+    ];},
+    stampClip(){return 'ellipse(19% 33% at 50% 50%)';},
   },
-  { id:'au', nm:'Australia', src:'/flags/au.svg',
-    fills:[
-      {color:'#012169',label:'NAVY',rects:[[0,0,W,H]]},
-    ],
-    // Union Jack + Southern Cross + Commonwealth star: all stamp (final cross-fade)
+  { id:'au', nm:'Australia', src:'/flags/au.svg', ratio:2, make(H){return [
+      {color:'#012169',label:'NAVY',shapes:[['rect',0,0,W,H]]},
+    ];},
+    // Union Jack + Southern Cross + Commonwealth star all stamp via the final cross-fade
   },
 ];
 
-function rectsToD(rects){ return rects.map(([x,y,w,h])=>`M${F(x)} ${F(y)}h${F(w)}v${F(h)}h${-F(w)}z`).join(''); }
-function polyToD(pts){ return 'M'+pts.map(p=>F(p[0])+' '+F(p[1])).join('L')+'z'; }
-function shapeD(f){ return f.rects?rectsToD(f.rects):polyToD(f.poly); }
+const bbox=shapes=>{let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+  for(const s of shapes){ const pts = s[0]==='rect'?[[s[1],s[2]],[s[1]+s[3],s[2]+s[4]]]:s[1];
+    for(const p of pts){x0=Math.min(x0,p[0]);y0=Math.min(y0,p[1]);x1=Math.max(x1,p[0]);y1=Math.max(y1,p[1]);} }
+  return {x0,y0,x1,y1};};
+const shapeD=s=> s[0]==='rect'
+  ? `M${F(s[1])} ${F(s[2])}h${F(s[3])}v${F(s[4])}h${-F(s[3])}z`
+  : 'M'+s[1].map(p=>F(p[0])+' '+F(p[1])).join('L')+'z';
 
 function build(flag){
+  const H=F(W/flag.ratio);
+  const fills=flag.make(H);
   const card=document.createElement('div'); card.className='card';
-  const clips=flag.fills.map((f,i)=>`<clipPath id="${flag.id}-c${i}"><path d="${shapeD(f)}"/></clipPath>`).join('');
-  const preview=flag.fills.map((f,i)=>`<path d="${shapeD(f)}" fill="${f.color}"/>`).join('');
-  // one water rect per fill group, clipped to that group's shapes, height driven by JS
-  const waters=flag.fills.map((f,i)=>
-    `<g clip-path="url(#${flag.id}-c${i})"><rect class="water" data-g="${i}" x="0" y="${H}" width="${W}" height="0" fill="${f.color}"/></g>`).join('');
-  const stamp = flag.stamp
-    ? `<img class="stamp" src="${flag.src}" style="clip-path:${flag.stamp.clip};-webkit-clip-path:${flag.stamp.clip}">` : '';
+  // each shape gets its own clip + water rect so same-colour shapes fill TOGETHER (sync)
+  let defs='', waters='', stampHTML='';
+  fills.forEach((f,gi)=>{
+    f.shapes.forEach((s,si)=>{
+      const id=`${flag.id}-${gi}-${si}`;
+      defs+=`<clipPath id="${id}"><path d="${shapeD(s)}"/></clipPath>`;
+      const b=bbox([s]);
+      waters+=`<g clip-path="url(#${id})"><rect class="water" data-g="${gi}"
+        data-y1="${F(b.y1)}" data-h="${F(b.y1-b.y0)}" x="${F(b.x0)}" y="${F(b.y1)}"
+        width="${F(b.x1-b.x0)}" height="0" fill="${f.color}"/></g>`;
+    });
+    if(f.stamp && flag.stampClip){
+      const clip=flag.stampClip(H);
+      stampHTML+=`<img class="stamp" data-g="${gi}" src="${flag.src}" style="clip-path:${clip};-webkit-clip-path:${clip}">`;
+    }
+  });
   card.innerHTML=`
     <div class="nm">${flag.nm}</div>
-    <div class="frame" id="fr-${flag.id}">
+    <div class="frame" id="fr-${flag.id}" style="aspect-ratio:${flag.ratio}">
       <img class="ghost" src="${flag.src}">
-      <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
-        <defs>${clips}</defs>
-        <g class="preview">${preview}</g>
-        ${waters}
-      </svg>
-      ${stamp}
+      <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs>${defs}</defs>${waters}</svg>
+      ${stampHTML}
       <img class="final" src="${flag.src}">
     </div>
     <div class="hud">
       <div class="hint" id="hint-${flag.id}"></div>
-      <button class="primary pour" id="pour-${flag.id}">POUR ▸</button>
-      <button class="reset" id="rst-${flag.id}" title="reset">↻</button>
+      <button class="primary pour">POUR ▸</button>
+      <button class="reset" title="reset">↻</button>
     </div>`;
   document.getElementById('grid').appendChild(card);
-
-  const st={flag, g:0, busy:false,
-    frame:card.querySelector('.frame'),
-    hint:card.querySelector('.hint'),
-    waters:[...card.querySelectorAll('.water')],
-    stamp:card.querySelector('.stamp'),
-  };
+  const st={flag, fills, g:0, busy:false,
+    frame:card.querySelector('.frame'), hint:card.querySelector('.hint'),
+    waters:[...card.querySelectorAll('.water')], stamps:[...card.querySelectorAll('.stamp')]};
   card.querySelector('.pour').onclick=()=>pour(st);
   card.querySelector('.reset').onclick=()=>reset(st);
-  reset(st);
-  STATES.push(st);
-  return st;
+  reset(st); STATES.push(st);
 }
 
 function setHint(st){
-  const f=st.flag.fills[st.g];
-  if(!f){ st.hint.innerHTML='<span style="color:#bff5d0">✓ flag raised</span>'; return; }
-  st.hint.innerHTML=`POUR <span class="sw" style="background:${f.color}"></span> ${f.label}`;
+  const f=st.fills[st.g];
+  st.hint.innerHTML = f ? `POUR <span class="sw" style="background:${f.color}"></span> ${f.label}`
+                        : '<span style="color:#bff5d0">✓ flag raised</span>';
 }
 function reset(st){
   st.g=0; st.busy=false; st.frame.classList.remove('done');
-  st.waters.forEach(w=>{w.setAttribute('y',H);w.setAttribute('height',0);});
-  if(st.stamp) st.stamp.style.opacity=0;
+  st.waters.forEach(w=>{w.setAttribute('y',w.dataset.y1);w.setAttribute('height',0);});
+  st.stamps.forEach(s=>s.style.opacity=0);
   setHint(st);
 }
 function pour(st){
-  if(st.busy) return; const f=st.flag.fills[st.g]; if(!f) return;
-  st.busy=true;
-  const w=st.waters[st.g], t0=performance.now(), dur=720;
+  if(st.busy) return; const f=st.fills[st.g]; if(!f) return; st.busy=true;
+  const ws=st.waters.filter(w=>+w.dataset.g===st.g), t0=performance.now(), dur=700;
   (function step(now){
-    const p=Math.min(1,(now-t0)/dur), e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2; // easeInOut
-    const lvl=e*H;
-    w.setAttribute('y',H-lvl); w.setAttribute('height',lvl);
+    const p=Math.min(1,(now-t0)/dur), e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
+    for(const w of ws){ const h=+w.dataset.h, y1=+w.dataset.y1, lvl=e*h;
+      w.setAttribute('y',F(y1-lvl)); w.setAttribute('height',F(lvl)); }
     if(p<1){ requestAnimationFrame(step); return; }
-    // group done
-    if(st.flag.stamp && st.flag.stamp.after===st.g && st.stamp) st.stamp.style.opacity=1;
+    st.stamps.filter(s=>+s.dataset.g===st.g).forEach(s=>s.style.opacity=1);
     st.g++; st.busy=false; setHint(st);
-    if(st.g>=st.flag.fills.length){ st.frame.classList.add('done'); }
+    if(st.g>=st.fills.length) st.frame.classList.add('done');
   })(t0);
 }
 const STATES=[];
 FLAGS.forEach(build);
-
 document.getElementById('resetAll').onclick=()=>STATES.forEach(reset);
 document.getElementById('playAll').onclick=async()=>{
-  STATES.forEach(reset);
-  await new Promise(r=>setTimeout(r,250));
+  STATES.forEach(reset); await new Promise(r=>setTimeout(r,250));
   for(const st of STATES){
-    while(st.g<st.flag.fills.length){ pour(st); await new Promise(r=>setTimeout(r,900)); }
-    await new Promise(r=>setTimeout(r,450));
+    while(st.g<st.fills.length){ pour(st); await new Promise(r=>setTimeout(r,820)); }
+    await new Promise(r=>setTimeout(r,420));
   }
 };
 </script>
