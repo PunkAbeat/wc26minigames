@@ -320,7 +320,7 @@ export function mountFlagSort(root, opts = {}) {
       t.cx = r.left + SX() + r.width / 2; t.cy = r.top + SY() + r.height / 2;
     }
     if (FR.length && FRrect) {
-      const r = $("#frame").getBoundingClientRect();
+      const r = ($("#flagbox") || $("#frame")).getBoundingClientRect();
       const left = r.left + SX(), top = r.top + SY();
       if (Math.abs(r.width - FRrect.width) > .5) { rebuildFR(); return; }
       const dx = left - FRrect.left, dy = top - FRrect.top;
@@ -359,7 +359,7 @@ export function mountFlagSort(root, opts = {}) {
     return `left:${s.x * 100}%;top:${s.y * 100}%;width:${s.w * 100}%;height:${s.h * 100}%`;
   }
   function rebuildFR() {
-    const el = $("#frame");
+    const el = $("#flagbox") || $("#frame");
     const r = el.getBoundingClientRect();
     const left = r.left + SX(), top = r.top + SY();
     FRrect = { left, top, width: r.width, height: r.height };
@@ -424,17 +424,18 @@ export function mountFlagSort(root, opts = {}) {
     $("#flagname").textContent = `${L.emo} ${L.name}`;
     const fr = $("#frame");
     fr.classList.remove("done", "wave");
-    fr.style.aspectRatio = L.ratio ? String(L.ratio) : "3 / 2";   // flag's true ratio
+    fr.style.aspectRatio = "3 / 2";                 // uniform slot; flag fits inside at its true ratio
+    const ratio = L.ratio || 1.5, SR = 1.5;
+    const fw = ratio >= SR ? 100 : ratio / SR * 100, fh = ratio >= SR ? SR / ratio * 100 : 100;
     const ai = activeIdx();
-    // faint real flag = the target; canvas reveals/fills it as you pour. Classic
+    // faint real flag = the target; the canvas fills/reveals it as you pour. Classic
     // regions carry a "pour next here" pulse outline; stencil (solid) groups are
-    // multi-shape so they skip the outline. A painterly crest stamps in once its
-    // group is full, and the win cross-fade locks the crisp official flag.
-    let inner =
+    // multi-shape so they skip the outline. The win cross-fade locks the crisp flag.
+    const inner =
       `<img class="flagghost" id="flagghost" src="${flagSrc(L.name)}" alt="" draggable="false">`
       + L.regions.map((rg, ri) => rg.solid ? ""
         : `<div class="region${ri === ai ? " need" : ""}" style="${regionCSS(rg.shape)}"></div>`).join("");
-    fr.innerHTML = inner;
+    fr.innerHTML = `<div class="flagbox" id="flagbox" style="width:${fw.toFixed(2)}%;height:${fh.toFixed(2)}%">${inner}</div>`;
     const hint = $("#hint");
     if (f < seq.length) {
       hint.style.visibility = "visible";
