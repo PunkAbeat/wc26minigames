@@ -922,8 +922,11 @@ export function mountFlagSort(root, opts = {}) {
   function buildSelect() {
     const tile = (fl, i) => {
       const done = solved.has(fl.name);
-      const thumb = `<img class="thumbimg" src="${flagSrc(fl.name)}" alt="${fl.name}" loading="lazy" draggable="false">`
-        + (done ? `<div class="tick">✅</div>` : "");
+      // undone flags stay a mystery — the grid is a collection you reveal by
+      // building each one. The nation name stays so you know what you're raising.
+      const thumb = done
+        ? `<img class="thumbimg" src="${flagSrc(fl.name)}" alt="${fl.name}" loading="lazy" draggable="false"><div class="tick">✅</div>`
+        : `<div class="qmark">?</div>`;
       return `<div class="tile" data-i="${i}">
         <div class="thumb${done ? " solved" : ""}">${thumb}</div>
         <div class="nm">${fl.name}</div>
@@ -1035,7 +1038,10 @@ export function mountFlagSort(root, opts = {}) {
   window.__fs = () => ({ tubes: tubes.map(x => x.slice()), f, seq: seq.slice(), busy });
 
   sizeCanvas();
-  newLevel(0); showSelect();            // start on the ROAD TO THE FINAL grid
+  // start straight in on the first flag not yet built; the grid (≡ FLAGS) is one
+  // tap away and reveals each flag as you complete it.
+  const firstUnsolved = () => { const i = LEVELS.findIndex(fl => !solved.has(fl.name)); return i < 0 ? 0 : i; };
+  newLevel(firstUnsolved());
   rafId = requestAnimationFrame(loop);
 
   return {
