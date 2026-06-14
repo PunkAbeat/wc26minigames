@@ -68,7 +68,7 @@ export function mountFlagSort(root, opts = {}) {
     { name:"CZECHIA", emo:"🇨🇿", tier:3, regions: [...H([r,w]), TRI(b, triH)] },
     /* B */
     { name:"CANADA", emo:"🇨🇦", tier:2, regions: V([r,w,r], 4) },
-    { name:"BOSNIA & H.", emo:"🇧🇦", tier:3, regions: [FIELD(n), TRI(y, [[.3,0],[.78,0],[.3,1]])] },
+    { name:"BOSNIA & H.", emo:"🇧🇦", tier:3, regions: [FIELD(n), TRI(y, [[.265,0],[.765,0],[.765,1]])] },
     { name:"QATAR", emo:"🇶🇦", tier:2, regions: [BOX(w,0,0,.3,1), BOX(m,.3,0,.7,1,4)] },
     { name:"SWITZERLAND", emo:"🇨🇭", tier:2, regions: [FIELD(r), CROSS(w)] },
     /* C */
@@ -78,7 +78,7 @@ export function mountFlagSort(root, opts = {}) {
     { name:"SCOTLAND", emo:"🏴󠁧󠁢󠁳󠁣󠁴󠁿", tier:3, regions: [FIELD(b), POLY(w, saltA), POLY(w, saltB)] },
     /* D */
     { name:"UNITED STATES", emo:"🇺🇸", tier:4,
-      regions: [FIELD(r), BAND(w,.42,.16), BOX(n,0,0,.4,.5)] },
+      regions: [FIELD(r), BAND(w,.42,.16), BOX(n,0,0,.4,.538)] },
     { name:"PARAGUAY", emo:"🇵🇾", tier:3, regions: H([n,w,r]) },
     { name:"AUSTRALIA", emo:"🇦🇺", tier:4, regions: [FIELD(n, 5)] },
     { name:"TÜRKIYE", emo:"🇹🇷", tier:2, regions: [FIELD(r)] },
@@ -556,10 +556,16 @@ export function mountFlagSort(root, opts = {}) {
         // it underlies before that emblem is actually poured.
         lctx.save(); lctx.clip();          // clip to the filled part of this region
         lctx.drawImage(flagImg, FRbox.ox, FRbox.oy, FRbox.W, FRbox.H);
-        const g = lctx.createLinearGradient(0, Y, 0, Y + 52);
-        g.addColorStop(0, cv.color + "d0");
-        g.addColorStop(1, cv.color + "12");
-        lctx.fillStyle = g; lctx.fillRect(FRbox.ox, FRbox.oy, FRbox.W, FRbox.H);
+        // while the region is still filling, a liquid sheen sits at the surface
+        // and fades to reveal the real flag below; once it's FULL, drop the tint
+        // entirely so the area snaps to the pristine official flag (no flat band
+        // lingering on a finished region — the frame reads as the real flag).
+        if (total < t.units - 0.02) {
+          const g = lctx.createLinearGradient(0, Y, 0, Y + 52);
+          g.addColorStop(0, cv.color + "d0");
+          g.addColorStop(1, cv.color + "12");
+          lctx.fillStyle = g; lctx.fillRect(FRbox.ox, FRbox.oy, FRbox.W, FRbox.H);
+        }
         // erase the regions stacked on top (still clipped to this region), so the
         // ghost shows through there until they're poured
         lctx.globalCompositeOperation = "destination-out";
