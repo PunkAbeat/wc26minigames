@@ -90,8 +90,7 @@ const FLAGS=[
      const left=poly([[0,0],[.265*W,0],[.765*W,H],[0,H]]), right=poly([[.765*W,0],[W,0],[W,H],[.765*W,H]]);
      return {groups:[g('#002395','NAVY',left,right),g('#fecb00','GOLD',poly([[.265*W,0],[.765*W,0],[.765*W,H]])),g('#f4f4f4','STARS',...st)]};}},
  { id:'mx', nm:'Mexico', ratio:1.75, make(){return {groups:[
-     g('#006847','GREEN',rect(0,0,W/3,'H')),g('#f4f4f4','WHITE',rect(W/3,0,W/3,'H')),g('#ce1126','RED',rect(2*W/3,0,W/3,'H'))],
-     stamp:{after:1,clip:'polygon(33.34% 0,66.66% 0,66.66% 100%,33.34% 100%)'}};}},
+     g('#006847','GREEN',rect(0,0,W/3,'H')),g('#f4f4f4','WHITE',rect(W/3,0,W/3,'H')),g('#ce1126','RED',rect(2*W/3,0,W/3,'H'))]};}},
  { id:'au', nm:'Australia', ratio:2, make(H){const cw=W/2,ch=H/2,uj=unionJack(cw,ch);
      const st=[star(W/4,H*.75,12,7),star(W*.75,H*.833,9,7),star(W*.625,H*.4375,9,7),star(W*.75,H*.1667,9,7),star(W*.861,H*.371,9,7),star(W*.8,H*.5417,5,5)];
      return {groups:[g('#012169','NAVY',rect(0,0,W,H)),g('#f4f4f4','WHITE',...uj.white,...st),g('#e4002b','RED',...uj.red)]};}},
