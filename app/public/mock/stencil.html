@@ -77,18 +77,19 @@ function crescent(cx,cy,ro,ri,off,seg=40){
   for(let i=0;i<=seg;i++){const a=(2*Math.PI-aI)-((2*Math.PI-aI)-aI)*i/seg; p.push([cx+off+ri*Math.cos(a),cy+ri*Math.sin(a)]);} // inner bite arc
   return poly(p);
 }
-// taegeuk (yin-yang) centred at (cx,cy) radius R -> { red, blue } comma polys
-function taegeuk(cx,cy,R,seg=30){
-  const arc=(r,oy,a0,a1)=>{const p=[];for(let i=0;i<=seg;i++){const a=a0+(a1-a0)*i/seg;p.push([cx+r*Math.cos(a),cy+oy+r*Math.sin(a)]);}return p;};
-  const S=[...arc(R/2,-R/2,-Math.PI/2,Math.PI/2), ...arc(R/2,R/2,-Math.PI/2,-3*Math.PI/2).slice(1)]; // top->bottom S
-  const red=[...arc(R,0,-Math.PI/2,Math.PI/2), ...S.slice().reverse()];          // right comma
-  const blue=[...arc(R,0,-Math.PI/2,-3*Math.PI/2), ...S.slice().reverse()];      // left comma
+// taegeuk (yin-yang): division along a diameter rotated by `rot`; red on the upper
+// side. Korean flag tilts it ~33.7°, red upper-left. -> { red, blue } comma polys
+function taegeuk(cx,cy,R,rot=0,seg=30){
+  const c=Math.cos(rot),s=Math.sin(rot), rp=(px,py)=>[cx+px*c-py*s, cy+px*s+py*c];
+  const arc=(r,ox,a0,a1)=>{const p=[];for(let i=0;i<=seg;i++){const a=a0+(a1-a0)*i/seg;p.push(rp(ox+r*Math.cos(a),r*Math.sin(a)));}return p;};
+  // S along the x-axis from (-R,0) to (R,0): left half bulges up (-y), right half down (+y)
+  const S=[...arc(R/2,-R/2,Math.PI,2*Math.PI), ...arc(R/2,R/2,Math.PI,0).slice(1)];
+  const red=[...arc(R,0,0,-Math.PI), ...S];                       // top arc + S  (upper comma)
+  const blue=[...arc(R,0,Math.PI,0), ...S.slice().reverse()];     // bottom arc + S reversed
   return {red:poly(red),blue:poly(blue)};
 }
-// simplified Canadian maple leaf, centred at (cx,cy), box w×h
-const ML=[[.50,0],[.54,.16],[.61,.13],[.59,.24],[.73,.20],[.69,.31],[.86,.31],[.77,.40],[.96,.49],[.80,.53],
-  [.84,.62],[.70,.59],[.73,.73],[.61,.66],[.585,.79],[.545,.78],[.55,1],[.45,1],[.455,.78],[.415,.79],
-  [.39,.66],[.27,.73],[.30,.59],[.16,.62],[.20,.53],[.04,.49],[.23,.40],[.14,.31],[.31,.31],[.27,.20],[.41,.24],[.39,.13],[.46,.16]];
+// accurate Canadian maple leaf (parsed from ca.svg), normalised 0..1, aspect ~0.923
+const ML=[[0.524,1],[0.512,0.786],[0.542,0.762],[0.773,0.799],[0.742,0.72],[0.747,0.701],[1,0.512],[0.943,0.488],[0.934,0.468],[0.984,0.326],[0.838,0.355],[0.819,0.345],[0.79,0.284],[0.677,0.397],[0.647,0.383],[0.702,0.122],[0.614,0.168],[0.589,0.162],[0.5,0],[0.411,0.162],[0.386,0.168],[0.298,0.122],[0.353,0.383],[0.323,0.397],[0.21,0.284],[0.181,0.345],[0.162,0.355],[0.016,0.326],[0.066,0.468],[0.057,0.488],[0,0.512],[0.253,0.701],[0.258,0.72],[0.227,0.799],[0.458,0.762],[0.488,0.786],[0.476,1]];
 const mapleLeaf=(cx,cy,w,h)=>poly(ML.map(p=>[cx+(p[0]-.5)*w,cy+(p[1]-.5)*h]));
 
 // colours
@@ -177,9 +178,9 @@ const FLAGS=[
      return {groups:[g('#ffffff','WHITE',...white,rect(0,0,W/3,sh*4)),g('#0038a8','BLUE',...blue)]};}},
  { id:'pt', nm:'Portugal', ratio:1.5, make(H){return {groups:[g('#006600','GREEN',rect(0,0,W*.4,H)),g('#ff0000','RED',rect(W*.4,0,W*.6,H))]};}},
  { id:'hr', nm:'Croatia', ratio:2.0, make(H){return {groups:[g('#ff0000','RED',rect(0,0,W,H/3)),g('#ffffff','WHITE',rect(0,H/3,W,H/3)),g('#171796','BLUE',rect(0,2*H/3,W,H/3))]};}},
- { id:'kr', nm:'South Korea', ratio:1.5, make(H){const tg=taegeuk(W/2,H/2,H*0.2);
+ { id:'kr', nm:'South Korea', ratio:1.5, make(H){const tg=taegeuk(W/2,H/2,H*0.25,-Math.atan2(13.313,19.97));
      return {groups:[g('#ffffff','WHITE',rect(0,0,W,H)),g('#cd2e3a','RED',tg.red),g('#0047a0','BLUE',tg.blue)]};}},
- { id:'ca', nm:'Canada', ratio:2.0, make(H){return {groups:[g('#ff0000','RED',rect(0,0,W/4,H),rect(3*W/4,0,W/4,H)),g('#ffffff','WHITE',rect(W/4,0,W/2,H)),g('#ff0000','LEAF',mapleLeaf(W/2,H/2,H*0.6,H*0.92))]};}},
+ { id:'ca', nm:'Canada', ratio:2.0, make(H){return {groups:[g('#ff0000','RED',rect(0,0,W/4,H),rect(3*W/4,0,W/4,H)),g('#ffffff','WHITE',rect(W/4,0,W/2,H)),g('#ff0000','LEAF',mapleLeaf(W/2,H/2,H*0.86*0.923,H*0.86))]};}},
 ];
 
 const bbox=s=>{ const pts = s[0]==='rect'?[[s[1],s[2]],[s[1]+s[3],s[2]+s[4]]]:s[1];
