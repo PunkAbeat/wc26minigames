@@ -69,6 +69,27 @@ function unionJack(cw,ch){ return {
 function ncross(H,vx,aw){ return [rect(vx-aw/2,0,aw,H),rect(0,H/2-aw/2,W,aw)]; }      // Nordic cross
 function saltire(H,hw){ return [band(0,0,W,H,hw),band(W,0,0,H,hw)]; }
 const triHoist=(H,d)=>poly([[0,0],[d,H/2],[0,H]]);
+// crescent opening toward +x: outer circle (cx,cy,ro) minus inner bite circle (cx+off,cy,ri)
+function crescent(cx,cy,ro,ri,off,seg=40){
+  const xi=(off*off+ro*ro-ri*ri)/(2*off), yi=Math.sqrt(Math.max(0,ro*ro-xi*xi));
+  const aO=Math.atan2(yi,xi), aI=Math.atan2(yi,xi-off), p=[];
+  for(let i=0;i<=seg;i++){const a=aO+(2*Math.PI-2*aO)*i/seg; p.push([cx+ro*Math.cos(a),cy+ro*Math.sin(a)]);}      // outer major arc
+  for(let i=0;i<=seg;i++){const a=(2*Math.PI-aI)-((2*Math.PI-aI)-aI)*i/seg; p.push([cx+off+ri*Math.cos(a),cy+ri*Math.sin(a)]);} // inner bite arc
+  return poly(p);
+}
+// taegeuk (yin-yang) centred at (cx,cy) radius R -> { red, blue } comma polys
+function taegeuk(cx,cy,R,seg=30){
+  const arc=(r,oy,a0,a1)=>{const p=[];for(let i=0;i<=seg;i++){const a=a0+(a1-a0)*i/seg;p.push([cx+r*Math.cos(a),cy+oy+r*Math.sin(a)]);}return p;};
+  const S=[...arc(R/2,-R/2,-Math.PI/2,Math.PI/2), ...arc(R/2,R/2,-Math.PI/2,-3*Math.PI/2).slice(1)]; // top->bottom S
+  const red=[...arc(R,0,-Math.PI/2,Math.PI/2), ...S.slice().reverse()];          // right comma
+  const blue=[...arc(R,0,-Math.PI/2,-3*Math.PI/2), ...S.slice().reverse()];      // left comma
+  return {red:poly(red),blue:poly(blue)};
+}
+// simplified Canadian maple leaf, centred at (cx,cy), box w×h
+const ML=[[.50,0],[.54,.16],[.61,.13],[.59,.24],[.73,.20],[.69,.31],[.86,.31],[.77,.40],[.96,.49],[.80,.53],
+  [.84,.62],[.70,.59],[.73,.73],[.61,.66],[.585,.79],[.545,.78],[.55,1],[.45,1],[.455,.78],[.415,.79],
+  [.39,.66],[.27,.73],[.30,.59],[.16,.62],[.20,.53],[.04,.49],[.23,.40],[.14,.31],[.31,.31],[.27,.20],[.41,.24],[.39,.13],[.46,.16]];
+const mapleLeaf=(cx,cy,w,h)=>poly(ML.map(p=>[cx+(p[0]-.5)*w,cy+(p[1]-.5)*h]));
 
 // colours
 const C={r:'#d7141a',w:'#ffffff',k:'#000000',g:'#0a8a3e',y:'#f5c518',b:'#1d4ed8',n:'#0a2f6b',
@@ -104,17 +125,22 @@ const FLAGS=[
  { id:'es', nm:'Spain', ratio:1.5, make(H){return {groups:[g('#ad1519','RED',rect(0,0,W,H/4),rect(0,3*H/4,W,H/4)),g('#fabd00','GOLD',rect(0,H/4,W,H/2))]};}},
  { id:'co', nm:'Colombia', ratio:1.5, make(H){return {groups:[g('#c8102e','RED',rect(0,3*H/4,W,H/4)),g('#003087','BLUE',rect(0,H/2,W,H/4)),g('#ffcd00','GOLD',rect(0,0,W,H/2))]};}},
  { id:'ec', nm:'Ecuador', ratio:1.5, make(H){return {groups:[g('#ed1c24','RED',rect(0,3*H/4,W,H/4)),g('#034ea2','BLUE',rect(0,H/2,W,H/4)),g('#ffdd00','GOLD',rect(0,0,W,H/2))]};}},
- { id:'gh', nm:'Ghana', ratio:1.5, make(H){return {groups:[g('#006b3f','GREEN',rect(0,2*H/3,W,H/3)),g('#fcd116','GOLD',rect(0,H/3,W,H/3)),g('#ce1126','RED',rect(0,0,W,H/3))]};}},
- { id:'sn', nm:'Senegal', ratio:1.5, make(H){return {groups:[g('#00853f','GREEN',rect(0,0,W/3,H)),g('#fdef42','YELLOW',rect(W/3,0,W/3,H)),g('#e31b23','RED',rect(2*W/3,0,W/3,H))]};}},
+ { id:'gh', nm:'Ghana', ratio:1.5, make(H){return {groups:[g('#006b3f','GREEN',rect(0,2*H/3,W,H/3)),g('#fcd116','GOLD',rect(0,H/3,W,H/3)),g('#ce1126','RED',rect(0,0,W,H/3)),g('#000000','STAR',star(W/2,H/2,H*0.14,5))]};}},
+ { id:'sn', nm:'Senegal', ratio:1.5, make(H){return {groups:[g('#00853f','GREEN',rect(0,0,W/3,H)),g('#fdef42','YELLOW',rect(W/3,0,W/3,H)),g('#e31b23','RED',rect(2*W/3,0,W/3,H)),g('#00853f','STAR',star(W/2,H/2,H*0.14,5))]};}},
  { id:'py', nm:'Paraguay', ratio:1.818, make(H){return {groups:[g('#0038a8','BLUE',rect(0,2*H/3,W,H/3)),g('#ffffff','WHITE',rect(0,H/3,W,H/3)),g('#d52b1e','RED',rect(0,0,W,H/3))]};}},
  { id:'ht', nm:'Haiti', ratio:1.667, make(H){return {groups:[g('#d21034','RED',rect(0,H/2,W,H/2)),g('#00209f','BLUE',rect(0,0,W,H/2))]};}},
  { id:'eg', nm:'Egypt', ratio:1.5, make(H){return {groups:[g('#000000','BLACK',rect(0,2*H/3,W,H/3)),g('#ffffff','WHITE',rect(0,H/3,W,H/3)),g('#ce1126','RED',rect(0,0,W,H/3))]};}},
  { id:'ir', nm:'Iran', ratio:1.75, make(H){return {groups:[g('#da0000','RED',rect(0,2*H/3,W,H/3)),g('#ffffff','WHITE',rect(0,H/3,W,H/3)),g('#239f40','GREEN',rect(0,0,W,H/3))]};}},
  { id:'iq', nm:'Iraq', ratio:1.5, make(H){return {groups:[g('#000000','BLACK',rect(0,2*H/3,W,H/3)),g('#ffffff','WHITE',rect(0,H/3,W,H/3)),g('#cd1125','RED',rect(0,0,W,H/3))]};}},
- { id:'uz', nm:'Uzbekistan', ratio:2.0, make(H){return {groups:[g('#308738','GREEN',rect(0,2*H/3,W,H/3)),g('#ffffff','WHITE',rect(0,H/3,W,H/3)),g('#3081f7','SKY',rect(0,0,W,H/3))]};}},
- { id:'dz', nm:'Algeria', ratio:1.5, make(H){return {groups:[g('#006233','GREEN',rect(0,0,W/2,H)),g('#ffffff','WHITE',rect(W/2,0,W/2,H))]};}},
- { id:'cw', nm:'Curaçao', ratio:1.5, make(H){return {groups:[g('#002b7f','BLUE',rect(0,0,W,H)),g('#f9e814','YELLOW',rect(0,.625*H,W,.125*H))]};}},
- { id:'cv', nm:'Cape Verde', ratio:1.7, make(H){return {groups:[g('#003893','BLUE',rect(0,0,W,H)),g('#ffffff','WHITE',rect(0,.5*H,W,.25*H)),g('#cf2027','RED',rect(0,.583*H,W,.084*H))]};}},
+ { id:'uz', nm:'Uzbekistan', ratio:2.0, make(H){const rows=[3,4,5],st=[];
+     for(let r=0;r<3;r++)for(let c=0;c<rows[r];c++)st.push(star(W*0.17+c*W*0.045,H*0.085+r*H*0.075,H*0.03,5));
+     return {groups:[g('#308738','GREEN',rect(0,2*H/3,W,H/3)),g('#ffffff','WHITE',rect(0,H/3,W,H/3)),g('#3081f7','SKY',rect(0,0,W,H/3)),
+       g('#ffffff','EMBLEM',crescent(W*0.13,H*0.165,H*0.13,H*0.105,H*0.06),...st)]};}},
+ { id:'dz', nm:'Algeria', ratio:1.5, make(H){return {groups:[g('#006233','GREEN',rect(0,0,W/2,H)),g('#ffffff','WHITE',rect(W/2,0,W/2,H)),g('#d21034','EMBLEM',crescent(W/2,H/2,H*0.2,H*0.16,H*0.09),star(W*0.6,H/2,H*0.085,5))]};}},
+ { id:'cw', nm:'Curaçao', ratio:1.5, make(H){return {groups:[g('#002b7f','BLUE',rect(0,0,W,H)),g('#f9e814','YELLOW',rect(0,.625*H,W,.125*H)),g('#ffffff','STARS',star(W*0.18,H*0.30,H*0.10,5),star(W*0.10,H*0.47,H*0.066,5))]};}},
+ { id:'cv', nm:'Cape Verde', ratio:1.7, make(H){const cx=W*0.375,cy=H*0.5,rr=H*0.34,st=[];
+     for(let i=0;i<10;i++){const a=-Math.PI/2+i*2*Math.PI/10;st.push(star(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr,H*0.05,5));}
+     return {groups:[g('#003893','BLUE',rect(0,0,W,H)),g('#ffffff','WHITE',rect(0,.5*H,W,.25*H)),g('#cf2027','RED',rect(0,.583*H,W,.084*H)),g('#f7d116','STARS',...st)]};}},
  // Saudi Arabia: only the green field is poured — the shahada is sacred script,
  // never a pourable element; it appears as the real flag image via the cross-fade.
  { id:'sa', nm:'Saudi Arabia', ratio:1.5, make(H){return {groups:[g('#006c35','GREEN',rect(0,0,W,H))]};}},
@@ -129,9 +155,9 @@ const FLAGS=[
      for(let i=0;i<=N;i++){p.push([(i%2?tip:base),i/N*H]);} p.push([0,H]);
      return {groups:[g('#8a1538','MAROON',rect(0,0,W,H)),g('#ffffff','WHITE',poly(p))]};}},
  { id:'jp', nm:'Japan', ratio:1.5, make(H){return {groups:[g('#ffffff','WHITE',rect(0,0,W,H)),g('#bc002d','RED',disc(W/2,H/2,H*.3))]};}},
- { id:'tn', nm:'Tunisia', ratio:1.5, make(H){return {groups:[g('#e70013','RED',rect(0,0,W,H)),g('#ffffff','WHITE',disc(W/2,H/2,H*.3))]};}},
- { id:'ma', nm:'Morocco', ratio:1.5, make(H){return {groups:[g('#c1272d','RED',rect(0,0,W,H))]};}},
- { id:'tr', nm:'Türkiye', ratio:1.5, make(H){return {groups:[g('#e30a17','RED',rect(0,0,W,H))]};}},
+ { id:'tn', nm:'Tunisia', ratio:1.5, make(H){return {groups:[g('#e70013','RED',rect(0,0,W,H)),g('#ffffff','WHITE',disc(W/2,H/2,H*.3)),g('#e70013','EMBLEM',crescent(W*0.52,H/2,H*0.17,H*0.135,H*0.085),star(W*0.55,H/2,H*0.08,5))]};}},
+ { id:'ma', nm:'Morocco', ratio:1.5, make(H){return {groups:[g('#c1272d','RED',rect(0,0,W,H)),g('#006233','STAR',star(W/2,H/2,H*0.22,5))]};}},
+ { id:'tr', nm:'Türkiye', ratio:1.5, make(H){return {groups:[g('#e30a17','RED',rect(0,0,W,H)),g('#ffffff','EMBLEM',crescent(W*0.38,H/2,H*0.22,H*0.175,H*0.11),star(W*0.55,H/2,H*0.105,5))]};}},
  { id:'jo', nm:'Jordan', ratio:2.0, make(H){return {groups:[g('#000000','BLACK',rect(0,0,W,H/3)),g('#ffffff','WHITE',rect(0,H/3,W,H/3)),g('#007a3d','GREEN',rect(0,2*H/3,W,H/3)),g('#ce1126','RED',triHoist(H,W*.4)),g('#ffffff','STAR',star(W*.16,H*.5,H*.1,7))]};}},
  { id:'pa', nm:'Panama', ratio:1.5, make(H){return {groups:[g('#ffffff','WHITE',rect(0,0,W/2,H/2),rect(W/2,H/2,W/2,H/2)),g('#d21034','RED',rect(W/2,0,W/2,H/2),star(W*.75,H*.75,H*.16,5)),g('#005293','BLUE',rect(0,H/2,W/2,H/2),star(W*.25,H*.25,H*.16,5))]};}},
  { id:'cd', nm:'DR Congo', ratio:1.333, make(H){return {groups:[g('#007fff','SKY',rect(0,0,W,H)),g('#f7d618','GOLD',band(0,H,W,0,H*.12)),g('#ce1021','RED',band(0,H,W,0,H*.06)),g('#f7d618','STAR',star(W*.16,H*.16,H*.1,5))]};}},
@@ -151,8 +177,9 @@ const FLAGS=[
      return {groups:[g('#ffffff','WHITE',...white,rect(0,0,W/3,sh*4)),g('#0038a8','BLUE',...blue)]};}},
  { id:'pt', nm:'Portugal', ratio:1.5, make(H){return {groups:[g('#006600','GREEN',rect(0,0,W*.4,H)),g('#ff0000','RED',rect(W*.4,0,W*.6,H))]};}},
  { id:'hr', nm:'Croatia', ratio:2.0, make(H){return {groups:[g('#ff0000','RED',rect(0,0,W,H/3)),g('#ffffff','WHITE',rect(0,H/3,W,H/3)),g('#171796','BLUE',rect(0,2*H/3,W,H/3))]};}},
- { id:'kr', nm:'South Korea', ratio:1.5, make(H){return {groups:[g('#ffffff','WHITE',rect(0,0,W,H))]};}},
- { id:'ca', nm:'Canada', ratio:2.0, make(H){return {groups:[g('#ff0000','RED',rect(0,0,W/4,H),rect(3*W/4,0,W/4,H)),g('#ffffff','WHITE',rect(W/4,0,W/2,H))]};}},
+ { id:'kr', nm:'South Korea', ratio:1.5, make(H){const tg=taegeuk(W/2,H/2,H*0.2);
+     return {groups:[g('#ffffff','WHITE',rect(0,0,W,H)),g('#cd2e3a','RED',tg.red),g('#0047a0','BLUE',tg.blue)]};}},
+ { id:'ca', nm:'Canada', ratio:2.0, make(H){return {groups:[g('#ff0000','RED',rect(0,0,W/4,H),rect(3*W/4,0,W/4,H)),g('#ffffff','WHITE',rect(W/4,0,W/2,H)),g('#ff0000','LEAF',mapleLeaf(W/2,H/2,H*0.6,H*0.92))]};}},
 ];
 
 const bbox=s=>{ const pts = s[0]==='rect'?[[s[1],s[2]],[s[1]+s[3],s[2]+s[4]]]:s[1];
