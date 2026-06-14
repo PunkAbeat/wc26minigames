@@ -603,7 +603,12 @@ export function mountFlagSort(root, opts = {}) {
             lctx.closePath(); lctx.fill();
           }
         lctx.restore();
-      } else { lctx.fillStyle = cv.color; lctx.fill(); }
+      } else {
+        lctx.fillStyle = cv.color; lctx.fill();
+        // subtle edge so a dark band (e.g. a deep green) never melts into the
+        // pitch background or the band below it
+        lctx.strokeStyle = "rgba(0,0,0,.32)"; lctx.lineWidth = 1; lctx.stroke();
+      }
       if (idx === 0) {
         topYline = Y; t.topY = Y;
         let x0 = Infinity, x1 = -Infinity;
