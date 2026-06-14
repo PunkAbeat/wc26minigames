@@ -14,7 +14,7 @@
     "test": "vitest run",
     "test:headless": "node tests/run-headless.mjs",
     "audio:prepare": "node tools/prepare-audio.mjs",
-    "deploy": "npm run audio:prepare && npm run build:prod && wrangler deploy",
+    "deploy": "set -a; . ./.deploy.env 2>/dev/null || true; set +a; npm run audio:prepare && npm run build:prod && wrangler deploy",
     "build:prod": "VITE_STRIP_TEST_HOOKS=1 vite build && rm -rf dist/client/tests dist/client/mock"
   },
   "dependencies": {
