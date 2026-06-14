@@ -27,6 +27,8 @@
   .frame svg,.frame img{position:absolute;inset:0;width:100%;height:100%;display:block}
   .frame img{object-fit:fill}
   .ghost{opacity:.13}
+  .water{stroke:rgba(0,0,0,.06);stroke-width:.4}
+  .sheen{fill:none;stroke:rgba(255,255,255,.55);stroke-width:1.1;stroke-linecap:round;stroke-linejoin:round}
   .stamp,.final{opacity:0;transition:opacity .5s ease}
   .frame.done .final{opacity:1}
   .frame.done{animation:wave .55s ease-in-out 3}
@@ -123,17 +125,20 @@ const shapeD=s=> s[0]==='rect'
   ? `M${F(s[1])} ${F(s[2])}h${F(s[3])}v${F(s[4])}h${-F(s[3])}z`
   : 'M'+s[1].map(p=>F(p[0])+' '+F(p[1])).join('L')+'z';
 
+const STATES=[], WATERS=[];        // WATERS: every pourable shape, animated by one rAF loop
 function buildFlag(flag){
   const H=F(W/flag.ratio), fills=flag.make(H);
   const card=document.createElement('div'); card.className='card';
-  let defs='', waters='', stampHTML='';
+  let defs='', bodies='', stampHTML='';
   fills.forEach((f,gi)=>{
     f.shapes.forEach((s,si)=>{
-      const id=`${flag.id}-${gi}-${si}`, b=bbox(s);
+      const id=`${flag.id}-${gi}-${si}`;
       defs+=`<clipPath id="${id}"><path d="${shapeD(s)}"/></clipPath>`;
-      waters+=`<g clip-path="url(#${id})"><rect class="water" data-g="${gi}"
-        data-y1="${F(b.y1)}" data-h="${F(b.y1-b.y0)}" x="${F(b.x0)}" y="${F(b.y1)}"
-        width="${F(b.x1-b.x0)}" height="0" fill="${f.color}"/></g>`;
+      bodies+=`<g clip-path="url(#${id})"><path class="water" data-k="${WATERS.length}" fill="${f.color}" d=""/>`
+            + `<path class="sheen" data-s="${WATERS.length}" d=""/></g>`;
+      const b=bbox(s);
+      WATERS.push({gi, x0:b.x0, x1:b.x1, y0:b.y0, y1:b.y1, level:0, target:0, exc:0,
+        phase:Math.random()*6.283, stIdx:STATES.length});
     });
     if(f.stamp && flag.stampClip){ const clip=flag.stampClip(H);
       stampHTML+=`<img class="stamp" data-g="${gi}" src="${flag.src}" style="clip-path:${clip};-webkit-clip-path:${clip}">`; }
@@ -142,7 +147,7 @@ function buildFlag(flag){
     <div class="nm">${flag.nm}</div>
     <div class="frame" style="aspect-ratio:${flag.ratio}">
       <img class="ghost" src="${flag.src}">
-      <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs>${defs}</defs>${waters}</svg>
+      <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs>${defs}</defs>${bodies}</svg>
       ${stampHTML}
       <img class="final" src="${flag.src}">
     </div>
@@ -152,40 +157,70 @@ function buildFlag(flag){
       <button class="reset" title="reset">↻</button>
     </div>`;
   document.getElementById('grid').appendChild(card);
+  const svg=card.querySelector('svg');
   const st={flag, fills, g:0, busy:false,
     frame:card.querySelector('.frame'), hint:card.querySelector('.hint'),
-    waters:[...card.querySelectorAll('.water')], stamps:[...card.querySelectorAll('.stamp')]};
+    bodies:[...svg.querySelectorAll('.water')], sheens:[...svg.querySelectorAll('.sheen')],
+    stamps:[...card.querySelectorAll('.stamp')]};
   card.querySelector('.pour').onclick=()=>pour(st);
   card.querySelector('.reset').onclick=()=>reset(st);
-  reset(st); STATES.push(st);
+  STATES.push(st); reset(st);
 }
+const myWaters=st=>WATERS.filter(w=>w.stIdx===STATES.indexOf(st));
 function setHint(st){ const f=st.fills[st.g];
   st.hint.innerHTML = f ? `POUR <span class="sw" style="background:${f.color}"></span> ${f.label}`
                         : '<span style="color:#bff5d0">✓ flag raised</span>'; }
 function reset(st){ st.g=0; st.busy=false; st.frame.classList.remove('done');
-  st.waters.forEach(w=>{w.setAttribute('y',w.dataset.y1);w.setAttribute('height',0);});
+  myWaters(st).forEach(w=>{w.level=0;w.target=0;w.exc=0;});
   st.stamps.forEach(s=>s.style.opacity=0); setHint(st); }
 function pour(st){
   if(st.busy) return; const f=st.fills[st.g]; if(!f) return; st.busy=true;
-  const ws=st.waters.filter(w=>+w.dataset.g===st.g), t0=performance.now(), dur=700;
-  (function step(now){
-    const p=Math.min(1,(now-t0)/dur), e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
-    for(const w of ws){ const h=+w.dataset.h, y1=+w.dataset.y1, lvl=e*h;
-      w.setAttribute('y',F(y1-lvl)); w.setAttribute('height',F(lvl)); }
-    if(p<1){ requestAnimationFrame(step); return; }
-    st.stamps.filter(s=>+s.dataset.g===st.g).forEach(s=>s.style.opacity=1);
-    st.g++; st.busy=false; setHint(st);
-    if(st.g>=st.fills.length) st.frame.classList.add('done');
-  })(t0);
+  myWaters(st).filter(w=>w.gi===st.g).forEach(w=>{ w.target=1; w.exc=1; });
 }
-const STATES=[];
+// ---- one liquid loop drives every shape: rising level + wavy surface + settle wobble ----
+function waterPath(w,t){
+  const baseY = w.y1 - w.level*(w.y1-w.y0);
+  if(w.level<=0.001) return ['',''];
+  const amp = (0.45 + w.exc*3.6) * Math.min(1, w.level*6);   // ripple, louder mid-pour, calm near empty
+  const wd = Math.max(1, w.x1-w.x0), segs = Math.max(4, Math.round(wd/14));
+  let d=`M${F(w.x0)} ${F(w.y1)}`, sh='';
+  for(let i=0;i<=segs;i++){
+    const x=w.x0+wd*i/segs;
+    const y=baseY - Math.sin(i/segs*Math.PI*2.4 + t*0.005 + w.phase)*amp - w.exc*1.2;
+    d += (i?`L`:`L${F(w.x0)} ${F(baseY)} L`)+`${F(x)} ${F(y)}`;     // body: up the left edge, across the wavy top
+    sh += (i?'L':'M')+`${F(x)} ${F(y)}`;                            // sheen: just the surface line
+  }
+  d += `L${F(w.x1)} ${F(w.y1)}Z`;
+  return [d, (w.level<0.985? sh : '')];   // hide the sheen once a shape is brim-full (settled)
+}
+function loop(t){
+  for(const w of WATERS){
+    w.level += (w.target - w.level)*0.11;
+    if(w.target && w.level>0.999) w.level=1;
+    w.exc *= 0.90;
+    const [d,sh]=waterPath(w,t);
+    const st=STATES[w.stIdx], i=st ? WATERS.filter(x=>x.stIdx===w.stIdx).indexOf(w) : -1;
+    if(st){ st.bodies[i].setAttribute('d',d); st.sheens[i].setAttribute('d',sh); }
+  }
+  for(const st of STATES) if(st.busy){
+    const ws=myWaters(st).filter(w=>w.gi===st.g);
+    if(ws.length && ws.every(w=>w.level>0.96)){
+      st.stamps.filter(s=>+s.dataset.g===st.g).forEach(s=>s.style.opacity=1);
+      st.g++; st.busy=false; setHint(st);
+      if(st.g>=st.fills.length) st.frame.classList.add('done');
+    }
+  }
+  requestAnimationFrame(loop);
+}
 FLAGS.forEach(buildFlag);
+requestAnimationFrame(loop);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 document.getElementById('resetAll').onclick=()=>STATES.forEach(reset);
 document.getElementById('playAll').onclick=async()=>{
-  STATES.forEach(reset); await new Promise(r=>setTimeout(r,250));
+  STATES.forEach(reset); await sleep(250);
   for(const st of STATES){
-    while(st.g<st.fills.length){ pour(st); await new Promise(r=>setTimeout(r,820)); }
-    await new Promise(r=>setTimeout(r,420));
+    while(st.g<st.fills.length){ pour(st); while(st.busy) await sleep(40); await sleep(260); }
+    await sleep(360);
   }
 };
 </script>
