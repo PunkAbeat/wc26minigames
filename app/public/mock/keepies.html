@@ -142,10 +142,9 @@
   function mulberry32(a){ return function(){ a|=0; a=(a+0x6d2b79f5)|0;
     let t=Math.imul(a^(a>>>15),1|a); t=(t+Math.imul(t^(t>>>7),61|t))^t;
     return ((t^(t>>>14))>>>0)/4294967296; }; }
-  const LAUNCH_DAY = Math.floor(Date.UTC(2026,5,11)/86400000);
-  const dayNumber = Math.max(0, Math.floor(Date.now()/86400000) - LAUNCH_DAY);
-  const seed = Q.has("seed") ? (parseInt(Q.get("seed"),10)|0) : (0x26061126 ^ dayNumber);
-  let rnd = mulberry32(seed);
+  const seedFixed = Q.has("seed");          // ?seed=N pins a course (testing only)
+  let seed = seedFixed ? (parseInt(Q.get("seed"),10)|0) : ((Math.random()*0x100000000)>>>0);
+  let rnd = mulberry32(seed);                // pure free-play: a fresh course every run
 
   const cv = document.getElementById("c"), ctx = cv.getContext("2d");
   let W=0, H=0, DPR=1;
@@ -186,7 +185,7 @@
   const G=2300, BOUNCE=940, SPRING=1.78, PUNT=2.9, R=24;
   const FOLLOW=20;      // follow-finger snap (per second)
   const KEY_ACC=2600, KEY_MAX=560, FRICTION=4.2; // desktop arrow feel
-  let ball, plats, climbed, tierIdx, dead, best=0, spin, squash, particles=[];
+  let ball, plats, climbed, tierIdx, dead, best=0, spin, squash, particles=[], trail=[], celebrateT=0;
   let state="ready";    // ready | run | dead
   let pointerX=null, keyDir=0, demoT=null, pickerOpen=false;
   const TOPLINE = () => H*0.42;  // ball is pinned around here; world scrolls instead
@@ -228,9 +227,10 @@
     return { x, y:ny, w, h:14, type, dir: rnd()<.5?-1:1, vx: 40+rnd()*50, broken:false, sprung:false, fall:0 };
   }
   function reset(){
+    if (!seedFixed) seed = (Math.random()*0x100000000)>>>0; // free-play: new course each run
     rnd = mulberry32(seed);
     // init state BEFORE spawning (spawnAbove reads `climbed` for its difficulty ramp)
-    climbed = 0; tierIdx = 0; dead = false; spin = 0; squash = 0; particles = [];
+    climbed = 0; tierIdx = 0; dead = false; spin = 0; squash = 0; particles = []; trail = []; celebrateT = 0;
     pointerX = null; keyDir = 0; demoT = null;
     arch = courseFor(FLAG); lastLane = 1; discPhase = 0;
     plats = [];
@@ -271,7 +271,8 @@
     document.getElementById("ovcta").textContent=cta; o.classList.remove("hidden");
   }
   function updateNote(){ const el=document.getElementById("seednote"); if(!el) return;
-    el.textContent = `${FLAG.toUpperCase()} · ${arch.toUpperCase()} course · seed ${seed>>>0} · drag or ←/→${RM?" · reduced-motion":""}`; }
+    const mode = seedFixed ? `seed ${seed>>>0}` : "free play";
+    el.textContent = `${FLAG.toUpperCase()} · ${arch.toUpperCase()} course · ${mode} · drag or ←/→${RM?" · reduced-motion":""}`; }
   updateNote();
 
   // flag-picker UI + ball-style toggle
@@ -320,6 +321,8 @@
     ball.vy += G*dt; ball.y += ball.vy*dt;
     spin += Math.max(-700,Math.min(700, ball.vx))*dt*0.009; // gentler roll
     squash += (-Math.max(-1,Math.min(1, ball.vy/1400)) - squash) * Math.min(1,14*dt);
+    trail.push({ x:ball.x, y:ball.y }); if (trail.length > 14) trail.shift();
+    if (celebrateT > 0) celebrateT -= dt;
 
     // moving platforms slide; broken ones tumble away
     for (const p of plats){
@@ -352,6 +355,7 @@
       const shift = tl - ball.y; ball.y = tl; climbed += shift;
       for (const p of plats) p.y += shift;
       for (const pt of particles) pt.y += shift;
+      for (const t of trail) t.y += shift;
       // recycle: drop platforms that fell below, top up above
       plats = plats.filter(p => p.y < H + 30);
       let top = Math.min(...plats.map(p=>p.y));
@@ -361,7 +365,9 @@
     // tier milestones
     const m = Math.floor(climbed/10);
     while (tierIdx < TIERS.length-1 && m >= TIERS[tierIdx+1].m){
-      tierIdx++; fireMs(TIERS[tierIdx].name);
+      tierIdx++;
+      if (TIERS[tierIdx].name === "OPEN SKY") celebrate(); // lift the trophy at the summit
+      else fireMs(TIERS[tierIdx].name);
     }
 
     // death: dropped off the bottom
@@ -385,6 +391,10 @@
     x, y, vx:(Math.random()-.5)*220, vy:-Math.random()*160, life:.3+Math.random()*.25, c }); }
   function fireMs(name){ document.getElementById("msv").textContent=name;
     const el=document.getElementById("ms"); el.classList.remove("show"); void el.offsetWidth; el.classList.add("show"); }
+  function celebrate(){ celebrateT = 2.8; confettiBurst(); }
+  function confettiBurst(){ if (RM) return; const cols=["#ffd34d","#ffffff","#d40e14","#3aa564","#7be0ff"];
+    for (let i=0;i<60;i++) particles.push({ x:W*0.5+(Math.random()-.5)*W*0.7, y:-10,
+      vx:(Math.random()-.5)*260, vy:Math.random()*140, life:1.4+Math.random()*1.3, c:cols[i%5] }); }
   function die(){
     if (dead) return; dead=true; state="dead";
     const m = Math.floor(climbed/10); best = Math.max(best, m);
@@ -414,10 +424,43 @@
         ctx.globalAlpha=.3+0.3*Math.sin(i+climbed*0.002); ctx.fillRect(sx,sy,2,2);} ctx.globalAlpha=1; }
 
     drawPlatforms();
+    drawTrail();
     drawBall();
 
     for (const pt of particles){ ctx.globalAlpha=Math.max(0,Math.min(1,pt.life*3));
       ctx.fillStyle=pt.c; ctx.fillRect(pt.x,pt.y,3,3); } ctx.globalAlpha=1;
+
+    if (celebrateT > 0){                       // trophy-at-the-top payoff
+      ctx.save(); ctx.globalAlpha = Math.min(1, celebrateT/0.7);
+      drawTrophy(W/2, H*0.30, 1.2);
+      ctx.textAlign="center"; ctx.fillStyle="#ffd34d";
+      ctx.font="800 24px -apple-system,Segoe UI,Roboto,sans-serif";
+      ctx.fillText("TROPHY LIFTED!", W/2, H*0.30+86);
+      ctx.font="600 12px -apple-system,Segoe UI,Roboto,sans-serif"; ctx.fillStyle="rgba(255,255,255,.92)";
+      ctx.fillText("CHAMPION OF THE WORLD — keep climbing", W/2, H*0.30+106);
+      ctx.textAlign="start"; ctx.restore();
+    }
+  }
+  function drawTrail(){
+    const inten = Math.max(0, Math.min(1, (-ball.vy - 1000)/1600)); // shows on punt/spring
+    if (inten <= 0.02 || trail.length < 2) return;
+    for (let i=0;i<trail.length;i++){ const t=trail[i], f=i/trail.length;
+      ctx.fillStyle = `rgba(123,224,255,${(f*inten*0.6).toFixed(3)})`;
+      ctx.beginPath(); ctx.arc(t.x, t.y, R*(0.35+0.55*f), 0, 7); ctx.fill(); }
+  }
+  function drawTrophy(cx,cy,s){
+    ctx.save(); ctx.translate(cx,cy); ctx.scale(s,s);
+    const gl=ctx.createRadialGradient(0,-8,2,0,-8,95);
+    gl.addColorStop(0,"rgba(255,211,77,.5)"); gl.addColorStop(1,"rgba(255,211,77,0)");
+    ctx.fillStyle=gl; ctx.fillRect(-95,-95,190,190);
+    ctx.strokeStyle="#ffd34d"; ctx.lineWidth=5;        // handles
+    ctx.beginPath(); ctx.arc(-26,-20,13, Math.PI*0.5, Math.PI*1.5, true); ctx.stroke();
+    ctx.beginPath(); ctx.arc(26,-20,13, Math.PI*1.5, Math.PI*0.5, true); ctx.stroke();
+    ctx.fillStyle="#ffd34d"; ctx.strokeStyle="#c9a01f"; ctx.lineWidth=2;   // bowl
+    ctx.beginPath(); ctx.moveTo(-27,-34); ctx.lineTo(27,-34); ctx.lineTo(20,4);
+    ctx.quadraticCurveTo(0,20,-20,4); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillRect(-5,4,10,12); ctx.fillRect(-17,16,34,6); ctx.fillRect(-13,22,26,7); // stem + base
+    ctx.restore();
   }
   function rr(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r);
     ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
@@ -538,9 +581,11 @@
   window.__kp = () => ({ state, dead, m:Math.floor(climbed/10), tier:TIERS[tierIdx].name,
     tierIdx, vy:Math.round(ball.vy), x:Math.round(ball.x), plats:plats.length,
     types:[...new Set(plats.map(p=>p.type))], best, seed:seed>>>0, flag:FLAG, flagReady,
-    ballStyle, pickerOpen, arch });
+    ballStyle, pickerOpen, arch, seedFixed, celebrateT:Math.round(celebrateT*100)/100 });
   window.__kpSet = (o={}) => { if(o.flag) loadFlag(o.flag); if(o.ball) ballStyle=o.ball;
-    if(o.pick!==undefined) (o.pick?openPicker():closePicker()); }; // headless hooks
+    if(o.pick!==undefined) (o.pick?openPicker():closePicker());
+    if(o.m!==undefined) climbed=o.m*10; if(o.celebrate) celebrate();
+    if(o.vy!==undefined) ball.vy=o.vy; }; // headless hooks
 })();
 </script>
 </body>

@@ -229,3 +229,19 @@ bounce survives an on-device gut check.
     journeys (SA diagonal, CZ chevron, course-select grid). Fixed a stray
     "undefined course" label.
   - Awaiting owner on-device pass over the full 48-course set + the select grid.
+- 15 Jun — **comparable-scores fork RESOLVED: pure free-play** (owner). No seeded
+  daily; each run reseeds a fresh random course (`?seed=N` still pins one for testing).
+  The "Today's MATCHDAY" daily-triptych idea is dropped for KEEPIES; best-height per
+  flag stays the meta. Footer reads "free play".
+- 15 Jun — **STEP 3 juice (owner pick): punt trail + trophy-at-the-top.**
+  - **Punt trail**: a cyan comet trail streams below the ball whenever it rises fast
+    (intensity from `-vy`; strong on keeper-punt, faint on springs, none on normal
+    bounces). Trail points shift with world-scroll so they stay glued.
+  - **Trophy-at-the-top**: reaching OPEN SKY (1300m) fires a celebration — vector gold
+    trophy + glow, "TROPHY LIFTED! / CHAMPION OF THE WORLD — keep climbing", confetti
+    burst — then the endless climb continues (no finish; it's the payoff, not a stop).
+  - Verified via CDP (added `__kpSet({m,vy,celebrate})` test hooks + `celebrateT` in
+    `__kp`): trophy fires at OPEN SKY (celebrateT≈2.5), trail renders on forced punt
+    velocity, free-play seed is random per run, build green, 0 exceptions; screenshots
+    confirm both. Committed at `3e8d434` was the pre-juice 48-course state; this juice
+    pass is the next commit.
