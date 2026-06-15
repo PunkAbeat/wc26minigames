@@ -454,6 +454,7 @@ export function mountFlagSort(root, opts = {}) {
   function newLevel(i) {
     paused = false; $("#select").hidden = true;
     li = i; L = LEVELS[i];
+    opts.track && opts.track("flagsort_started", { flag: L.name });  // parity with ANTHEM's practice_started
     seq = []; label = {};
     for (const reg of L.regions) {
       label[reg.color] = reg.label;
