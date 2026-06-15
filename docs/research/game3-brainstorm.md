@@ -102,3 +102,130 @@ MAZY. Working title for the mock route: `breakaway`.
   — same status as SQUAD. The mock at `/mock/breakaway` is kept and recoverable
   (already stripped from prod by `build:prod`); nothing was ever deployed. Pick the
   next direction; revisit if the runner itch returns.
+
+---
+
+# Direction B — KEEPIES (Doodle Jump climber) — 15 Jun 2026
+
+> After BREAKAWAY was parked, owner proposed a **Doodle Jump-style vertical climber
+> with a nice-looking bouncing football**. Decisions taken at brainstorm:
+> **touch-steer + desktop arrow keys**, **flag-skinned ball**, comparable-scores
+> (seeded daily vs free-play) **left open**. Documented + feel-mocked same day.
+
+**Why it fits even better than the runner:** a ball *wants* to bounce, so Doodle
+Jump's auto-hop avatar and a football are the same object — and it's a natural
+showcase for the "nice ball." Football-native (keepy-uppy = keep it in the air).
+
+**Fantasy:** the ball auto-bounces upward forever; you steer left/right to land the
+next bounce on a platform; miss everything and it drops out the bottom. Score =
+height climbed.
+
+- **Platforms = headers** — each is a generic footballer (licensing-clean
+  silhouette) nodding the ball higher; you climb a tower of players keeping it up.
+- **Boosts = football moments** — keeper's punt = jetpack/long-boost; overhead/
+  bicycle-kick = mega-bounce; fan's banner = trampoline.
+- **Height = a stadium ascent** — Pitch → Lower Tier → Upper Tier → Roof →
+  Floodlights → open sky → a golden World Cup trophy at the top. (Same milestone
+  idea that framed BREAKAWAY, but here it's *spatial* — you're literally climbing —
+  so it earns its place instead of repeating.)
+
+**Input (decided): touch-steer + arrows.** Touch-steer (ball x eases toward the
+finger, drag-anywhere "follow finger"; bounce automatic) is primary — no iOS
+permission prompt (unlike `DeviceOrientation` tilt, gated since iOS 13 + flaky),
+works one-handed, more precise than tilt on a phone. **Arrow keys** make it playable
+on desktop. Tilt is an opt-in we can add later, not now.
+
+**The hook into our spine (decided): the ball IS your nation.** Default to a flag-
+skinned ball — wrap one of HOIST's 48 vendored flag SVGs (`/flags/<iso>.svg`) onto
+the ball with spherical shading + spin so it reads as a glossy 3D ball, not a
+sticker. The "nice ball" becomes the personalization and the WC26 tie — your flag
+bouncing up the stadium to the trophy.
+
+**Comparable scores — OPEN.** Seeded-daily climb (everyone gets the same platform
+layout today → comparable height, Wordle-style, streak/share) vs pure free-play
+endless. Owner undecided; the mock is seedable (`?seed=N`) so either can be chosen
+after the feel lands.
+
+**Licensing:** generic unbranded ball + our own flag assets + silhouette players —
+no FIFA marks, no real ball brand, no player likenesses. Clean.
+
+**Where it lives or dies (criterion #5):** bounce-height consistency, gravity, how
+tight the steering is, the dopamine spikes from springs — and the owner-specified
+*the ball must look great*. Per the process rule the feel mock is the central
+interaction only: a gorgeous bouncing flag-ball + touch/arrow steer + a couple
+platform types + one boost. No flag-picker UI, no daily shell, no enemies until the
+bounce survives an on-device gut check.
+
+**Name candidates:** **KEEPIES** (keepy-uppies — lead) · HEADER · UP TOP · SKY BALL
+· ALTITUDE. Working route title: `keepies`.
+
+### Status (Direction B)
+
+- 15 Jun: design chosen, this section + feel mock (`/mock/keepies`) built.
+- 15 Jun — **iteration 1** after owner played it: bounce + steer "ok for now";
+  unsure about the flag-in-ball ("feels a bit weird") but likes the idea. Changes:
+  - **Ball look.** Root cause of "weird" was the flag doing a full 360° spin
+    (reads as a spinning plate). Two styles now, toggle via the **⚽ STYLE** button
+    (or `?ball=`): **crest** (default) = a real white football whose black panels
+    spin to show the roll, with an upright, always-readable flag badge in a gold
+    ring; **wrap** = the all-flag ball, but tilt clamped to ±~14° + faint seams +
+    gloss so it reads as a sphere, not a disc.
+  - **Flag-picker UI.** 🇫🇷 button opens a 48-flag grid (real `/flags/*.svg`
+    thumbnails); pick reskins the ball live. Game pauses while open.
+  - **Platform types.** Added **breakable** (brown, crumbles + falls after one
+    bounce) and **keeper-punt jetpack** (cyan gloves pad, ~2.9× mega-boost) to the
+    existing norm / spring / moving. Height-gated spawn rates.
+  - Verified via CDP: climbs through LOWER + UPPER TIER to ~350m, all five platform
+    types appear, both ball styles render, picker hook works, build green, 0
+    exceptions. Bugs fixed earlier in the session: NaN platform-gen (state read
+    before init) and too-weak initial launch.
+  - Headless hooks added: `window.__kpSet({flag,ball,pick})` alongside `__kp()`.
+- Awaiting owner on-device gut check on the new ball styles + the added mechanics.
+- 15 Jun — **owner kept the flag-wrap ball** (crest dropped as default; `?ball=crest`
+  still available). Spin clamped to a readable tilt; open Q whether owner wants the
+  fuller original spin back.
+- 15 Jun — **direction locked: 48 endless courses, best-height per flag.** Rationale:
+  per-nation *ranking* was rejected (owner: a cosmetic skin can't decide "which nation
+  wins" — PR landmine). Distinct *boards* dissolve it: heights across different layouts
+  aren't comparable, so it's "48 courses" not "48 ranked nations" (same framing as
+  HOIST's 48 puzzles). Feasibility verdict: **easier than HOIST** — reachability is
+  local/analytic (generate-by-construction: next platform always within the bounce
+  envelope; no solver), and the geometry classification is reused from HOIST. Scope is
+  realistically **~8 layout archetypes × 48 flag themes**, not 48 bespoke levels.
+  Caution noted: this makes KEEPIES structurally rhyme with HOIST (verb differs:
+  bounce vs pour) — chose endless+best-height (not a 2nd campaign) to keep it the
+  distinct reflex pillar.
+- 15 Jun — **STEP 1 BUILT & VERIFIED: 3-archetype proof (Germany/France/Japan).**
+  `courseFor(iso)` maps flag→archetype; `spawnAbove` biases platform *x* by archetype
+  (lanes weave between 3 columns; disc curves around the sun; bands/open = free
+  spread) while the vertical-gap rule keeps every board climbable by construction.
+  Faint flag-geometry backdrop dominates the low climb and fades by ~360m into the
+  shared sky (per-flag identity at the start, universal climb above). Picker switch
+  resets into the new course. Verified via CDP: de→bands, fr→lanes, jp→disc, all
+  generate + climb, flags load, build green, 0 exceptions; three screenshots confirm
+  the journeys read as genuinely different. Tuning noted for later: bands/disc
+  backdrop colours muddy slightly over the teal sky (alpha blend). `?flag=de|fr|jp`.
+  **Next if owner likes it:** map all 48 to archetypes (reuse HOIST classification) +
+  the remaining ~5 archetypes; per-flag best-height persistence + a course-select grid.
+- 15 Jun — **owner approved the direction → STEP 2 BUILT & VERIFIED (all 48).**
+  - **48→8 archetype map** (`COURSE` in the mock): bands·17, lanes·9, disc·6, cross·5,
+    triangle·3, diagonal·2, canton·5, open·1. `courseFor(iso)` resolves; `open` is the
+    fallback.
+  - **Remaining archetype placements** in `spawnAbove`: cross = central column +
+    occasional horizontal arm; diagonal = slow L↔R drift; triangle = sharp zigzag/
+    chevron. (lanes/disc/spread already done.) Reachability invariant unchanged.
+  - **Backdrop reworked to the REAL flag** (`drawImage(flagImg)`): the flag fills the
+    low climb and slides down as you ascend (rise out of your nation into the shared
+    sky). Accurate for all 48, zero per-flag colour coding, and it kills the
+    muddy-blend tuning issue. Layout = journey, flag image = identity.
+  - **Per-flag best-height** persisted in `localStorage["kp_best"]` (`{iso:metres}`);
+    death screen shows NEW BEST! + the course's PB.
+  - **Course-select grid**: the picker is now "CHOOSE YOUR COURSE" — all 48 real flags
+    with a best-height badge under each (gold when set), HOIST "ROAD TO THE FINAL"
+    styling; tap = play that course.
+  - Verified via CDP: grid = 48 cells; cross/diagonal/triangle/canton/open each
+    generate climbable boards + load flags; best-height persists (`{"ch":130}` after a
+    run) and badges the grid; build green, 0 exceptions; screenshots confirm distinct
+    journeys (SA diagonal, CZ chevron, course-select grid). Fixed a stray
+    "undefined course" label.
+  - Awaiting owner on-device pass over the full 48-course set + the select grid.

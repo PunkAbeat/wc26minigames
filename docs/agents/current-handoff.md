@@ -1,8 +1,41 @@
 # Current handoff
 
-*Updated: 2026-06-15 (game #3 BREAKAWAY feel-mocked then PARKED — owner not satisfied on device; mock kept/recoverable, nothing deployed)*
+*Updated: 2026-06-15 (game #3 = KEEPIES, a Doodle-Jump football climber — now a full 48-course feel mock, owner approving the direction; BREAKAWAY parked below; nothing deployed)*
 
-## Game #3 — BREAKAWAY (15 Jun)
+## Game #3 — KEEPIES (Doodle-Jump climber, 15 Jun) — ACTIVE
+
+After BREAKAWAY was parked, owner proposed a **Doodle-Jump vertical climber with a
+nice bouncing football**, then steered each decision. Full write-up: Direction B in
+[game3-brainstorm.md](../research/game3-brainstorm.md). Where it stands:
+
+- **Core loop**: ball auto-bounces UP; **touch follow-finger steer + desktop arrows**;
+  land on platforms; drop off the bottom = out; score = height. Bounce + steer "ok
+  for now" (owner). Feel mock at **`/mock/keepies`** (`app/public/mock/keepies.html`,
+  disposable, `build:prod`-stripped). Fixed-timestep canvas, `?demo` auto-bot, `?seed`,
+  `?flag=ISO`, `window.__kp()`/`__kpSet()` hooks, reduced-motion aware.
+- **Ball**: owner kept the **flag-wrapped** ball (crest football+badge style dropped as
+  default, `?ball=crest` remains); spin clamped to a readable tilt. *Open Q:* whether
+  owner wants the fuller original spin back.
+- **Platforms**: norm, spring (trampoline), moving, **breakable** (crumbles after one
+  bounce), **keeper-punt jetpack** (~2.9× mega-boost). Height-gated spawns.
+- **48 distinct courses, best-height per flag** (locked direction): each flag = a
+  course whose *platform layout* traces its geometry (not difficulty), so heights
+  aren't comparable across nations → dissolves the "which nation wins" problem (owner's
+  catch; per-nation *ranking* was rejected). **8 archetypes** (bands/lanes/disc/cross/
+  triangle/diagonal/canton/open) cover all 48 via the `COURSE` map. Reachability is
+  **by construction** (next platform always within the bounce envelope — no solver;
+  simpler than HOIST). Real flag image as the backdrop (slides down as you climb).
+  Per-flag best-height in `localStorage["kp_best"]`; **course-select grid** (all 48,
+  HOIST "ROAD TO THE FINAL" styling, best-height badges) — owner confirmed this meta
+  hook + that 8 families give enough variety.
+- All milestones CDP-verified (every archetype climbs, grid=48, best persists, build
+  green, 0 exceptions). **Comparable-scores fork still open** (seeded-daily "Today's
+  MATCHDAY" triptych vs pure free-play). **Not deployed.**
+- **Next**: polish/juice (punt trail, trophy-at-the-top) and/or wire a **shared
+  favourite-nation** across ANTHEM/HOIST/KEEPIES (the agreed series-cohesion play;
+  note: KEEPIES does **not** feed a per-nation collection — nation is identity only).
+
+## Game #3 — BREAKAWAY (15 Jun) — parked alternative
 
 Owner proposed a football version of the Chrome Dino runner, "adapted to our setup."
 Brainstormed → owner picked **solo-breakaway / hurdle framing + seeded daily**.

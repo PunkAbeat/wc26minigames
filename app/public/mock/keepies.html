@@ -1,0 +1,547 @@
+<!doctype html>
+<!-- KEEPIES feel mock — DISPOSABLE. Not the real game: no route, no i18n, no
+     flag-picker, no daily shell. The central interaction ONLY: a glossy flag-skinned
+     football that auto-bounces UP, steered left/right by touch (follow-finger) or
+     arrow keys, landing on header platforms, with one boost type (keeper's punt) and
+     the stadium-ascent milestone bands. Purpose: judge the BOUNCE + STEER feel and
+     the look of the ball on device before any full build.
+     Hooks: window.__kp() snapshot; ?demo auto-steers; ?seed=N seeds the layout;
+     ?flag=ISO picks the ball flag (default br); prefers-reduced-motion keeps gameplay
+     but drops parallax/particles. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>KEEPIES — feel mock</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+  html, body { margin: 0; height: 100%; overflow: hidden; }
+  body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; background: #0a1428;
+         color: #fff; touch-action: none; }
+  #wrap { position: fixed; inset: 0; }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .bunting { position: absolute; top: 0; left: 0; right: 0; height: 16px; z-index: 5;
+             pointer-events: none;
+             background: repeating-linear-gradient(135deg, #d40e14 0 11px, transparent 11px 22px),
+                         repeating-linear-gradient(45deg, #ffd34d 0 11px, transparent 11px 22px);
+             background-size: 22px 16px; opacity: .9; filter: drop-shadow(0 1px 1px rgba(0,0,0,.3)); }
+  .hud { position: absolute; top: 22px; left: 0; right: 0; z-index: 6; pointer-events: none;
+         display: flex; justify-content: space-between; align-items: flex-start; padding: 4px 14px; }
+  .tier { background: #14324f; border-radius: 999px; padding: 5px 12px; font-weight: 800;
+          font-size: 12px; letter-spacing: 1px; box-shadow: 0 2px 6px rgba(0,0,0,.3);
+          border: 1.5px solid rgba(255,211,77,.55); }
+  .ht { text-align: right; }
+  .ht b { font-size: 22px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,.45); }
+  .ht span { display: block; font-size: 10px; opacity: .8; letter-spacing: 2px; }
+  .overlay { position: absolute; inset: 0; z-index: 8; display: flex; flex-direction: column;
+             align-items: center; justify-content: center; text-align: center; gap: 6px;
+             background: rgba(8,16,40,.5); }
+  .overlay.hidden { display: none; }
+  .overlay .big { font-size: 30px; font-weight: 800; letter-spacing: 2px;
+                  text-shadow: 0 3px 8px rgba(0,0,0,.5); }
+  .overlay .sub { font-size: 13px; opacity: .9; max-width: 280px; line-height: 1.5; }
+  .overlay .cta { margin-top: 10px; background: #ffd34d; color: #14324f; font-weight: 800;
+                  border-radius: 999px; padding: 11px 26px; font-size: 14px; letter-spacing: 1px;
+                  animation: pulse 1.4s infinite; }
+  @keyframes pulse { 50% { transform: scale(1.06); } }
+  .overlay .stat { font-size: 13px; opacity: .92; } .overlay .stat b { color: #ffd34d; }
+  .milestone { position: absolute; left: 0; right: 0; top: 34%; z-index: 7; text-align: center;
+               pointer-events: none; opacity: 0; }
+  .milestone.show { animation: ms 1.7s ease-out; }
+  .milestone .k { font-size: 11px; letter-spacing: 4px; opacity: .85; }
+  .milestone .v { font-size: 32px; font-weight: 800; letter-spacing: 2px; color: #ffd34d;
+                  text-shadow: 0 3px 10px rgba(0,0,0,.6); }
+  @keyframes ms { 0%{opacity:0;transform:scale(.7)} 18%{opacity:1;transform:scale(1)}
+                  78%{opacity:1} 100%{opacity:0;transform:scale(1.05)} }
+  .note { position: absolute; bottom: 8px; left: 0; right: 0; z-index: 6; text-align: center;
+          font-size: 10px; opacity: .55; letter-spacing: .5px; pointer-events: none; }
+  .ctrls { position: absolute; top: 56px; left: 14px; z-index: 6; display: flex; gap: 8px; }
+  .ctrls button { background: #14324f; color: #fff; border: 1.5px solid rgba(255,211,77,.55);
+    border-radius: 999px; padding: 5px 10px; font-weight: 800; font-size: 11px; letter-spacing: .5px;
+    display: flex; gap: 6px; align-items: center; }
+  .ctrls .fimg { width: 18px; height: 12px; border-radius: 2px; object-fit: cover;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.3); }
+  #picker { position: absolute; inset: 0; z-index: 12; background: rgba(8,16,40,.94);
+    display: none; flex-direction: column; }
+  #picker.open { display: flex; }
+  #picker .ph { padding: 16px 14px 8px; text-align: center; font-weight: 800; letter-spacing: 1.5px; }
+  #picker .pg { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; display: grid;
+    grid-template-columns: repeat(5, 1fr); gap: 9px; padding: 6px 14px 14px; align-content: start; }
+  #picker .pc { text-align: center; cursor: pointer; }
+  #picker .pt { aspect-ratio: 3/2; border-radius: 5px; overflow: hidden;
+    border: 1.5px solid rgba(255,255,255,.45); box-shadow: 0 2px 5px rgba(0,0,0,.4); background: #1b2b4d; }
+  #picker .pt.sel { border-color: #ffd34d; box-shadow: 0 0 10px rgba(255,211,77,.85); }
+  #picker .pt img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  #picker .pcap { font-size: 9px; opacity: .75; margin-top: 3px; letter-spacing: .5px; }
+  #picker .pcap.has { color: #ffd34d; opacity: .95; }
+  #picker .pclose { margin: 0 auto 16px; background: #ffd34d; color: #14324f; border: 0;
+    border-radius: 999px; padding: 10px 24px; font-weight: 800; letter-spacing: 1px; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="c"></canvas>
+  <div class="bunting"></div>
+  <div class="hud">
+    <div class="tier" id="tier">PITCH</div>
+    <div class="ht"><b id="ht">0</b><span>METRES UP</span></div>
+  </div>
+  <div class="ctrls">
+    <button id="flagbtn"><img class="fimg" id="flagimg" alt="">NATION</button>
+    <button id="ballbtn">⚽ STYLE</button>
+  </div>
+  <div id="picker">
+    <div class="ph">CHOOSE YOUR COURSE<div style="font-size:10px;opacity:.7;font-weight:600;letter-spacing:1px;margin-top:3px">48 nations · 48 climbs · your best height each</div></div>
+    <div class="pg" id="pgrid"></div>
+    <button class="pclose" id="pclose">CLOSE</button>
+  </div>
+  <div class="milestone" id="ms"><div class="k">YOU REACHED THE</div><div class="v" id="msv"></div></div>
+  <div class="overlay" id="ov">
+    <div class="big">KEEPIES</div>
+    <div class="sub">Keep it up! The ball bounces by itself — <b>drag left/right</b> (or use the
+      <b>arrow keys</b>) to land each bounce on a header. Don't let it drop.</div>
+    <div class="stat" id="ovstat"></div>
+    <div class="cta" id="ovcta">TAP TO START</div>
+  </div>
+  <div class="note" id="seednote"></div>
+</div>
+<script>
+(() => {
+  "use strict";
+  const Q = new URLSearchParams(location.search);
+  const RM = matchMedia("(prefers-reduced-motion: reduce)").matches && !Q.has("demo");
+  const DEMO = Q.has("demo");
+  const FLAGS = ["ar","at","au","ba","be","br","ca","cd","ch","ci","co","cv","cw","cz","de","dz",
+    "ec","eg","es","fr","gb-eng","gb-sct","gh","hr","ht","iq","ir","jo","jp","kr","ma","mx","nl",
+    "no","nz","pa","pt","py","qa","sa","se","sn","tn","tr","us","uy","uz","za"];
+  let FLAG = (Q.get("flag") || "br").toLowerCase();
+  let ballStyle = (Q.get("ball") === "crest") ? "crest" : "wrap"; // owner kept the flag-wrap ball
+  // each flag = a distinct ENDLESS course whose platform layout traces the flag's
+  // geometry (not its difficulty). Step-1 proof: 3 archetypes; others = generic.
+  let arch = "open", lastLane = 1, discPhase = 0;
+  // all 48 flags → one of 8 layout archetypes (by flag geometry, reusing HOIST's
+  // classification). Distinct journey, matched difficulty.
+  const COURSE = {
+    ar:"bands", at:"bands", co:"bands", cv:"bands", cw:"bands", de:"bands", ec:"bands",
+    eg:"bands", es:"bands", gh:"bands", hr:"bands", ht:"bands", iq:"bands", ir:"bands",
+    nl:"bands", py:"bands", uz:"bands",
+    be:"lanes", ca:"lanes", ci:"lanes", dz:"lanes", fr:"lanes", mx:"lanes", pt:"lanes",
+    qa:"lanes", sn:"lanes",
+    br:"disc", jp:"disc", kr:"disc", ma:"disc", tn:"disc", tr:"disc",
+    ch:"cross", "gb-eng":"cross", "gb-sct":"cross", no:"cross", se:"cross",
+    ba:"triangle", cz:"triangle", jo:"triangle",
+    cd:"diagonal", za:"diagonal",
+    au:"canton", nz:"canton", pa:"canton", us:"canton", uy:"canton",
+    sa:"open",
+  };
+  function courseFor(iso){ return COURSE[iso] || "open"; }
+  const BEST = JSON.parse(localStorage.getItem("kp_best") || "{}"); // per-flag best height
+
+  // seeded layout (mirrors src/lib/anthem/daily.ts)
+  function mulberry32(a){ return function(){ a|=0; a=(a+0x6d2b79f5)|0;
+    let t=Math.imul(a^(a>>>15),1|a); t=(t+Math.imul(t^(t>>>7),61|t))^t;
+    return ((t^(t>>>14))>>>0)/4294967296; }; }
+  const LAUNCH_DAY = Math.floor(Date.UTC(2026,5,11)/86400000);
+  const dayNumber = Math.max(0, Math.floor(Date.now()/86400000) - LAUNCH_DAY);
+  const seed = Q.has("seed") ? (parseInt(Q.get("seed"),10)|0) : (0x26061126 ^ dayNumber);
+  let rnd = mulberry32(seed);
+
+  const cv = document.getElementById("c"), ctx = cv.getContext("2d");
+  let W=0, H=0, DPR=1;
+  function resize(){
+    DPR = Math.min(devicePixelRatio||1, 2.5);
+    W = innerWidth; H = innerHeight;
+    cv.width = Math.round(W*DPR); cv.height = Math.round(H*DPR);
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+  }
+  addEventListener("resize", resize); resize();
+
+  // flag ball texture (loaded as SVG <img>, then drawn onto the ball + shaded)
+  let flagImg = new Image();
+  let flagReady = false;
+  function loadFlag(iso){
+    FLAG = iso; flagReady = false; arch = courseFor(iso);
+    flagImg = new Image();
+    flagImg.onload = () => { flagReady = true; };
+    flagImg.onerror = () => { flagReady = false; };
+    flagImg.src = `/flags/${iso}.svg`;
+    const fi = document.getElementById("flagimg");
+    if (fi) fi.src = flagImg.src;
+    const fb = document.getElementById("flagbtn");
+    if (fb) fb.lastChild.textContent = iso.toUpperCase();
+    updateNote();
+  }
+  loadFlag(FLAG);
+
+  // stadium-ascent milestone bands (metres up)
+  const TIERS = [
+    { m:0,    name:"PITCH" }, { m:150, name:"LOWER TIER" }, { m:350, name:"UPPER TIER" },
+    { m:600,  name:"THE ROOF" }, { m:900, name:"FLOODLIGHTS" }, { m:1300, name:"OPEN SKY" },
+  ];
+  const SKY = [ ["#2e8b46","#9fd6b0"], ["#3f7fae","#bfe2f5"], ["#3a6ea5","#8fb8de"],
+               ["#2f4f86","#5f82b8"], ["#1f3566","#3c5896"], ["#0a1733","#1d2f5e"] ];
+
+  // physics / state
+  const G=2300, BOUNCE=940, SPRING=1.78, PUNT=2.9, R=24;
+  const FOLLOW=20;      // follow-finger snap (per second)
+  const KEY_ACC=2600, KEY_MAX=560, FRICTION=4.2; // desktop arrow feel
+  let ball, plats, climbed, tierIdx, dead, best=0, spin, squash, particles=[];
+  let state="ready";    // ready | run | dead
+  let pointerX=null, keyDir=0, demoT=null, pickerOpen=false;
+  const TOPLINE = () => H*0.42;  // ball is pinned around here; world scrolls instead
+
+  function spawnAbove(y){
+    // gap & width scale with height for a gentle difficulty ramp
+    const up = climbed;
+    const gap = 78 + rnd()*40 + Math.min(up*0.015, 28); // max ~146 < bounce apex (~192)
+    const w = Math.max(54, 92 - Math.min(up*0.01, 30));
+    const ny = y - gap;
+    // ARCHETYPE decides x (the journey); the vertical gap above already guarantees
+    // reachability, and any x is reachable within one bounce, so x-bias is always safe.
+    let cx;
+    if (arch === "lanes"){               // vertical stripes: weave between 3 lanes
+      const lanes = [W*0.24, W*0.5, W*0.76];
+      let li = lastLane + (rnd()<.5 ? -1 : 1);
+      if (li < 0 || li > 2) li = 1;
+      if (rnd() < 0.22) li = (rnd()*3)|0; // occasional lane jump
+      lastLane = li; cx = lanes[li] + (rnd()-.5)*22;
+    } else if (arch === "disc"){         // central emblem/sun: curve around the centre
+      discPhase += 0.5 + rnd()*0.4;
+      cx = W*0.5 + Math.sin(discPhase)*(W*0.28);
+    } else if (arch === "cross"){        // cross/saltire: central column + horizontal arms
+      cx = rnd() < 0.28 ? 12 + w/2 + rnd()*(W-24-w) : W*0.5 + (rnd()-.5)*W*0.20;
+    } else if (arch === "diagonal"){     // diagonal division: slow left<->right drift
+      discPhase += 0.17; const t = discPhase % 2, f = t < 1 ? t : 2 - t;
+      cx = W*0.16 + f*(W*0.68);
+    } else if (arch === "triangle"){     // hoist triangle / chevron: sharp zigzag
+      lastLane = lastLane > 0 ? -1 : 1; cx = W*0.5 + lastLane*W*0.20;
+    } else {                             // bands / canton / open: free spread
+      cx = 12 + w/2 + rnd()*(W - 24 - w);
+    }
+    const x = Math.max(8, Math.min(W - w - 8, cx - w/2));
+    const r = rnd(); let type = "norm";
+    if      (r < 0.05 && up > 250) type = "punt";   // keeper-punt jetpack (mega boost)
+    else if (r < 0.17 && up > 100) type = "spring"; // trampoline
+    else if (r < 0.31 && up > 150) type = "break";  // crumbles after one bounce
+    else if (r < 0.49 && up > 220) type = "move";   // slides side to side
+    return { x, y:ny, w, h:14, type, dir: rnd()<.5?-1:1, vx: 40+rnd()*50, broken:false, sprung:false, fall:0 };
+  }
+  function reset(){
+    rnd = mulberry32(seed);
+    // init state BEFORE spawning (spawnAbove reads `climbed` for its difficulty ramp)
+    climbed = 0; tierIdx = 0; dead = false; spin = 0; squash = 0; particles = [];
+    pointerX = null; keyDir = 0; demoT = null;
+    arch = courseFor(FLAG); lastLane = 1; discPhase = 0;
+    plats = [];
+    // a guaranteed starter platform right under the ball
+    plats.push({ x:W/2-46, y:H*0.72, w:92, h:14, type:"norm", dir:1, vx:0, broken:false });
+    let y = H*0.72;
+    while (y > -40){ const p = spawnAbove(y); plats.push(p); y = p.y; }
+    ball = { x:W/2, y:H*0.72-R, vx:0, vy:-BOUNCE }; // full launch so the 1st apex clears the gap
+  }
+  reset();
+
+  // input
+  function startOrRetry(){
+    if (state==="ready"){ state="run"; hide(); return true; }
+    if (state==="dead"){ state="run"; reset(); hide(); return true; }
+    return false;
+  }
+  addEventListener("pointerdown", e => {
+    if (pickerOpen || e.target.closest(".ctrls") || e.target.closest("#picker")) return;
+    if (startOrRetry()) return;
+    pointerX = e.clientX;
+  });
+  addEventListener("pointermove", e => { if (pointerX!==null) pointerX = e.clientX; });
+  addEventListener("pointerup", () => { pointerX = null; });
+  addEventListener("keydown", e => {
+    if (e.code==="Space"||e.code==="Enter"){ e.preventDefault(); startOrRetry(); }
+    if (e.code==="ArrowLeft"){ keyDir=-1; e.preventDefault(); }
+    if (e.code==="ArrowRight"){ keyDir=1; e.preventDefault(); }
+  });
+  addEventListener("keyup", e => {
+    if ((e.code==="ArrowLeft"&&keyDir<0)||(e.code==="ArrowRight"&&keyDir>0)) keyDir=0;
+  });
+  function hide(){ document.getElementById("ov").classList.add("hidden"); }
+  function show(big, sub, stat, cta){
+    const o=document.getElementById("ov");
+    o.querySelector(".big").textContent=big; o.querySelector(".sub").innerHTML=sub;
+    document.getElementById("ovstat").innerHTML=stat||"";
+    document.getElementById("ovcta").textContent=cta; o.classList.remove("hidden");
+  }
+  function updateNote(){ const el=document.getElementById("seednote"); if(!el) return;
+    el.textContent = `${FLAG.toUpperCase()} · ${arch.toUpperCase()} course · seed ${seed>>>0} · drag or ←/→${RM?" · reduced-motion":""}`; }
+  updateNote();
+
+  // flag-picker UI + ball-style toggle
+  const picker = document.getElementById("picker"), pgrid = document.getElementById("pgrid");
+  FLAGS.forEach(iso => {
+    const cell = document.createElement("div"); cell.className = "pc"; cell.dataset.iso = iso;
+    const t = document.createElement("div"); t.className = "pt"; t.dataset.iso = iso;
+    const im = document.createElement("img"); im.src = `/flags/${iso}.svg`; im.alt = iso;
+    t.appendChild(im);
+    const cap = document.createElement("div"); cap.className = "pcap"; cell.appendChild(t); cell.appendChild(cap);
+    pgrid.appendChild(cell);
+    cell.onclick = () => { loadFlag(iso); reset(); state="run"; markSel(); closePicker(); };
+  });
+  function refreshBadge(iso){
+    const cell = [...pgrid.children].find(c => c.dataset.iso === iso); if (!cell) return;
+    const cap = cell.querySelector(".pcap");
+    cap.textContent = BEST[iso] ? `${BEST[iso]}m` : "—"; cap.classList.toggle("has", !!BEST[iso]);
+  }
+  FLAGS.forEach(refreshBadge);
+  function markSel(){ pgrid.querySelectorAll(".pt").forEach(t =>
+    t.classList.toggle("sel", t.dataset.iso === FLAG)); }
+  function openPicker(){ pickerOpen = true; markSel(); picker.classList.add("open"); }
+  function closePicker(){ pickerOpen = false; picker.classList.remove("open"); }
+  document.getElementById("flagbtn").onclick = openPicker;
+  document.getElementById("pclose").onclick = closePicker;
+  document.getElementById("ballbtn").onclick = () => { ballStyle = ballStyle==="crest" ? "wrap" : "crest"; };
+
+  function step(dt){
+    if (state!=="run" || pickerOpen) return;
+
+    // horizontal steering
+    if (pointerX!==null){                 // follow-finger (touch primary)
+      const k = Math.min(1, FOLLOW*dt);
+      ball.vx = (pointerX - ball.x) * 12;  // velocity toward finger (for spin read)
+      ball.x += (pointerX - ball.x) * k;
+    } else {                              // arrow keys (desktop)
+      ball.vx += keyDir*KEY_ACC*dt;
+      if (!keyDir){ const f = FRICTION*dt; ball.vx -= ball.vx*Math.min(1,f); }
+      ball.vx = Math.max(-KEY_MAX, Math.min(KEY_MAX, ball.vx));
+      ball.x += ball.vx*dt;
+    }
+    // wrap the screen edges (classic Doodle Jump)
+    if (ball.x < -R) ball.x = W+R; else if (ball.x > W+R) ball.x = -R;
+
+    // gravity + vertical
+    ball.vy += G*dt; ball.y += ball.vy*dt;
+    spin += Math.max(-700,Math.min(700, ball.vx))*dt*0.009; // gentler roll
+    squash += (-Math.max(-1,Math.min(1, ball.vy/1400)) - squash) * Math.min(1,14*dt);
+
+    // moving platforms slide; broken ones tumble away
+    for (const p of plats){
+      if (p.type==="move" && !p.broken){ p.x += p.dir*p.vx*dt;
+        if (p.x<8){p.x=8;p.dir=1;} else if (p.x>W-p.w-8){p.x=W-p.w-8;p.dir=-1;} }
+      if (p.broken){ p.fall += dt; p.y += 560*dt*Math.min(1,p.fall*4); }
+    }
+    plats = plats.filter(p => !(p.broken && p.y > H + 50));
+
+    // landing: only while descending, ball bottom crossing the platform top
+    let bounced = false;
+    if (ball.vy > 0){
+      for (const p of plats){
+        if (p.broken) continue;
+        const bx = ball.x, by = ball.y + R;
+        if (bx > p.x-2 && bx < p.x+p.w+2 && by > p.y && by < p.y + p.h + Math.max(14, ball.vy*dt)){
+          if (p.type==="punt"){ ball.vy = -BOUNCE*PUNT; puff(bx,p.y,"#7be0ff",18); }
+          else if (p.type==="spring"){ ball.vy = -BOUNCE*SPRING; p.sprung=true; puff(bx,p.y,"#ffd34d",10); }
+          else { ball.vy = -BOUNCE; puff(bx,p.y,"#ffffff",5); }
+          ball.y = p.y - R; squash = 0.5; bounced = true;
+          if (p.type==="break"){ p.broken = true; p.fall = 0; } // crumbles after one use
+          break;
+        }
+      }
+    }
+
+    // scroll the world when the ball climbs past the top line
+    const tl = TOPLINE();
+    if (ball.y < tl){
+      const shift = tl - ball.y; ball.y = tl; climbed += shift;
+      for (const p of plats) p.y += shift;
+      for (const pt of particles) pt.y += shift;
+      // recycle: drop platforms that fell below, top up above
+      plats = plats.filter(p => p.y < H + 30);
+      let top = Math.min(...plats.map(p=>p.y));
+      while (top > -40){ const np = spawnAbove(top); plats.push(np); top = np.y; }
+    }
+
+    // tier milestones
+    const m = Math.floor(climbed/10);
+    while (tierIdx < TIERS.length-1 && m >= TIERS[tierIdx+1].m){
+      tierIdx++; fireMs(TIERS[tierIdx].name);
+    }
+
+    // death: dropped off the bottom
+    if (ball.y - R > H){ die(); }
+
+    for (const pt of particles){ pt.x+=pt.vx*dt; pt.y+=pt.vy*dt; pt.vy+=1400*dt; pt.life-=dt; }
+    particles = particles.filter(p=>p.life>0);
+
+    // demo auto-steer: commit to the nearest platform above and HOLD the aim
+    // through the whole arc; only re-pick right after a bounce (re-picking
+    // mid-flight makes it chase an unreachable platform and land on nothing).
+    if (DEMO){
+      if (!demoT || demoT.broken || bounced){
+        const cand = plats.filter(p=>!p.broken && p.y < ball.y - 2).sort((a,b)=>b.y-a.y);
+        if (cand[0]) demoT = cand[0];
+      }
+      if (demoT) pointerX = demoT.x + demoT.w/2 + (demoT.type==="move"? demoT.dir*25 : 0);
+    }
+  }
+  function puff(x,y,c,n){ if (RM) return; for(let i=0;i<n;i++) particles.push({
+    x, y, vx:(Math.random()-.5)*220, vy:-Math.random()*160, life:.3+Math.random()*.25, c }); }
+  function fireMs(name){ document.getElementById("msv").textContent=name;
+    const el=document.getElementById("ms"); el.classList.remove("show"); void el.offsetWidth; el.classList.add("show"); }
+  function die(){
+    if (dead) return; dead=true; state="dead";
+    const m = Math.floor(climbed/10); best = Math.max(best, m);
+    const pb = BEST[FLAG] || 0, isPB = m > pb;
+    if (isPB){ BEST[FLAG] = m; localStorage.setItem("kp_best", JSON.stringify(BEST)); refreshBadge(FLAG); }
+    show(isPB ? "NEW BEST!" : "DROPPED!",
+      `Lost it at the <b>${TIERS[tierIdx].name}</b> on the <b>${FLAG.toUpperCase()}</b> course.`,
+      `Height: <b>${m} m</b> &nbsp;·&nbsp; ${FLAG.toUpperCase()} best: <b>${Math.max(pb,m)} m</b>`,
+      "TAP TO PLAY AGAIN");
+  }
+
+  // ---- render -----------------------------------------------------------------
+  function lerp(a,b,t){return a+(b-a)*t;}
+  function mix(c1,c2,t){ const a=parseInt(c1.slice(1),16),b=parseInt(c2.slice(1),16);
+    return `rgb(${Math.round(lerp((a>>16)&255,(b>>16)&255,t))},${Math.round(lerp((a>>8)&255,(b>>8)&255,t))},${Math.round(lerp(a&255,b&255,t))})`; }
+  function draw(){
+    const m = climbed/10;
+    let t=0, lo=SKY[tierIdx], hi=SKY[Math.min(tierIdx+1,SKY.length-1)];
+    if (tierIdx<TIERS.length-1){ const a=TIERS[tierIdx].m,b=TIERS[tierIdx+1].m; t=Math.max(0,Math.min(1,(m-a)/(b-a))); }
+    const g = ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0, mix(lo[0],hi[0],t)); g.addColorStop(1, mix(lo[1],hi[1],t));
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    drawBackdrop(m);
+    // faint stars up high
+    if (!RM && tierIdx>=3){ ctx.fillStyle="rgba(255,255,255,.5)";
+      for(let i=0;i<40;i++){ const sx=((i*97.13)%W), sy=((i*53.7+climbed*0.1)%H);
+        ctx.globalAlpha=.3+0.3*Math.sin(i+climbed*0.002); ctx.fillRect(sx,sy,2,2);} ctx.globalAlpha=1; }
+
+    drawPlatforms();
+    drawBall();
+
+    for (const pt of particles){ ctx.globalAlpha=Math.max(0,Math.min(1,pt.life*3));
+      ctx.fillStyle=pt.c; ctx.fillRect(pt.x,pt.y,3,3); } ctx.globalAlpha=1;
+  }
+  function rr(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+  // the REAL flag fills the lower climb and slides down as you ascend, so you rise out
+  // of your nation's flag into the shared sky (per-flag identity at the start, then a
+  // universal climb). The platform LAYOUT (archetype) carries the journey; the flag
+  // image carries the identity — accurate for all 48, no per-flag colour coding.
+  function drawBackdrop(m){
+    if (!flagReady) return;
+    const a = Math.max(0, 1 - m/360) * 0.5;
+    if (a <= 0.01) return;
+    const fh = H*1.15, fw = fh*1.5;          // cover-fit to the width (3:2 flag)
+    const yBottom = H + climbed*0.35;        // slides down as you climb
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.drawImage(flagImg, (W-fw)/2, yBottom - fh, fw, fh);
+    ctx.restore();
+  }
+  function pent(cx,cy,r){ ctx.beginPath(); for(let i=0;i<5;i++){ const a=i/5*Math.PI*2-Math.PI/2;
+    const px=cx+Math.cos(a)*r, py=cy+Math.sin(a)*r; i?ctx.lineTo(px,py):ctx.moveTo(px,py);} ctx.closePath(); ctx.fill(); }
+  function drawPlatforms(){
+    for (const p of plats){
+      if (p.y < -30 || p.y > H+30) continue;
+      ctx.save();
+      ctx.globalAlpha = p.broken ? Math.max(0, 1 - p.fall*1.6) : 1;
+      // shadow
+      ctx.fillStyle="rgba(0,0,0,.18)"; rr(p.x+2,p.y+4,p.w,p.h,7); ctx.fill();
+      if (p.type==="punt"){               // keeper-punt jetpack: cyan pad + gloves + big arrows
+        ctx.fillStyle="#1f9fc6"; rr(p.x,p.y,p.w,p.h,7); ctx.fill();
+        ctx.fillStyle="#7be0ff"; rr(p.x,p.y,p.w,4,4); ctx.fill();
+        ctx.fillStyle="#fff";             // two keeper gloves
+        ctx.beginPath(); ctx.arc(p.x+p.w/2-12,p.y-5,6,0,7); ctx.arc(p.x+p.w/2+12,p.y-5,6,0,7); ctx.fill();
+        ctx.strokeStyle="#fff"; ctx.lineWidth=2.5;
+        for(let i=0;i<2;i++){ const cy=p.y+8-i*4; ctx.beginPath();
+          ctx.moveTo(p.x+p.w/2-8,cy); ctx.lineTo(p.x+p.w/2,cy-5); ctx.lineTo(p.x+p.w/2+8,cy); ctx.stroke(); }
+      }
+      else if (p.type==="spring"){        // trampoline: gold + chevrons
+        ctx.fillStyle = p.sprung? "#ffe08a":"#ffd34d"; rr(p.x,p.y,p.w,p.h,7); ctx.fill();
+        ctx.strokeStyle="#14324f"; ctx.lineWidth=2;
+        for(let i=0;i<3;i++){ const cx=p.x+p.w/2+(i-1)*14; ctx.beginPath();
+          ctx.moveTo(cx-5,p.y+9); ctx.lineTo(cx,p.y+4); ctx.lineTo(cx+5,p.y+9); ctx.stroke(); }
+      }
+      else if (p.type==="break"){         // crumbling: cracked brown bar
+        ctx.fillStyle="#9c7a52"; rr(p.x,p.y,p.w,p.h,7); ctx.fill();
+        ctx.fillStyle="#7c5e3c"; rr(p.x,p.y,p.w,4,4); ctx.fill();
+        ctx.strokeStyle="rgba(40,24,10,.6)"; ctx.lineWidth=1.5; // crack lines
+        ctx.beginPath(); ctx.moveTo(p.x+p.w*0.4,p.y); ctx.lineTo(p.x+p.w*0.5,p.y+p.h);
+        ctx.moveTo(p.x+p.w*0.66,p.y+p.h); ctx.lineTo(p.x+p.w*0.6,p.y); ctx.stroke();
+      }
+      else {                              // norm / move: turf bar + header silhouette
+        ctx.fillStyle = p.type==="move" ? "#cfe6f6" : "#eef6ee"; rr(p.x,p.y,p.w,p.h,7); ctx.fill();
+        ctx.fillStyle = "#2e8b46"; rr(p.x,p.y,p.w,4,4); ctx.fill();
+        ctx.fillStyle="#14324f"; ctx.beginPath(); ctx.arc(p.x+p.w/2, p.y-4, 5, 0, 7); ctx.fill();
+        ctx.fillStyle="rgba(20,50,79,.6)"; rr(p.x+p.w/2-7, p.y-1, 14, 5, 2); ctx.fill();
+      }
+      ctx.restore();
+    }
+  }
+  function drawBall(){
+    const x=ball.x, y=ball.y;
+    const sy = 1 + squash*0.16, sx = 1 - squash*0.10;
+    // soft drop shadow
+    ctx.fillStyle="rgba(0,0,0,.22)"; ctx.beginPath(); ctx.ellipse(x, y+R+2, R*0.85, R*0.32, 0,0,7); ctx.fill();
+    ctx.save(); ctx.translate(x,y); ctx.scale(sx,sy);
+    // base circle
+    ctx.beginPath(); ctx.arc(0,0,R,0,7); ctx.closePath();
+    ctx.save(); ctx.clip();
+    if (ballStyle==="wrap" && flagReady){
+      // flag wrapped, but only a GENTLE tilt (±~14°) so it never reads upside-down;
+      // faint seams sell the sphere instead of a full spin
+      ctx.save(); ctx.rotate(Math.sin(spin)*0.25);
+      const s = R*2.3; ctx.drawImage(flagImg, -s/2, -s/2, s, s);
+      ctx.restore();
+      ctx.save(); ctx.rotate(spin*0.5); ctx.strokeStyle="rgba(0,0,0,.16)"; ctx.lineWidth=1.2;
+      for(let i=0;i<3;i++){ ctx.beginPath(); ctx.ellipse(0,0,R*0.9,R*(0.32+i*0.27),0,0,7); ctx.stroke(); }
+      ctx.restore();
+    } else {
+      // CREST style (default): a real white football — the black pentagons spin to
+      // show the roll, while the flag sits in an upright, always-readable crest.
+      ctx.fillStyle="#f6f8fb"; ctx.fillRect(-R,-R,2*R,2*R);
+      ctx.save(); ctx.rotate(spin); ctx.fillStyle="#1a2433";
+      for(let i=0;i<5;i++){ const a=i/5*Math.PI*2 - Math.PI/2;  // ring of panel pentagons
+        pent(Math.cos(a)*R*0.78, Math.sin(a)*R*0.78, R*0.20); }
+      ctx.strokeStyle="rgba(26,36,51,.5)"; ctx.lineWidth=1.4;   // seams between them
+      for(let i=0;i<5;i++){ const a=i/5*Math.PI*2 - Math.PI/2;
+        ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(Math.cos(a)*R, Math.sin(a)*R); ctx.stroke(); }
+      ctx.restore();
+      if (flagReady){                  // upright flag crest in the centre
+        const cr = R*0.52;
+        ctx.save(); ctx.beginPath(); ctx.arc(0,0,cr,0,7); ctx.clip();
+        ctx.drawImage(flagImg, -cr*1.5, -cr, cr*3, cr*2); ctx.restore();
+        ctx.strokeStyle="#ffd34d"; ctx.lineWidth=2.5; ctx.beginPath(); ctx.arc(0,0,cr,0,7); ctx.stroke();
+        ctx.strokeStyle="rgba(255,255,255,.75)"; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(0,0,cr-2,0,7); ctx.stroke();
+      }
+    }
+    // spherical shading: vignette edge + glossy highlight (NOT rotated → fixed light)
+    const vg = ctx.createRadialGradient(0,0,R*0.55, 0,0,R);
+    vg.addColorStop(0,"rgba(0,0,0,0)"); vg.addColorStop(1,"rgba(0,0,0,.42)");
+    ctx.fillStyle=vg; ctx.fillRect(-R,-R,2*R,2*R);
+    const hl = ctx.createRadialGradient(-R*0.35,-R*0.4,1, -R*0.35,-R*0.4,R*1.1);
+    hl.addColorStop(0,"rgba(255,255,255,.55)"); hl.addColorStop(.4,"rgba(255,255,255,.08)"); hl.addColorStop(1,"rgba(255,255,255,0)");
+    ctx.fillStyle=hl; ctx.fillRect(-R,-R,2*R,2*R);
+    ctx.restore(); // clip
+    // crisp specular dot + rim
+    ctx.fillStyle="rgba(255,255,255,.9)"; ctx.beginPath(); ctx.arc(-R*0.34,-R*0.42,R*0.12,0,7); ctx.fill();
+    ctx.strokeStyle="rgba(0,0,0,.25)"; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(0,0,R,0,7); ctx.stroke();
+    ctx.restore(); // transform
+  }
+
+  function hud(){ document.getElementById("ht").textContent = Math.floor(climbed/10).toLocaleString();
+    document.getElementById("tier").textContent = TIERS[tierIdx].name; }
+
+  let last=performance.now(), acc=0; const FIXED=1/120;
+  function loop(now){ let f=(now-last)/1000; last=now; if(f>0.1)f=0.1; acc+=f;
+    while(acc>=FIXED){ step(FIXED); acc-=FIXED; } draw(); hud(); requestAnimationFrame(loop); }
+  requestAnimationFrame(loop);
+  if (DEMO){ state="run"; hide(); }
+
+  window.__kp = () => ({ state, dead, m:Math.floor(climbed/10), tier:TIERS[tierIdx].name,
+    tierIdx, vy:Math.round(ball.vy), x:Math.round(ball.x), plats:plats.length,
+    types:[...new Set(plats.map(p=>p.type))], best, seed:seed>>>0, flag:FLAG, flagReady,
+    ballStyle, pickerOpen, arch });
+  window.__kpSet = (o={}) => { if(o.flag) loadFlag(o.flag); if(o.ball) ballStyle=o.ball;
+    if(o.pick!==undefined) (o.pick?openPicker():closePicker()); }; // headless hooks
+})();
+</script>
+</body>
+</html>
