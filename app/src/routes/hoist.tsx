@@ -37,11 +37,11 @@ export const Route = createFileRoute('/hoist')({
       ...(ORIGIN
         ? [
             { property: 'og:url', content: ORIGIN + '/hoist' },
-            { property: 'og:image', content: ORIGIN + '/og/matchday.png' },
+            { property: 'og:image', content: ORIGIN + '/og/hoist.png' },
             { property: 'og:image:width', content: '1200' },
             { property: 'og:image:height', content: '630' },
             { name: 'twitter:card', content: 'summary_large_image' },
-            { name: 'twitter:image', content: ORIGIN + '/og/matchday.png' },
+            { name: 'twitter:image', content: ORIGIN + '/og/hoist.png' },
           ]
         : []),
     ],

@@ -17,6 +17,7 @@ const CHROME = process.env.CHROME_BIN || 'google-chrome'
 const SHOTS = [
   ['anthem.png', '/og'],
   ['matchday.png', '/og?card=matchday'],
+  ['hoist.png', '/og?card=hoist'],
 ]
 
 for (const [file, path] of SHOTS) {

@@ -37,6 +37,7 @@ export interface FlagCardOpts {
   built: number
   total: number
   host: string // e.g. location.host
+  label?: string // overrides the "X / 48 FLAGS RAISED" pill (used by the static OG card)
 }
 
 function loadImg(src: string): Promise<HTMLImageElement | null> {
@@ -113,7 +114,7 @@ async function drawFlagCard(canvas: HTMLCanvasElement, o: FlagCardOpts): Promise
   /* count pill: "23 / 48 FLAGS RAISED" */
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  const label = `${o.built} / ${o.total} FLAGS RAISED`
+  const label = o.label || `${o.built} / ${o.total} FLAGS RAISED`
   ctx.font = "800 32px 'Baloo 2', sans-serif"
   const pillW = ctx.measureText(label).width + 64
   rr(ctx, (W - pillW) / 2, 168, pillW, 56, 28)
@@ -183,6 +184,18 @@ export async function renderFlagCard(o: FlagCardOpts): Promise<Blob | null> {
   const canvas = document.createElement('canvas')
   await drawFlagCard(canvas, o)
   return new Promise((resolve) => canvas.toBlob((b) => resolve(b), 'image/png'))
+}
+
+/* static OG link-unfurl card: the full wall of all 48 flags + a tagline (no
+   per-user data). Rendered by /og?card=hoist and screenshot to public/og/hoist.png. */
+const OG_CODES = ['mx','za','kr','cz','ca','ba','qa','ch','br','ma','ht','gb-sct','us','py','au','tr',
+  'de','cw','ci','ec','nl','jp','se','tn','be','eg','ir','nz','es','cv','sa','uy','fr','sn','iq','no',
+  'ar','dz','at','jo','pt','cd','uz','co','gb-eng','hr','gh','pa']
+export async function drawHoistOg(canvas: HTMLCanvasElement): Promise<void> {
+  await drawFlagCard(canvas, {
+    cells: OG_CODES.map(() => true), codes: OG_CODES, built: 48, total: 48,
+    host: 'wc26minigames.com', label: 'RAISE EVERY WORLD CUP FLAG',
+  })
 }
 
 /* text fallback (and the body that rides along with the image): an emoji grid

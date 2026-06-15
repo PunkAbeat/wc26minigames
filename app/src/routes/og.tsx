@@ -8,6 +8,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useRef } from 'react'
 import { drawMatchdayCard, drawShareCard } from '../lib/anthem/sharecard'
+import { drawHoistOg } from '../lib/flagsort/sharecard'
 
 export const Route = createFileRoute('/og')({
   head: () => ({ meta: [{ name: 'robots', content: 'noindex' }] }),
@@ -17,10 +18,13 @@ export const Route = createFileRoute('/og')({
 function OgPage() {
   const ref = useRef<HTMLCanvasElement>(null)
   useEffect(() => {
-    const draw = () => {
+    const draw = async () => {
       if (!ref.current) return
-      if (new URLSearchParams(location.search).get('card') === 'matchday') {
+      const card = new URLSearchParams(location.search).get('card')
+      if (card === 'matchday') {
         drawMatchdayCard(ref.current)
+      } else if (card === 'hoist') {
+        await drawHoistOg(ref.current) // async: rasterises the 48 flag SVGs
       } else {
         drawShareCard(ref.current, {
           results: ['wrong', 'skip', 'correct'], // an inviting mid-story grid, no spoiler
