@@ -1,6 +1,43 @@
 # Current handoff
 
-*Updated: 2026-06-13 (game #2 shipped into the app as HOIST — real flags, ANTHEM-aligned chrome, share card, pitch-styled win banner; awaiting owner deploy)*
+*Updated: 2026-06-15 (game #3 BREAKAWAY feel-mocked then PARKED — owner not satisfied on device; mock kept/recoverable, nothing deployed)*
+
+## Game #3 — BREAKAWAY (15 Jun)
+
+Owner proposed a football version of the Chrome Dino runner, "adapted to our setup."
+Brainstormed → owner picked **solo-breakaway / hurdle framing + seeded daily**.
+Full write-up in [game3-brainstorm.md](../research/game3-brainstorm.md). Design:
+auto-run counter-attack, **tap = hurdle a slide tackle** (variable jump height on
+hold), **distance = the bracket** (Group Stage → R32 → R16 → QF → SF → FINAL, stadium
+shifts to night floodlights as you climb), **seeded daily** course (everyone gets the
+same obstacle sequence today → comparable Wordle-style share) + uncapped free-play.
+Run-as-your-nation flag pennant deferred; duck/slide deferred — prove the jump first.
+
+Per the process rule, only the **central interaction** is built: feel mock at
+**`/mock/breakaway`** (`app/public/mock/breakaway.html`, disposable, stripped by
+`build:prod` like the others). Canvas runner, fixed-timestep physics, seeded via the
+same `mulberry32`/`dayNumber` scheme as `src/lib/anthem/daily.ts`. Hooks: `?demo`
+auto-jumper, `?seed=N`, `window.__bw()` snapshot, `prefers-reduced-motion` drops
+parallax/particles but keeps gameplay. Verified end-to-end via a real-time CDP drive
+(virtual-time freezes the rAF loop — same gotcha as the flagsort mock): the demo bot
+survives 600m+, distance/speed ramp and bracket milestones fire, 0 exceptions; build
+green; screenshot eyeballed (runner mid-hurdle reads clearly).
+
+**PARKED (15 Jun).** Owner played it: *"not satisfied at the moment with it."* No
+specific cause captured. Parked, not scrapped (like SQUAD) — `/mock/breakaway` kept
+and recoverable, stripped from prod by `build:prod`, nothing deployed. Next: a fresh
+game-#3 direction (BREAKAWAY revisitable if the runner itch returns).
+
+> **Preview gotcha (fixed this session):** an orphan `vite preview` (started earlier
+> today, pre-breakaway dist) was still holding `:4173`, so `systemctl restart
+> wc26-preview` kept bouncing to `:4174` and the stale server served old mocks (404
+> for new ones). Killed it with `sudo fuser -k 4173/tcp` before restarting; the
+> managed instance now binds `:4173` with fresh `dist`. Watch for this if a freshly
+> built mock 404s — check `pgrep -af "vite preview"` for strays.
+
+---
+
+*Earlier — game #2 shipped into the app as HOIST — real flags, ANTHEM-aligned chrome, share card, pitch-styled win banner; awaiting owner deploy*
 
 ## State
 
