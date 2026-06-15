@@ -45,6 +45,11 @@ TanStack Start (React 19, Vite) targeting Cloudflare Workers via `@cloudflare/vi
 | `node tools/gen-icons.mjs` | regenerate PWA icons from `tools/icon.html` |
 | `node tools/measure-offsets.mjs` | re-measure anthem leading-silence offsets (ffmpeg) |
 | `npm run audio:prepare` | trim/normalize all anthems into `public/audio/` + manifest ([ADR-0005](adr/0005-self-hosted-audio-as-worker-assets.md)) |
+| `npm run deploy` | ship to Cloudflare (wc26minigames.com): `audio:prepare` + `build:prod` + `wrangler deploy` |
+
+### Deploy auth (Cloudflare API token)
+
+`npm run deploy` authenticates wrangler from an env var — no `wrangler login` needed. The token lives on this host at **`~/.config/cloudflare/wc26minigames_token`** (raw token, mode 600, scoped to this project). The deploy script reads it automatically (`CLOUDFLARE_API_TOKEN=$(cat ~/.config/cloudflare/wc26minigames_token)`), or you can override by exporting `CLOUDFLARE_API_TOKEN` yourself. Deploying is **owner-gated** — only on explicit say-so.
 
 ## Test system
 
