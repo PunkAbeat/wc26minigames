@@ -243,5 +243,16 @@ bounce survives an on-device gut check.
   - Verified via CDP (added `__kpSet({m,vy,celebrate})` test hooks + `celebrateT` in
     `__kp`): trophy fires at OPEN SKY (celebrateT≈2.5), trail renders on forced punt
     velocity, free-play seed is random per run, build green, 0 exceptions; screenshots
-    confirm both. Committed at `3e8d434` was the pre-juice 48-course state; this juice
-    pass is the next commit.
+    confirm both. Committed at `3e8d434` was the pre-juice 48-course state; juice pass
+    at `24940a3`.
+- 15 Jun — **GRADUATED INTO THE APP.** Owner locked graduate-now · fullscreen
+  immersive · name KEEPIES. Built the real game on the HOIST playbook: route
+  `/keepies` (fullscreen, React back/how-to chrome), engine ported verbatim to
+  `src/lib/keepies/game.ts` (`mountKeepies` → `{destroy,setPaused}`, listener/rAF
+  teardown, injected storage+analytics), per-flag best in
+  `localStorage["wc26_keepies_best"]`, hub card with a custom `BallMark` SVG emblem,
+  `keepies_tagline`+`badge_freeplay` in 11 langs, scoped `keepies.css`. All gates green
+  (build, typecheck, 60 vitest, 11 headless incl. hub); CDP-verified the real route
+  plays + best persists + 0 exceptions. **Not deployed** — owner iOS on-device check
+  pending. Deferred: headless suite #13, OG image, share card, sound, full in-game
+  i18n. The disposable mock stays as the feel reference.

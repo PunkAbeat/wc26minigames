@@ -11,6 +11,8 @@ export const de: Record<StringKey, string> = {
   full_time_2030: 'ABPFIFF · BIS 2030',
   anthem_tagline: 'Hör einen Ausschnitt einer Nationalhymne und errate das Land in sechs Versuchen.',
   flagsort_tagline: "Gieße die Farben an ihren Platz und baue jede Flagge nach.",
+  keepies_tagline: "Lass den Ball deiner Nation durchs Stadion nach oben springen – wie hoch kommst du?",
+  badge_freeplay: 'Freies Spiel · Jetzt spielen',
   badge_live: 'Täglich · Jetzt spielen',
   badge_campaign: "Kampagne · Jetzt spielen",
   badge_soon: 'Bald verfügbar',

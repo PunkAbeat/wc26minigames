@@ -11,6 +11,8 @@ export const tr: Record<StringKey, string> = {
   full_time_2030: 'MAÇ SONU · 2030’DA GÖRÜŞÜRÜZ',
   anthem_tagline: 'Bir millî marştan kısa bir bölüm dinle, ülkeyi altı denemede bil.',
   flagsort_tagline: "Renkleri yerine dök, her ülkenin bayrağını inşa et.",
+  keepies_tagline: "Ülkenin topunu stadyumda yukarı sektir — ne kadar yükselebilirsin?",
+  badge_freeplay: 'Serbest oyun · Hemen oyna',
   badge_live: 'Günlük · Hemen oyna',
   badge_campaign: "Kampanya · Hemen oyna",
   badge_soon: 'Yakında',

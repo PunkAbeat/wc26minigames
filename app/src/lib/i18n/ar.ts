@@ -12,6 +12,8 @@ export const ar: Record<StringKey, string> = {
   full_time_2030: 'نهاية المباراة · نراكم في 2030',
   anthem_tagline: 'استمع إلى مقطع من نشيد وطني وخمّن البلد في ست محاولات.',
   flagsort_tagline: "اسكب الألوان في مكانها لبناء علم كل دولة.",
+  keepies_tagline: "اجعل كرة بلدك ترتد إلى أعلى الملعب — إلى أي ارتفاع تصل؟",
+  badge_freeplay: 'لعب حر · العب الآن',
   badge_live: 'يوميًا · العب الآن',
   badge_campaign: "مسيرة · العب الآن",
   badge_soon: 'قريبًا',

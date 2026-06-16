@@ -12,6 +12,8 @@ export const ja: Record<StringKey, string> = {
   full_time_2030: '試合終了 · また2030年に',
   anthem_tagline: '国歌の一部を聴いて、6回以内にどの国か当てよう。',
   flagsort_tagline: "色を注いで各国の旗を完成させよう。",
+  keepies_tagline: "あなたの国のボールをスタジアムの上へ弾ませよう——どこまで登れる？",
+  badge_freeplay: 'フリープレイ · 今すぐプレイ',
   badge_live: '毎日 · 今すぐプレイ',
   badge_campaign: "キャンペーン · 今すぐプレイ",
   badge_soon: '近日公開',

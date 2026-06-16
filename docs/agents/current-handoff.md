@@ -1,6 +1,32 @@
 # Current handoff
 
-*Updated: 2026-06-15 (game #3 = KEEPIES, a Doodle-Jump football climber — now a full 48-course feel mock, owner approving the direction; BREAKAWAY parked below; nothing deployed)*
+*Updated: 2026-06-15 (game #3 = KEEPIES GRADUATED INTO THE APP — real route `/keepies`, hub card, engine ported verbatim; all gates green; owner on-device check pending; not deployed. BREAKAWAY parked below)*
+
+## KEEPIES graduated (15 Jun)
+
+Owner locked: **graduate now · fullscreen immersive · name KEEPIES**. Built the real
+game following the HOIST playbook (all gates green; CDP-verified the route plays,
+best persists, 0 exceptions; **not deployed**):
+- **Route** `src/routes/keepies.tsx` — fullscreen immersive; React owns only the
+  back (`⚽ Games`) + how-to chrome (`.kp-chrome`, which the engine's pointer guard
+  ignores) and pausing; engine mounts client-side in a useEffect.
+- **Engine** `src/lib/keepies/game.ts` (`@ts-nocheck`) — ported VERBATIM from the
+  mock as `mountKeepies(root, opts)` returning `{ destroy, setPaused }`; window
+  listeners + rAF tracked for teardown; storage/analytics injected; `window.__kp`/
+  `__kpSet` kept for a future headless suite.
+- **Storage** `src/lib/keepies/storage.ts` — per-flag best in `wc26_keepies_best`.
+- **Hub** — `tba-2` placeholder → live KEEPIES card with custom `BallMark` SVG
+  emblem (`src/components/BallMark.tsx`; emoji balls render inconsistently).
+- **i18n** — `keepies_tagline` + new `badge_freeplay` in all 11 langs; in-game copy
+  English-first (ANTHEM/HOIST phase-1 pattern).
+- **CSS** `src/styles/keepies.css` — engine selectors scoped under `.kp-root`,
+  keyframes `kp-`-prefixed. Mock kept as reference (`build:prod` strips it).
+- **Deferred** (post-graduation, like HOIST): headless suite #13 (driver hooks
+  exist), OG image (`og:image` omitted), share card, sound, full in-game i18n.
+- **Gate**: not deployed; needs the owner's iOS Safari on-device pass of `/keepies`
+  + the hub card.
+
+## KEEPIES mock history (feel iterations, 15 Jun)
 
 ## Game #3 — KEEPIES (Doodle-Jump climber, 15 Jun) — ACTIVE
 

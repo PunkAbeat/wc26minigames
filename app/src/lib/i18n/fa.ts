@@ -12,6 +12,8 @@ export const fa: Record<StringKey, string> = {
   full_time_2030: 'پایان بازی · تا 2030',
   anthem_tagline: 'قطعه‌ای از یک سرود ملی بشنو و کشور را در شش تلاش حدس بزن.',
   flagsort_tagline: "رنگ‌ها را سر جای خود بریز تا پرچم هر کشور را بسازی.",
+  keepies_tagline: "توپ کشورت را در ورزشگاه به بالا بجهان — تا کجا بالا می‌روی؟",
+  badge_freeplay: 'بازی آزاد · همین حالا بازی کن',
   badge_live: 'روزانه · همین حالا بازی کن',
   badge_campaign: "کمپین · همین حالا بازی کن",
   badge_soon: 'به‌زودی',

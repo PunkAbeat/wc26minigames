@@ -11,6 +11,8 @@ export const fr: Record<StringKey, string> = {
   full_time_2030: 'FIN DU MATCH · RENDEZ-VOUS EN 2030',
   anthem_tagline: 'Écoutez un extrait d’un hymne national et devinez le pays en six essais.',
   flagsort_tagline: "Verse les couleurs à leur place pour reconstituer chaque drapeau.",
+  keepies_tagline: "Fais rebondir le ballon de ta nation jusqu’en haut du stade : jusqu’où iras-tu ?",
+  badge_freeplay: 'Jeu libre · Jouez',
   badge_live: 'Quotidien · Jouez',
   badge_campaign: "Campagne · Jouez",
   badge_soon: 'Bientôt',

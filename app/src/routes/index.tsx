@@ -6,6 +6,7 @@ import { t, useLang } from '../lib/i18n'
 import type { Lang } from '../lib/i18n'
 import { LangSwitch } from '../components/LangSwitch'
 import { FlagMark } from '../components/FlagMark'
+import { BallMark } from '../components/BallMark'
 import '../styles/hub.css'
 
 const ORIGIN = (import.meta.env.VITE_SITE_ORIGIN as string | undefined) || ''
@@ -47,9 +48,9 @@ interface GameEntry {
   id: string
   name: string
   icon: string
-  tagline: 'anthem_tagline' | 'flagsort_tagline' | 'tba_tagline'
+  tagline: 'anthem_tagline' | 'flagsort_tagline' | 'keepies_tagline' | 'tba_tagline'
   status: 'live' | 'soon'
-  badge: 'badge_live' | 'badge_campaign' | 'badge_soon'
+  badge: 'badge_live' | 'badge_campaign' | 'badge_freeplay' | 'badge_soon'
   to?: string
 }
 
@@ -72,7 +73,15 @@ const GAMES: GameEntry[] = [
     badge: 'badge_campaign',
     to: '/hoist',
   },
-  { id: 'tba-2', name: '???', icon: '🏆', tagline: 'tba_tagline', status: 'soon', badge: 'badge_soon' },
+  {
+    id: 'keepies',
+    name: 'KEEPIES',
+    icon: '⚽',
+    tagline: 'keepies_tagline',
+    status: 'live',
+    badge: 'badge_freeplay',
+    to: '/keepies',
+  },
 ]
 
 const BUNTING_COLS = ['#ffd23f', '#ff6b3d', '#ffffff', '#2fb955']
@@ -144,7 +153,13 @@ function Hub() {
               <div className="markings" />
               <div className="gc-pad">
                 <div className="gc-icon">
-                  {g.id === 'flagsort' ? <FlagMark size={38} /> : g.icon}
+                  {g.id === 'flagsort' ? (
+                    <FlagMark size={38} />
+                  ) : g.id === 'keepies' ? (
+                    <BallMark size={36} />
+                  ) : (
+                    g.icon
+                  )}
                 </div>
                 <div className="gc-body">
                   <div className="gc-name disp">{g.name}</div>

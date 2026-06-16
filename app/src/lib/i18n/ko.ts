@@ -12,6 +12,8 @@ export const ko: Record<StringKey, string> = {
   full_time_2030: '경기 종료 · 2030년에 만나요',
   anthem_tagline: '국가의 한 부분을 듣고 여섯 번 안에 나라를 맞혀 보세요.',
   flagsort_tagline: "색을 부어 각 나라의 국기를 완성하세요.",
+  keepies_tagline: "당신 나라의 공을 경기장 위로 튀겨 올리세요 — 얼마나 높이 오를까요?",
+  badge_freeplay: '자유 플레이 · 지금 플레이',
   badge_live: '매일 · 지금 플레이',
   badge_campaign: "캠페인 · 지금 플레이",
   badge_soon: '곧 공개',

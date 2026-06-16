@@ -1,0 +1,116 @@
+/* KEEPIES — fullscreen immersive climber. The engine (src/lib/keepies/game.ts)
+   writes its canvas + HUD + course-select into .kp-root; React adds the back /
+   how-to chrome over the top. All engine selectors are scoped under .kp-root;
+   keyframes are kp-prefixed to avoid clashing with the other games. */
+
+.page-keepies { position: fixed; inset: 0; background: #0a1428; }
+
+.kp-root, .kp-root * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+.kp-root {
+  position: fixed; inset: 0; overflow: hidden; touch-action: none;
+  font-family: -apple-system, "Segoe UI", Roboto, sans-serif; background: #0a1428; color: #fff;
+}
+.kp-root canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.kp-root .bunting {
+  position: absolute; top: 0; left: 0; right: 0; height: 16px; z-index: 5; pointer-events: none;
+  background: repeating-linear-gradient(135deg, #d40e14 0 11px, transparent 11px 22px),
+              repeating-linear-gradient(45deg, #ffd34d 0 11px, transparent 11px 22px);
+  background-size: 22px 16px; opacity: .9; filter: drop-shadow(0 1px 1px rgba(0,0,0,.3));
+}
+.kp-root .hud {
+  position: absolute; top: 22px; left: 0; right: 0; z-index: 6; pointer-events: none;
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 4px 14px 4px 120px; /* clear the back button on the left */
+}
+.kp-root .tier {
+  background: #14324f; border-radius: 999px; padding: 5px 12px; font-weight: 800;
+  font-size: 12px; letter-spacing: 1px; box-shadow: 0 2px 6px rgba(0,0,0,.3);
+  border: 1.5px solid rgba(255,211,77,.55);
+}
+.kp-root .ht { text-align: right; }
+.kp-root .ht b { font-size: 22px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,.45); }
+.kp-root .ht span { display: block; font-size: 10px; opacity: .8; letter-spacing: 2px; }
+.kp-root .overlay {
+  position: absolute; inset: 0; z-index: 8; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center; gap: 6px;
+  background: rgba(8,16,40,.5);
+}
+.kp-root .overlay.hidden { display: none; }
+.kp-root .overlay .big { font-size: 30px; font-weight: 800; letter-spacing: 2px; text-shadow: 0 3px 8px rgba(0,0,0,.5); }
+.kp-root .overlay .sub { font-size: 13px; opacity: .9; max-width: 280px; line-height: 1.5; }
+.kp-root .overlay .cta {
+  margin-top: 10px; background: #ffd34d; color: #14324f; font-weight: 800;
+  border-radius: 999px; padding: 11px 26px; font-size: 14px; letter-spacing: 1px;
+  animation: kp-pulse 1.4s infinite;
+}
+@keyframes kp-pulse { 50% { transform: scale(1.06); } }
+.kp-root .overlay .stat { font-size: 13px; opacity: .92; }
+.kp-root .overlay .stat b { color: #ffd34d; }
+.kp-root .milestone {
+  position: absolute; left: 0; right: 0; top: 34%; z-index: 7; text-align: center;
+  pointer-events: none; opacity: 0;
+}
+.kp-root .milestone.show { animation: kp-ms 1.7s ease-out; }
+.kp-root .milestone .k { font-size: 11px; letter-spacing: 4px; opacity: .85; }
+.kp-root .milestone .v {
+  font-size: 32px; font-weight: 800; letter-spacing: 2px; color: #ffd34d; text-shadow: 0 3px 10px rgba(0,0,0,.6);
+}
+@keyframes kp-ms { 0%{opacity:0;transform:scale(.7)} 18%{opacity:1;transform:scale(1)} 78%{opacity:1} 100%{opacity:0;transform:scale(1.05)} }
+.kp-root .note {
+  position: absolute; bottom: 8px; left: 0; right: 0; z-index: 6; text-align: center;
+  font-size: 10px; opacity: .55; letter-spacing: .5px; pointer-events: none;
+}
+.kp-root .ctrls { position: absolute; top: 56px; left: 14px; z-index: 6; display: flex; gap: 8px; }
+.kp-root .ctrls button {
+  background: #14324f; color: #fff; border: 1.5px solid rgba(255,211,77,.55);
+  border-radius: 999px; padding: 5px 10px; font-weight: 800; font-size: 11px; letter-spacing: .5px;
+  display: flex; gap: 6px; align-items: center;
+}
+.kp-root .ctrls .fimg { width: 18px; height: 12px; border-radius: 2px; object-fit: cover; box-shadow: 0 0 0 1px rgba(255,255,255,.3); }
+.kp-root #picker { position: absolute; inset: 0; z-index: 12; background: rgba(8,16,40,.94); display: none; flex-direction: column; }
+.kp-root #picker.open { display: flex; }
+.kp-root #picker .ph { padding: 16px 14px 8px; text-align: center; font-weight: 800; letter-spacing: 1.5px; }
+.kp-root #picker .pg {
+  flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; display: grid;
+  grid-template-columns: repeat(5, 1fr); gap: 9px; padding: 6px 14px 14px; align-content: start;
+}
+.kp-root #picker .pc { text-align: center; cursor: pointer; }
+.kp-root #picker .pt {
+  aspect-ratio: 3/2; border-radius: 5px; overflow: hidden;
+  border: 1.5px solid rgba(255,255,255,.45); box-shadow: 0 2px 5px rgba(0,0,0,.4); background: #1b2b4d;
+}
+.kp-root #picker .pt.sel { border-color: #ffd34d; box-shadow: 0 0 10px rgba(255,211,77,.85); }
+.kp-root #picker .pt img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.kp-root #picker .pcap { font-size: 9px; opacity: .75; margin-top: 3px; letter-spacing: .5px; }
+.kp-root #picker .pcap.has { color: #ffd34d; opacity: .95; }
+.kp-root #picker .pclose {
+  margin: 0 auto 16px; background: #ffd34d; color: #14324f; border: 0;
+  border-radius: 999px; padding: 10px 24px; font-weight: 800; letter-spacing: 1px;
+}
+
+/* React chrome over the canvas */
+.kp-chrome { position: fixed; z-index: 20; }
+.kp-back, .kp-help {
+  background: #14324f; color: #fff; border: 1.5px solid rgba(255,211,77,.55);
+  border-radius: 999px; font-weight: 800; text-decoration: none; display: flex; align-items: center;
+}
+.kp-back { top: 18px; left: 12px; padding: 6px 12px; font-size: 12px; letter-spacing: .5px; gap: 6px; }
+.kp-help { top: 54px; right: 12px; width: 30px; height: 30px; justify-content: center; font-size: 15px; }
+.kp-modal {
+  position: fixed; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center;
+  background: rgba(8,16,40,.6); padding: 24px;
+}
+.kp-modalcard {
+  background: #14324f; border: 1.5px solid rgba(255,211,77,.5); border-radius: 16px;
+  padding: 22px; max-width: 320px; text-align: center;
+}
+.kp-modalcard h2 { margin: 0 0 10px; letter-spacing: 1px; }
+.kp-modalcard p { font-size: 13px; line-height: 1.55; opacity: .92; margin: 0 0 12px; }
+.kp-modalcard b { color: #ffd34d; }
+.kp-modalcard button {
+  background: #ffd34d; color: #14324f; border: 0; border-radius: 999px; padding: 10px 22px; font-weight: 800;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kp-root .overlay .cta { animation: none; }
+}

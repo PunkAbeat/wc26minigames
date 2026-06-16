@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as OgRouteImport } from './routes/og'
+import { Route as KeepiesRouteImport } from './routes/keepies'
 import { Route as HoistRouteImport } from './routes/hoist'
 import { Route as AnthemRouteImport } from './routes/anthem'
 import { Route as IndexRouteImport } from './routes/index'
@@ -21,6 +22,11 @@ import { Route as ApiAnthemStatsRouteImport } from './routes/api.anthem-stats'
 const OgRoute = OgRouteImport.update({
   id: '/og',
   path: '/og',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KeepiesRoute = KeepiesRouteImport.update({
+  id: '/keepies',
+  path: '/keepies',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HoistRoute = HoistRouteImport.update({
@@ -63,6 +69,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/anthem': typeof AnthemRoute
   '/hoist': typeof HoistRoute
+  '/keepies': typeof KeepiesRoute
   '/og': typeof OgRoute
   '/api/anthem-stats': typeof ApiAnthemStatsRoute
   '/api/error': typeof ApiErrorRoute
@@ -73,6 +80,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/anthem': typeof AnthemRoute
   '/hoist': typeof HoistRoute
+  '/keepies': typeof KeepiesRoute
   '/og': typeof OgRoute
   '/api/anthem-stats': typeof ApiAnthemStatsRoute
   '/api/error': typeof ApiErrorRoute
@@ -84,6 +92,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/anthem': typeof AnthemRoute
   '/hoist': typeof HoistRoute
+  '/keepies': typeof KeepiesRoute
   '/og': typeof OgRoute
   '/api/anthem-stats': typeof ApiAnthemStatsRoute
   '/api/error': typeof ApiErrorRoute
@@ -96,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/anthem'
     | '/hoist'
+    | '/keepies'
     | '/og'
     | '/api/anthem-stats'
     | '/api/error'
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/anthem'
     | '/hoist'
+    | '/keepies'
     | '/og'
     | '/api/anthem-stats'
     | '/api/error'
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/'
     | '/anthem'
     | '/hoist'
+    | '/keepies'
     | '/og'
     | '/api/anthem-stats'
     | '/api/error'
@@ -127,6 +139,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnthemRoute: typeof AnthemRoute
   HoistRoute: typeof HoistRoute
+  KeepiesRoute: typeof KeepiesRoute
   OgRoute: typeof OgRoute
   ApiAnthemStatsRoute: typeof ApiAnthemStatsRoute
   ApiErrorRoute: typeof ApiErrorRoute
@@ -141,6 +154,13 @@ declare module '@tanstack/react-router' {
       path: '/og'
       fullPath: '/og'
       preLoaderRoute: typeof OgRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/keepies': {
+      id: '/keepies'
+      path: '/keepies'
+      fullPath: '/keepies'
+      preLoaderRoute: typeof KeepiesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hoist': {
@@ -199,6 +219,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnthemRoute: AnthemRoute,
   HoistRoute: HoistRoute,
+  KeepiesRoute: KeepiesRoute,
   OgRoute: OgRoute,
   ApiAnthemStatsRoute: ApiAnthemStatsRoute,
   ApiErrorRoute: ApiErrorRoute,

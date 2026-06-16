@@ -12,6 +12,8 @@ export const nl: Record<StringKey, string> = {
   full_time_2030: 'AFGELOPEN · TOT 2030',
   anthem_tagline: 'Hoor een stukje van een volkslied en raad het land in zes pogingen.',
   flagsort_tagline: "Giet de kleuren op hun plek en bouw elke vlag na.",
+  keepies_tagline: "Laat de bal van jouw land door het stadion omhoog stuiteren – hoe hoog kom je?",
+  badge_freeplay: 'Vrij spelen · Speel nu',
   badge_live: 'Dagelijks · Speel nu',
   badge_campaign: "Campagne · Speel nu",
   badge_soon: 'Binnenkort',

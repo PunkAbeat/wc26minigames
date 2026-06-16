@@ -14,6 +14,8 @@ export const en = {
   full_time_2030: 'FULL TIME · SEE YOU IN 2030',
   anthem_tagline: 'Hear a snippet of a national anthem, guess the nation in six tries.',
   flagsort_tagline: "Pour the colours into place to build each nation’s flag.",
+  keepies_tagline: "Bounce your nation’s ball up the stadium — how high can you climb?",
+  badge_freeplay: 'Free play · Play now',
   badge_live: 'Daily · Play now',
   badge_campaign: "Campaign · Play now",
   badge_soon: 'Coming soon',
