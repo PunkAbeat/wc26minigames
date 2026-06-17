@@ -11,6 +11,7 @@
    injected storage; a `paused` flag freezes the sim while the how-to modal is open.
    @ts-nocheck: hand-tuned vanilla canvas code, not worth typing. */
 import { renderKeepiesCard, keepiesShareText } from './sharecard'
+import { createKpSound } from './sound'
 
 export function mountKeepies(root, opts = {}) {
   const track = opts.track || (() => {})
@@ -20,6 +21,7 @@ export function mountKeepies(root, opts = {}) {
   const S = opts.strings || {}
   const str = (k, fb) => (S[k] != null ? S[k] : fb)
   const fill = (s, vars) => { for (const k in vars) s = s.replace('{' + k + '}', vars[k]); return s }
+  const sound = createKpSound()
   const TIER_EN = ['PITCH', 'LOWER TIER', 'UPPER TIER', 'THE ROOF', 'FLOODLIGHTS', 'OPEN SKY']
   const tierName = (i) => str('kp_tier_' + (i + 1), TIER_EN[i])
   const gid = (id) => root.querySelector('#' + id)
@@ -37,6 +39,7 @@ export function mountKeepies(root, opts = {}) {
     <div class="ctrls">
       <button id="flagbtn"><img class="fimg" id="flagimg" alt="">NATION</button>
       <button id="ballbtn">${str('kp_style','⚽ STYLE')}</button>
+      <button id="mutebtn" aria-label="Sound">${sound.muted ? '🔇' : '🔊'}</button>
     </div>
     <div id="picker">
       <div class="ph">${str('kp_choose','CHOOSE YOUR COURSE')}<div style="font-size:10px;opacity:.7;font-weight:600;letter-spacing:1px;margin-top:3px">${str('kp_choose_sub','48 nations · 48 climbs · your best height each')}</div></div>
@@ -191,8 +194,8 @@ export function mountKeepies(root, opts = {}) {
 
   // input
   function startOrRetry(){
-    if (state==="ready"){ state="run"; hide(); return true }
-    if (state==="dead"){ state="run"; reset(); hide(); return true }
+    if (state==="ready"){ sound.resume(); state="run"; hide(); return true }
+    if (state==="dead"){ sound.resume(); state="run"; reset(); hide(); return true }
     return false
   }
   on(window, "pointerdown", e => {
@@ -275,6 +278,7 @@ export function mountKeepies(root, opts = {}) {
   function closePicker(){ pickerOpen = false; picker.classList.remove("open") }
   gid("flagbtn").onclick = openPicker
   gid("ovshare").onclick = share
+  gid("mutebtn").onclick = () => { sound.setMuted(!sound.muted); gid("mutebtn").textContent = sound.muted ? "🔇" : "🔊"; if (!sound.muted) sound.bounce() }
   gid("pclose").onclick = closePicker
   gid("ballbtn").onclick = () => { ballStyle = ballStyle==="crest" ? "wrap" : "crest" }
 
@@ -319,11 +323,11 @@ export function mountKeepies(root, opts = {}) {
         if (p.broken) continue
         const bx = ball.x, by = ball.y + R
         if (bx > p.x-2 && bx < p.x+p.w+2 && by > p.y && by < p.y + p.h + Math.max(14, ball.vy*dt)){
-          if (p.type==="punt"){ ball.vy = -BOUNCE*PUNT; puff(bx,p.y,"#7be0ff",18) }
-          else if (p.type==="spring"){ ball.vy = -BOUNCE*SPRING; p.sprung=true; puff(bx,p.y,"#ffd34d",10) }
-          else { ball.vy = -BOUNCE; puff(bx,p.y,"#ffffff",5) }
+          if (p.type==="punt"){ ball.vy = -BOUNCE*PUNT; puff(bx,p.y,"#7be0ff",18); sound.punt() }
+          else if (p.type==="spring"){ ball.vy = -BOUNCE*SPRING; p.sprung=true; puff(bx,p.y,"#ffd34d",10); sound.spring() }
+          else { ball.vy = -BOUNCE; puff(bx,p.y,"#ffffff",5); sound.bounce() }
           ball.y = p.y - R; squash = 0.5; bounced = true
-          if (p.type==="break"){ p.broken = true; p.fall = 0 } // crumbles after one use
+          if (p.type==="break"){ p.broken = true; p.fall = 0; sound.crack() } // crumbles after one use
           break
         }
       }
@@ -346,8 +350,8 @@ export function mountKeepies(root, opts = {}) {
     const m = Math.floor(climbed/10)
     while (tierIdx < TIERS.length-1 && m >= TIERS[tierIdx+1].m){
       tierIdx++
-      if (tierIdx === TIERS.length-1) celebrate() // lift the trophy at the summit
-      else fireMs(tierName(tierIdx))
+      if (tierIdx === TIERS.length-1){ celebrate(); sound.best() } // lift the trophy at the summit
+      else { fireMs(tierName(tierIdx)); sound.tier() }
     }
 
     // death: dropped off the bottom
@@ -378,7 +382,7 @@ export function mountKeepies(root, opts = {}) {
     if (dead) return; dead=true; state="dead"
     const m = Math.floor(climbed/10); best = Math.max(best, m)
     const pb = BEST[FLAG] || 0, isPB = m > pb
-    if (isPB){ BEST[FLAG] = m; saveBest(BEST); refreshBadge(FLAG); updateBest() }
+    if (isPB){ BEST[FLAG] = m; saveBest(BEST); refreshBadge(FLAG); updateBest(); sound.best() }
     track('keepies_run', { flag: FLAG, m: String(m), tier: TIER_EN[tierIdx], pb: isPB ? '1' : '0' })
     show(isPB ? str('kp_new_best','NEW BEST!') : str('kp_dropped','DROPPED!'),
       fill(str('kp_lost_at','Lost it at the <b>{tier}</b> on the <b>{flag}</b> course.'),
