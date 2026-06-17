@@ -115,6 +115,49 @@ export const en = {
   share_record_head: 'ANTHEM ⚽ My record',
   share_record_line: 'Played {p} · Win {w}% · Streak {s}',
   share_record_best: ' (best {b})',
+
+  /* ---- keepies: in-game HUD / picker / overlay (engine reads via opts.strings;
+     <b> spans render as HTML, not **) ---- */
+  kp_metres_up: 'METRES UP',
+  kp_best: 'BEST {n} m',
+  kp_no_best: 'NO BEST YET',
+  kp_style: '⚽ STYLE',
+  kp_choose: 'CHOOSE YOUR COURSE',
+  kp_choose_sub: '48 nations · 48 climbs · your best height each',
+  kp_close: 'CLOSE',
+  kp_reached: 'YOU REACHED THE',
+  kp_start_sub:
+    'Keep it up! The ball bounces by itself — <b>drag left/right</b> (or use the <b>arrow keys</b>) to land each bounce on a platform. Don’t let it drop.',
+  kp_tap_start: 'TAP TO START',
+  kp_new_best: 'NEW BEST!',
+  kp_dropped: 'DROPPED!',
+  kp_lost_at: 'Lost it at the <b>{tier}</b> on the <b>{flag}</b> course.',
+  kp_height_stat: 'Height: <b>{m} m</b> &nbsp;·&nbsp; {flag} best: <b>{best} m</b>',
+  kp_tap_again: 'TAP TO PLAY AGAIN',
+  kp_copied: 'Copied! Paste it anywhere.',
+  kp_freeplay: 'free play',
+  kp_steer: 'drag or ←/→',
+
+  /* keepies tier names (PITCH → OPEN SKY, ground to summit) */
+  kp_tier_1: 'PITCH',
+  kp_tier_2: 'LOWER TIER',
+  kp_tier_3: 'UPPER TIER',
+  kp_tier_4: 'THE ROOF',
+  kp_tier_5: 'FLOODLIGHTS',
+  kp_tier_6: 'OPEN SKY',
+
+  /* keepies share (card subtitle + text body; {tier}/{best}/{flag} filled in) */
+  kp_share: '📋 Share my climb',
+  kp_card_sub: 'on the {flag} course',
+  kp_share_line: 'Climbed to the {tier} — {best} m\non the {flag} course',
+
+  /* ---- keepies: how-to modal (React; **bold** spans) ---- */
+  kp_howto_title: 'How to play ⚽',
+  kp_howto_1:
+    'The ball bounces on its own. **Drag left/right** (or use the **arrow keys**) to land each bounce on a platform and climb higher.',
+  kp_howto_2:
+    'Watch for **gold trampolines** and the **keeper’s punt** (a big boost) — and don’t trust the **cracked platforms**, they crumble. Pick any of the 48 nations; each is its own course. Don’t let the ball drop!',
+  kp_howto_close: 'Got it',
 }
 
 export type StringKey = keyof typeof en

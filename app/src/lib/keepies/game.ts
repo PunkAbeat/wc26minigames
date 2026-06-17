@@ -16,6 +16,12 @@ export function mountKeepies(root, opts = {}) {
   const track = opts.track || (() => {})
   const loadBest = opts.loadBest || (() => ({}))
   const saveBest = opts.saveBest || (() => {})
+  // localized in-game copy injected by the route (t(lang,key)); English fallback
+  const S = opts.strings || {}
+  const str = (k, fb) => (S[k] != null ? S[k] : fb)
+  const fill = (s, vars) => { for (const k in vars) s = s.replace('{' + k + '}', vars[k]); return s }
+  const TIER_EN = ['PITCH', 'LOWER TIER', 'UPPER TIER', 'THE ROOF', 'FLOODLIGHTS', 'OPEN SKY']
+  const tierName = (i) => str('kp_tier_' + (i + 1), TIER_EN[i])
   const gid = (id) => root.querySelector('#' + id)
   const L = []
   const on = (t, ty, fn, o) => { t.addEventListener(ty, fn, o); L.push([t, ty, fn, o]) }
@@ -25,26 +31,25 @@ export function mountKeepies(root, opts = {}) {
     <canvas id="c"></canvas>
     <div class="bunting"></div>
     <div class="hud">
-      <div class="tier" id="tier">PITCH</div>
-      <div class="ht"><b id="ht">0</b><span>METRES UP</span><i id="htbest"></i></div>
+      <div class="tier" id="tier">${str('kp_tier_1','PITCH')}</div>
+      <div class="ht"><b id="ht">0</b><span>${str('kp_metres_up','METRES UP')}</span><i id="htbest"></i></div>
     </div>
     <div class="ctrls">
       <button id="flagbtn"><img class="fimg" id="flagimg" alt="">NATION</button>
-      <button id="ballbtn">⚽ STYLE</button>
+      <button id="ballbtn">${str('kp_style','⚽ STYLE')}</button>
     </div>
     <div id="picker">
-      <div class="ph">CHOOSE YOUR COURSE<div style="font-size:10px;opacity:.7;font-weight:600;letter-spacing:1px;margin-top:3px">48 nations · 48 climbs · your best height each</div></div>
+      <div class="ph">${str('kp_choose','CHOOSE YOUR COURSE')}<div style="font-size:10px;opacity:.7;font-weight:600;letter-spacing:1px;margin-top:3px">${str('kp_choose_sub','48 nations · 48 climbs · your best height each')}</div></div>
       <div class="pg" id="pgrid"></div>
-      <button class="pclose" id="pclose">CLOSE</button>
+      <button class="pclose" id="pclose">${str('kp_close','CLOSE')}</button>
     </div>
-    <div class="milestone" id="ms"><div class="k">YOU REACHED THE</div><div class="v" id="msv"></div></div>
+    <div class="milestone" id="ms"><div class="k">${str('kp_reached','YOU REACHED THE')}</div><div class="v" id="msv"></div></div>
     <div class="overlay" id="ov">
       <div class="big">KEEPIES</div>
-      <div class="sub">Keep it up! The ball bounces by itself — <b>drag left/right</b> (or use the
-        <b>arrow keys</b>) to land each bounce on a header. Don't let it drop.</div>
+      <div class="sub">${str('kp_start_sub','Keep it up! The ball bounces by itself — <b>drag left/right</b> (or use the <b>arrow keys</b>) to land each bounce on a platform. Don\'t let it drop.')}</div>
       <div class="stat" id="ovstat"></div>
-      <div class="cta" id="ovcta">TAP TO START</div>
-      <button class="ovshare" id="ovshare" type="button" hidden>📋 Share my climb</button>
+      <div class="cta" id="ovcta">${str('kp_tap_start','TAP TO START')}</div>
+      <button class="ovshare" id="ovshare" type="button" hidden>${str('kp_share','📋 Share my climb')}</button>
     </div>
     <div class="note" id="seednote"></div>`
 
@@ -114,7 +119,7 @@ export function mountKeepies(root, opts = {}) {
   // current nation's saved best, shown live under the height readout
   function updateBest(){ const el=gid("htbest"); if(!el) return
     const b = BEST[FLAG]||0
-    el.textContent = b ? `BEST ${b.toLocaleString()} m` : "NO BEST YET" }
+    el.textContent = b ? fill(str('kp_best','BEST {n} m'), { n: b.toLocaleString() }) : str('kp_no_best','NO BEST YET') }
 
   // stadium-ascent milestone bands (metres up)
   const TIERS = [
@@ -213,15 +218,18 @@ export function mountKeepies(root, opts = {}) {
     setTimeout(() => { el.classList.remove("show"); setTimeout(() => el.remove(), 300) }, 1900)
   }
   async function share(){
-    const m = Math.floor(climbed/10), tier = TIERS[tierIdx].name
+    const m = Math.floor(climbed/10), tier = tierName(tierIdx)
     track("share_clicked", { mode: "keepies" })
-    const txt = keepiesShareText(m, tier, FLAG.toUpperCase(), location.origin)
-    const done = () => toast("Copied! Paste it anywhere.")
+    const line = fill(str('kp_share_line','Climbed to the {tier} — {best} m\non the {flag} course'),
+      { tier, best: m, flag: FLAG.toUpperCase() })
+    const txt = keepiesShareText(line, location.origin)
+    const done = () => toast(str('kp_copied','Copied! Paste it anywhere.'))
     if (navigator.share){
       let files
       try {
         const blob = await renderKeepiesCard({ headline: `${tier} · ${m} M`,
-          sub: `on the ${FLAG.toUpperCase()} course`, flagCode: FLAG, host: location.host })
+          sub: fill(str('kp_card_sub','on the {flag} course'), { flag: FLAG.toUpperCase() }),
+          flagCode: FLAG, host: location.host })
         if (blob){ const f = new File([blob], `keepies-${m}m.png`, { type: "image/png" })
           if (navigator.canShare && navigator.canShare({ files:[f] })) files = [f] }
       } catch { /* share text only */ }
@@ -239,8 +247,8 @@ export function mountKeepies(root, opts = {}) {
     gid("ovcta").textContent=cta; o.classList.remove("hidden")
   }
   function updateNote(){ const el=gid("seednote"); if(!el) return
-    const mode = seedFixed ? `seed ${seed>>>0}` : "free play"
-    el.textContent = `${FLAG.toUpperCase()} · ${arch.toUpperCase()} course · ${mode} · drag or ←/→${RM?" · reduced-motion":""}` }
+    const mode = seedFixed ? `seed ${seed>>>0}` : str('kp_freeplay','free play')
+    el.textContent = `${FLAG.toUpperCase()} · ${arch.toUpperCase()} · ${mode} · ${str('kp_steer','drag or ←/→')}${RM?" · reduced-motion":""}` }
 
   loadFlag(FLAG)
 
@@ -338,8 +346,8 @@ export function mountKeepies(root, opts = {}) {
     const m = Math.floor(climbed/10)
     while (tierIdx < TIERS.length-1 && m >= TIERS[tierIdx+1].m){
       tierIdx++
-      if (TIERS[tierIdx].name === "OPEN SKY") celebrate() // lift the trophy at the summit
-      else fireMs(TIERS[tierIdx].name)
+      if (tierIdx === TIERS.length-1) celebrate() // lift the trophy at the summit
+      else fireMs(tierName(tierIdx))
     }
 
     // death: dropped off the bottom
@@ -371,11 +379,13 @@ export function mountKeepies(root, opts = {}) {
     const m = Math.floor(climbed/10); best = Math.max(best, m)
     const pb = BEST[FLAG] || 0, isPB = m > pb
     if (isPB){ BEST[FLAG] = m; saveBest(BEST); refreshBadge(FLAG); updateBest() }
-    track('keepies_run', { flag: FLAG, m: String(m), tier: TIERS[tierIdx].name, pb: isPB ? '1' : '0' })
-    show(isPB ? "NEW BEST!" : "DROPPED!",
-      `Lost it at the <b>${TIERS[tierIdx].name}</b> on the <b>${FLAG.toUpperCase()}</b> course.`,
-      `Height: <b>${m} m</b> &nbsp;·&nbsp; ${FLAG.toUpperCase()} best: <b>${Math.max(pb,m)} m</b>`,
-      "TAP TO PLAY AGAIN")
+    track('keepies_run', { flag: FLAG, m: String(m), tier: TIER_EN[tierIdx], pb: isPB ? '1' : '0' })
+    show(isPB ? str('kp_new_best','NEW BEST!') : str('kp_dropped','DROPPED!'),
+      fill(str('kp_lost_at','Lost it at the <b>{tier}</b> on the <b>{flag}</b> course.'),
+        { tier: tierName(tierIdx), flag: FLAG.toUpperCase() }),
+      fill(str('kp_height_stat','Height: <b>{m} m</b> &nbsp;·&nbsp; {flag} best: <b>{best} m</b>'),
+        { m, flag: FLAG.toUpperCase(), best: Math.max(pb,m) }),
+      str('kp_tap_again','TAP TO PLAY AGAIN'))
     gid("ovshare").hidden = false
   }
 
@@ -537,7 +547,7 @@ export function mountKeepies(root, opts = {}) {
   }
 
   function hud(){ gid("ht").textContent = Math.floor(climbed/10).toLocaleString()
-    gid("tier").textContent = TIERS[tierIdx].name }
+    gid("tier").textContent = tierName(tierIdx) }
 
   let last=performance.now(), acc=0; const FIXED=1/120
   function loop(now){ let f=(now-last)/1000; last=now; if(f>0.1)f=0.1; acc+=f
@@ -545,7 +555,7 @@ export function mountKeepies(root, opts = {}) {
   raf = requestAnimationFrame(loop)
   if (DEMO){ state="run"; hide() }
 
-  window.__kp = () => ({ state, dead, m:Math.floor(climbed/10), tier:TIERS[tierIdx].name,
+  window.__kp = () => ({ state, dead, m:Math.floor(climbed/10), tier:tierName(tierIdx),
     tierIdx, vy:Math.round(ball.vy), x:Math.round(ball.x), plats:plats.length,
     types:[...new Set(plats.map(p=>p.type))], best, seed:seed>>>0, flag:FLAG, flagReady,
     ballStyle, pickerOpen, arch, seedFixed, celebrateT:Math.round(celebrateT*100)/100 })

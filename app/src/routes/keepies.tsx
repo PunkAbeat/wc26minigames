@@ -5,18 +5,32 @@
    free-play: a fresh random course every run, best height saved per flag.
 
    The game is the imperative canvas engine in ../lib/keepies/game (ported verbatim
-   from the feel mock); this route mounts it fullscreen and owns only the page chrome
-   (back link, how-to) + best-height storage. Like ANTHEM/HOIST phase 1, in-game copy
-   is English-only for now; the hub tagline is translated. SSR renders an empty shell;
-   the engine mounts in a client effect, so server and client markup always agree. */
+   from the feel mock); this route mounts it fullscreen and owns the page chrome
+   (back link, how-to), best-height storage, and the in-game string table (the
+   engine is language-agnostic — it reads localized copy via opts.strings). The
+   language is the one chosen on the hub (detected/saved); on a language change the
+   engine is remounted with the new strings. SSR renders an empty shell; the engine
+   mounts in a client effect, so server and client markup always agree. */
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
 import { mountKeepies } from '../lib/keepies/game'
 import { loadBest, saveBest } from '../lib/keepies/storage'
 import { track, trackPageView } from '../lib/analytics'
+import { t, tb, useLang } from '../lib/i18n'
+import type { StringKey } from '../lib/i18n'
 import '../styles/keepies.css'
 
 const ORIGIN = (import.meta.env.VITE_SITE_ORIGIN as string | undefined) || ''
+
+/* in-game copy the engine renders itself (HUD, picker, overlay, end screen,
+   share text). Built into a plain { key: text } map and injected as opts.strings. */
+const KP_KEYS: StringKey[] = [
+  'kp_metres_up', 'kp_best', 'kp_no_best', 'kp_style', 'kp_choose', 'kp_choose_sub',
+  'kp_close', 'kp_reached', 'kp_start_sub', 'kp_tap_start', 'kp_new_best', 'kp_dropped',
+  'kp_lost_at', 'kp_height_stat', 'kp_tap_again', 'kp_copied', 'kp_freeplay', 'kp_steer',
+  'kp_tier_1', 'kp_tier_2', 'kp_tier_3', 'kp_tier_4', 'kp_tier_5', 'kp_tier_6',
+  'kp_share', 'kp_card_sub', 'kp_share_line',
+]
 
 export const Route = createFileRoute('/keepies')({
   head: () => ({
@@ -46,18 +60,27 @@ export const Route = createFileRoute('/keepies')({
 })
 
 function KeepiesPage() {
+  const [lang] = useLang()
   const rootRef = useRef<HTMLDivElement>(null)
   const ctrlRef = useRef<{ destroy: () => void; setPaused: (p: boolean) => void } | null>(null)
   const [howto, setHowto] = useState(false)
 
   useEffect(() => {
     trackPageView('/keepies')
+  }, [])
+
+  // (re)mount the engine with the current language's strings
+  useEffect(() => {
     const root = rootRef.current
     if (!root) return
-    const ctrl = mountKeepies(root, { loadBest, saveBest, track })
+    const strings: Record<string, string> = {}
+    for (const k of KP_KEYS) strings[k] = t(lang, k)
+    const ctrl = mountKeepies(root, { loadBest, saveBest, track, strings })
     ctrlRef.current = ctrl
+    ctrl.setPaused(howto)
     return () => ctrl.destroy()
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lang])
 
   // freeze the climb while the how-to modal is open
   useEffect(() => {
@@ -70,7 +93,7 @@ function KeepiesPage() {
         <div className="kp-root" ref={rootRef} />
 
         <Link className="kp-chrome kp-back" to="/" aria-label="All games">
-          ⚽ Games
+          {t(lang, 'an_games_link')}
         </Link>
         <button
           className="kp-chrome kp-help"
@@ -85,18 +108,11 @@ function KeepiesPage() {
       {howto && (
         <div className="kp-chrome kp-modal" onClick={() => setHowto(false)}>
           <div className="kp-modalcard" onClick={(e) => e.stopPropagation()}>
-            <h2>How to play</h2>
-            <p>
-              The ball bounces on its own. <b>Drag left/right</b> (or use the{' '}
-              <b>arrow keys</b>) to land each bounce on a platform and climb higher.
-            </p>
-            <p>
-              Watch for <b>gold trampolines</b> and the <b>keeper’s punt</b> (a big boost) —
-              and don’t trust the <b>cracked platforms</b>, they crumble. Pick any of the 48
-              nations; each is its own course. Don’t let the ball drop!
-            </p>
+            <h2>{t(lang, 'kp_howto_title')}</h2>
+            <p>{tb(lang, 'kp_howto_1')}</p>
+            <p>{tb(lang, 'kp_howto_2')}</p>
             <button type="button" onClick={() => setHowto(false)}>
-              Got it
+              {t(lang, 'kp_howto_close')}
             </button>
           </div>
         </div>
