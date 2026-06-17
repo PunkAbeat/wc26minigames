@@ -120,13 +120,13 @@ function Hub() {
 
   return (
     <div className="page page-hub">
+      <LangSwitch lang={lang} onChange={setLang} />
+
       <div className="bunting">
         {Array.from({ length: 12 }, (_, i) => (
           <i key={i} style={{ borderTopColor: BUNTING_COLS[i % BUNTING_COLS.length] }} />
         ))}
       </div>
-
-      <LangSwitch lang={lang} onChange={setLang} />
 
       <header>
         <div className="kicker">{t(lang, 'hub_kicker')}</div>
