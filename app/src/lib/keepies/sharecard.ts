@@ -274,6 +274,11 @@ export async function renderKeepiesCard(o: KeepiesCardOpts): Promise<Blob | null
   return new Promise((resolve) => canvas.toBlob((b) => resolve(b), 'image/png'))
 }
 
+/* text fallback (and the body that rides along with the image) */
+export function keepiesShareText(best: number, tier: string, flag: string, origin: string): string {
+  return `⚽ KEEPIES\nClimbed to the ${tier} — ${best} m\non the ${flag} course\n\n${origin}/keepies?ref=share`
+}
+
 /* static OG link-unfurl card (no per-user data). Rendered by /og?card=keepies
    and screenshot to public/og/keepies.png. */
 export async function drawKeepiesOg(canvas: HTMLCanvasElement): Promise<void> {

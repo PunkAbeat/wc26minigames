@@ -69,6 +69,19 @@
 @keyframes kp-pulse { 50% { transform: scale(1.06); } }
 .kp-root .overlay .stat { font-size: 13px; opacity: .92; }
 .kp-root .overlay .stat b { color: #ffd34d; }
+.kp-root .overlay .ovshare {
+  margin-top: 14px; background: rgba(255,255,255,.08); color: #fff;
+  border: 1.5px solid rgba(255,211,77,.55); border-radius: 999px;
+  padding: 9px 20px; font-weight: 800; font-size: 13px; letter-spacing: .5px;
+}
+.kp-root .overlay .ovshare:active { transform: translateY(1px); }
+.kp-root .kp-toast {
+  position: absolute; left: 50%; bottom: 26px; transform: translate(-50%, 12px);
+  z-index: 14; background: #14324f; color: #fff; border: 1.5px solid rgba(255,211,77,.55);
+  border-radius: 999px; padding: 9px 18px; font-size: 12px; font-weight: 800;
+  letter-spacing: .3px; opacity: 0; transition: opacity .25s, transform .25s; pointer-events: none;
+}
+.kp-root .kp-toast.show { opacity: 1; transform: translate(-50%, 0); }
 .kp-root .milestone {
   position: absolute; left: 0; right: 0; top: 34%; z-index: 7; text-align: center;
   pointer-events: none; opacity: 0;

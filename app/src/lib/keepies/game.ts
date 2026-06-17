@@ -10,6 +10,7 @@
    so `destroy()` can tear them down on route unmount; best-heights go through the
    injected storage; a `paused` flag freezes the sim while the how-to modal is open.
    @ts-nocheck: hand-tuned vanilla canvas code, not worth typing. */
+import { renderKeepiesCard, keepiesShareText } from './sharecard'
 
 export function mountKeepies(root, opts = {}) {
   const track = opts.track || (() => {})
@@ -43,6 +44,7 @@ export function mountKeepies(root, opts = {}) {
         <b>arrow keys</b>) to land each bounce on a header. Don't let it drop.</div>
       <div class="stat" id="ovstat"></div>
       <div class="cta" id="ovcta">TAP TO START</div>
+      <button class="ovshare" id="ovshare" type="button" hidden>📋 Share my climb</button>
     </div>
     <div class="note" id="seednote"></div>`
 
@@ -189,7 +191,7 @@ export function mountKeepies(root, opts = {}) {
     return false
   }
   on(window, "pointerdown", e => {
-    if (pickerOpen || e.target.closest(".ctrls") || e.target.closest("#picker") || e.target.closest(".kp-chrome")) return
+    if (pickerOpen || e.target.closest(".ctrls") || e.target.closest("#picker") || e.target.closest(".kp-chrome") || e.target.closest("#ovshare")) return
     if (startOrRetry()) return
     pointerX = e.clientX - cvLeft
   })
@@ -203,7 +205,33 @@ export function mountKeepies(root, opts = {}) {
   on(window, "keyup", e => {
     if ((e.code==="ArrowLeft"&&keyDir<0)||(e.code==="ArrowRight"&&keyDir>0)) keyDir=0
   })
-  function hide(){ gid("ov").classList.add("hidden") }
+  function hide(){ gid("ov").classList.add("hidden"); gid("ovshare").hidden = true }
+  function toast(msg){
+    const el = document.createElement("div"); el.className = "kp-toast"; el.textContent = msg
+    root.appendChild(el)
+    requestAnimationFrame(() => el.classList.add("show"))
+    setTimeout(() => { el.classList.remove("show"); setTimeout(() => el.remove(), 300) }, 1900)
+  }
+  async function share(){
+    const m = Math.floor(climbed/10), tier = TIERS[tierIdx].name
+    track("share_clicked", { mode: "keepies" })
+    const txt = keepiesShareText(m, tier, FLAG.toUpperCase(), location.origin)
+    const done = () => toast("Copied! Paste it anywhere.")
+    if (navigator.share){
+      let files
+      try {
+        const blob = await renderKeepiesCard({ headline: `${tier} · ${m} M`,
+          sub: `on the ${FLAG.toUpperCase()} course`, flagCode: FLAG, host: location.host })
+        if (blob){ const f = new File([blob], `keepies-${m}m.png`, { type: "image/png" })
+          if (navigator.canShare && navigator.canShare({ files:[f] })) files = [f] }
+      } catch { /* share text only */ }
+      navigator.share(files ? { files, text: txt } : { text: txt }).catch(() => {})
+      return
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText)
+      navigator.clipboard.writeText(txt).then(done).catch(done)
+    else done()
+  }
   function show(big, sub, stat, cta){
     const o=gid("ov")
     o.querySelector(".big").textContent=big; o.querySelector(".sub").innerHTML=sub
@@ -238,6 +266,7 @@ export function mountKeepies(root, opts = {}) {
   function openPicker(){ pickerOpen = true; markSel(); picker.classList.add("open") }
   function closePicker(){ pickerOpen = false; picker.classList.remove("open") }
   gid("flagbtn").onclick = openPicker
+  gid("ovshare").onclick = share
   gid("pclose").onclick = closePicker
   gid("ballbtn").onclick = () => { ballStyle = ballStyle==="crest" ? "wrap" : "crest" }
 
@@ -347,6 +376,7 @@ export function mountKeepies(root, opts = {}) {
       `Lost it at the <b>${TIERS[tierIdx].name}</b> on the <b>${FLAG.toUpperCase()}</b> course.`,
       `Height: <b>${m} m</b> &nbsp;·&nbsp; ${FLAG.toUpperCase()} best: <b>${Math.max(pb,m)} m</b>`,
       "TAP TO PLAY AGAIN")
+    gid("ovshare").hidden = false
   }
 
   // ---- render -----------------------------------------------------------------
@@ -522,7 +552,8 @@ export function mountKeepies(root, opts = {}) {
   window.__kpSet = (o={}) => { if(o.flag) loadFlag(o.flag); if(o.ball) ballStyle=o.ball
     if(o.pick!==undefined) (o.pick?openPicker():closePicker())
     if(o.m!==undefined) climbed=o.m*10; if(o.celebrate) celebrate()
-    if(o.vy!==undefined) ball.vy=o.vy } // headless hooks
+    if(o.vy!==undefined) ball.vy=o.vy
+    if(o.die){ dead=false; die() } } // headless hooks
 
   return {
     destroy(){
