@@ -73,6 +73,12 @@ export const Route = createRootRoute({
                 "HTMLMediaElement.prototype.play=function(){return Promise.reject(new Error('stubbed'))};" +
                 "var s=document.createElement('script');s.src='/tests/anthemtest'+m[1]+'.js';s.defer=true;document.head.appendChild(s);})();",
             },
+            // KEEPIES suites drive the canvas engine via window.__kp / __kpSet
+            {
+              children:
+                "(function(){var m=location.search.match(/[?&]keepiestest=(\\d{1,2})/);if(!m)return;" +
+                "var s=document.createElement('script');s.src='/tests/keepiestest'+m[1]+'.js';s.defer=true;document.head.appendChild(s);})();",
+            },
           ]),
     ],
   }),

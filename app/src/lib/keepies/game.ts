@@ -565,8 +565,10 @@ export function mountKeepies(root, opts = {}) {
     ballStyle, pickerOpen, arch, seedFixed, celebrateT:Math.round(celebrateT*100)/100 })
   window.__kpSet = (o={}) => { if(o.flag) loadFlag(o.flag); if(o.ball) ballStyle=o.ball
     if(o.pick!==undefined) (o.pick?openPicker():closePicker())
-    if(o.m!==undefined) climbed=o.m*10; if(o.celebrate) celebrate()
-    if(o.vy!==undefined) ball.vy=o.vy
+    if(o.m!==undefined){ climbed=o.m*10; tierIdx=0
+      while(tierIdx<TIERS.length-1 && o.m>=TIERS[tierIdx+1].m) tierIdx++ } // keep tier in sync
+    if(o.celebrate) celebrate(); if(o.vy!==undefined) ball.vy=o.vy
+    if(o.start) startOrRetry()
     if(o.die){ dead=false; die() } } // headless hooks
 
   return {
