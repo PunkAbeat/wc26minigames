@@ -25,7 +25,7 @@ export function mountKeepies(root, opts = {}) {
     <div class="bunting"></div>
     <div class="hud">
       <div class="tier" id="tier">PITCH</div>
-      <div class="ht"><b id="ht">0</b><span>METRES UP</span></div>
+      <div class="ht"><b id="ht">0</b><span>METRES UP</span><i id="htbest"></i></div>
     </div>
     <div class="ctrls">
       <button id="flagbtn"><img class="fimg" id="flagimg" alt="">NATION</button>
@@ -106,9 +106,13 @@ export function mountKeepies(root, opts = {}) {
     const fi = gid("flagimg")
     if (fi) fi.src = flagImg.src
     const fb = gid("flagbtn")
-    if (fb) fb.lastChild.textContent = iso.toUpperCase()
-    updateNote()
+    if (fb) fb.lastChild.textContent = iso.toUpperCase() + "  ▾"  // ▾ = tap to change course
+    updateNote(); updateBest()
   }
+  // current nation's saved best, shown live under the height readout
+  function updateBest(){ const el=gid("htbest"); if(!el) return
+    const b = BEST[FLAG]||0
+    el.textContent = b ? `BEST ${b.toLocaleString()} m` : "NO BEST YET" }
 
   // stadium-ascent milestone bands (metres up)
   const TIERS = [
@@ -337,7 +341,7 @@ export function mountKeepies(root, opts = {}) {
     if (dead) return; dead=true; state="dead"
     const m = Math.floor(climbed/10); best = Math.max(best, m)
     const pb = BEST[FLAG] || 0, isPB = m > pb
-    if (isPB){ BEST[FLAG] = m; saveBest(BEST); refreshBadge(FLAG) }
+    if (isPB){ BEST[FLAG] = m; saveBest(BEST); refreshBadge(FLAG); updateBest() }
     track('keepies_run', { flag: FLAG, m: String(m), tier: TIERS[tierIdx].name, pb: isPB ? '1' : '0' })
     show(isPB ? "NEW BEST!" : "DROPPED!",
       `Lost it at the <b>${TIERS[tierIdx].name}</b> on the <b>${FLAG.toUpperCase()}</b> course.`,
@@ -446,11 +450,9 @@ export function mountKeepies(root, opts = {}) {
         ctx.beginPath(); ctx.moveTo(p.x+p.w*0.4,p.y); ctx.lineTo(p.x+p.w*0.5,p.y+p.h)
         ctx.moveTo(p.x+p.w*0.66,p.y+p.h); ctx.lineTo(p.x+p.w*0.6,p.y); ctx.stroke()
       }
-      else {                              // norm / move: turf bar + header silhouette
+      else {                              // norm / move: clean turf bar
         ctx.fillStyle = p.type==="move" ? "#cfe6f6" : "#eef6ee"; rr(p.x,p.y,p.w,p.h,7); ctx.fill()
-        ctx.fillStyle = "#2e8b46"; rr(p.x,p.y,p.w,4,4); ctx.fill()
-        ctx.fillStyle="#14324f"; ctx.beginPath(); ctx.arc(p.x+p.w/2, p.y-4, 5, 0, 7); ctx.fill()
-        ctx.fillStyle="rgba(20,50,79,.6)"; rr(p.x+p.w/2-7, p.y-1, 14, 5, 2); ctx.fill()
+        ctx.fillStyle = "#2e8b46"; rr(p.x,p.y,p.w,4,4); ctx.fill()  // grass strip
       }
       ctx.restore()
     }

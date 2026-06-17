@@ -49,6 +49,10 @@
 .kp-root .ht { text-align: right; }
 .kp-root .ht b { font-size: 22px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,.45); }
 .kp-root .ht span { display: block; font-size: 10px; opacity: .8; letter-spacing: 2px; }
+.kp-root .ht #htbest {
+  display: block; font-style: normal; font-weight: 800; font-size: 10px;
+  letter-spacing: 1px; color: #ffd34d; opacity: .95; margin-top: 3px;
+}
 .kp-root .overlay {
   position: absolute; inset: 0; z-index: 8; display: flex; flex-direction: column;
   align-items: center; justify-content: center; text-align: center; gap: 6px;
@@ -88,7 +92,8 @@
 .kp-root .ctrls .fimg { width: 18px; height: 12px; border-radius: 2px; object-fit: cover; box-shadow: 0 0 0 1px rgba(255,255,255,.3); }
 .kp-root #picker { position: absolute; inset: 0; z-index: 12; background: rgba(8,16,40,.94); display: none; flex-direction: column; }
 .kp-root #picker.open { display: flex; }
-.kp-root #picker .ph { padding: 16px 14px 8px; text-align: center; font-weight: 800; letter-spacing: 1.5px; }
+/* push the title below the back / how-to chrome row (they sit at top:16, ~30px tall) */
+.kp-root #picker .ph { padding: 56px 14px 8px; text-align: center; font-weight: 800; letter-spacing: 1.5px; }
 .kp-root #picker .pg {
   flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; display: grid;
   grid-template-columns: repeat(5, 1fr); gap: 9px; padding: 6px 14px 14px; align-content: start;
