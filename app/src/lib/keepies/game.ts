@@ -81,10 +81,14 @@ export function mountKeepies(root, opts = {}) {
   let rnd = mulberry32(seed)                // pure free-play: a fresh course every run
 
   const cv = gid("c"), ctx = cv.getContext("2d")
-  let W=0, H=0, DPR=1
+  let W=0, H=0, DPR=1, cvLeft=0  // cvLeft = canvas viewport offset (desktop letterbox)
   function resize(){
     DPR = Math.min(devicePixelRatio||1, 2.5)
-    W = innerWidth; H = innerHeight
+    // size to the canvas's own box (CSS constrains it to a portrait column on
+    // desktop) — falling back to the window before layout settles
+    const r = cv.getBoundingClientRect()
+    W = Math.round(r.width) || innerWidth; H = Math.round(r.height) || innerHeight
+    cvLeft = r.left
     cv.width = Math.round(W*DPR); cv.height = Math.round(H*DPR)
     ctx.setTransform(DPR,0,0,DPR,0,0)
   }
@@ -183,9 +187,9 @@ export function mountKeepies(root, opts = {}) {
   on(window, "pointerdown", e => {
     if (pickerOpen || e.target.closest(".ctrls") || e.target.closest("#picker") || e.target.closest(".kp-chrome")) return
     if (startOrRetry()) return
-    pointerX = e.clientX
+    pointerX = e.clientX - cvLeft
   })
-  on(window, "pointermove", e => { if (pointerX!==null) pointerX = e.clientX })
+  on(window, "pointermove", e => { if (pointerX!==null) pointerX = e.clientX - cvLeft })
   on(window, "pointerup", () => { pointerX = null })
   on(window, "keydown", e => {
     if (e.code==="Space"||e.code==="Enter"){ e.preventDefault(); startOrRetry() }

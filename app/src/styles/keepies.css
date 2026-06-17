@@ -3,12 +3,31 @@
    how-to chrome over the top. All engine selectors are scoped under .kp-root;
    keyframes are kp-prefixed to avoid clashing with the other games. */
 
-.page-keepies { position: fixed; inset: 0; background: #0a1428; }
+.page-keepies {
+  position: fixed; inset: 0; background: #0a1428;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* the playfield box — full-bleed on phones; a centred portrait column on desktop.
+   The chrome (back / how-to) is positioned to this box, so it tracks the playfield
+   rather than floating off at the viewport corners on a wide screen. */
+.kp-stage { position: relative; width: 100%; height: 100%; overflow: hidden; }
 
 .kp-root, .kp-root * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
 .kp-root {
-  position: fixed; inset: 0; overflow: hidden; touch-action: none;
+  position: absolute; inset: 0; overflow: hidden; touch-action: none;
   font-family: -apple-system, "Segoe UI", Roboto, sans-serif; background: #0a1428; color: #fff;
+}
+
+@media (min-width: 760px) {
+  .page-keepies { padding: 16px; }
+  .kp-stage {
+    width: min(440px, calc(100vh * 0.52));
+    height: min(920px, calc(100vh - 32px));
+    border-radius: 22px;
+    box-shadow: 0 22px 60px rgba(0,0,0,.55);
+    border: 1px solid rgba(255,211,77,.22);
+  }
 }
 .kp-root canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .kp-root .bunting {
@@ -18,9 +37,9 @@
   background-size: 22px 16px; opacity: .9; filter: drop-shadow(0 1px 1px rgba(0,0,0,.3));
 }
 .kp-root .hud {
-  position: absolute; top: 22px; left: 0; right: 0; z-index: 6; pointer-events: none;
+  position: absolute; top: 56px; left: 0; right: 0; z-index: 6; pointer-events: none;
   display: flex; justify-content: space-between; align-items: flex-start;
-  padding: 4px 14px 4px 120px; /* clear the back button on the left */
+  padding: 4px 14px; /* sits below the chrome row */
 }
 .kp-root .tier {
   background: #14324f; border-radius: 999px; padding: 5px 12px; font-weight: 800;
@@ -60,7 +79,7 @@
   position: absolute; bottom: 8px; left: 0; right: 0; z-index: 6; text-align: center;
   font-size: 10px; opacity: .55; letter-spacing: .5px; pointer-events: none;
 }
-.kp-root .ctrls { position: absolute; top: 56px; left: 14px; z-index: 6; display: flex; gap: 8px; }
+.kp-root .ctrls { position: absolute; top: 92px; left: 14px; z-index: 6; display: flex; gap: 8px; }
 .kp-root .ctrls button {
   background: #14324f; color: #fff; border: 1.5px solid rgba(255,211,77,.55);
   border-radius: 999px; padding: 5px 10px; font-weight: 800; font-size: 11px; letter-spacing: .5px;
@@ -88,14 +107,16 @@
   border-radius: 999px; padding: 10px 24px; font-weight: 800; letter-spacing: 1px;
 }
 
-/* React chrome over the canvas */
-.kp-chrome { position: fixed; z-index: 20; }
+/* React chrome over the canvas — positioned to the stage so it tracks the
+   playfield (one symmetric row: back on the left, how-to on the right). */
+.kp-chrome { position: absolute; z-index: 20; }
 .kp-back, .kp-help {
   background: #14324f; color: #fff; border: 1.5px solid rgba(255,211,77,.55);
-  border-radius: 999px; font-weight: 800; text-decoration: none; display: flex; align-items: center;
+  border-radius: 999px; font-weight: 800; text-decoration: none;
+  display: flex; align-items: center; height: 30px; box-shadow: 0 2px 6px rgba(0,0,0,.3);
 }
-.kp-back { top: 18px; left: 12px; padding: 6px 12px; font-size: 12px; letter-spacing: .5px; gap: 6px; }
-.kp-help { top: 54px; right: 12px; width: 30px; height: 30px; justify-content: center; font-size: 15px; }
+.kp-back { top: 16px; left: 14px; padding: 0 13px; font-size: 12px; letter-spacing: .5px; gap: 6px; }
+.kp-help { top: 16px; right: 14px; width: 30px; justify-content: center; font-size: 15px; }
 .kp-modal {
   position: fixed; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center;
   background: rgba(8,16,40,.6); padding: 24px;

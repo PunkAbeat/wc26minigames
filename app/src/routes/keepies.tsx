@@ -57,19 +57,21 @@ function KeepiesPage() {
 
   return (
     <div className="page-keepies">
-      <div className="kp-root" ref={rootRef} />
+      <div className="kp-stage">
+        <div className="kp-root" ref={rootRef} />
 
-      <Link className="kp-chrome kp-back" to="/" aria-label="All games">
-        ⚽ Games
-      </Link>
-      <button
-        className="kp-chrome kp-help"
-        aria-label="How to play"
-        type="button"
-        onClick={() => setHowto(true)}
-      >
-        ?
-      </button>
+        <Link className="kp-chrome kp-back" to="/" aria-label="All games">
+          ⚽ Games
+        </Link>
+        <button
+          className="kp-chrome kp-help"
+          aria-label="How to play"
+          type="button"
+          onClick={() => setHowto(true)}
+        >
+          ?
+        </button>
+      </div>
 
       {howto && (
         <div className="kp-chrome kp-modal" onClick={() => setHowto(false)}>
