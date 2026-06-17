@@ -30,7 +30,16 @@ export const Route = createFileRoute('/keepies')({
       { property: 'og:title', content: 'KEEPIES ⚽ Bounce your nation up the stadium' },
       { property: 'og:description', content: '48 nations, 48 climbs. How high can you go?' },
       { property: 'og:type', content: 'website' },
-      ...(ORIGIN ? [{ property: 'og:url', content: ORIGIN + '/keepies' }] : []),
+      ...(ORIGIN
+        ? [
+            { property: 'og:url', content: ORIGIN + '/keepies' },
+            { property: 'og:image', content: ORIGIN + '/og/keepies.png' },
+            { property: 'og:image:width', content: '1200' },
+            { property: 'og:image:height', content: '630' },
+            { name: 'twitter:card', content: 'summary_large_image' },
+            { name: 'twitter:image', content: ORIGIN + '/og/keepies.png' },
+          ]
+        : []),
     ],
   }),
   component: KeepiesPage,

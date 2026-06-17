@@ -18,6 +18,7 @@ const SHOTS = [
   ['anthem.png', '/og'],
   ['matchday.png', '/og?card=matchday'],
   ['hoist.png', '/og?card=hoist'],
+  ['keepies.png', '/og?card=keepies'],
 ]
 
 for (const [file, path] of SHOTS) {
